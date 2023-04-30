@@ -2,8 +2,11 @@ version: '3'
 services:
   postgres:
     image: postgres:15.2-alpine
-    restart: always
+    container_name: ft_postgres
+    restart: on-failure
     env_file:
       - .env
+    volumes:
+      - ./.data:/var/lib/postgresql/data
     ports:
-      - 5432:5432
+      - 9577:5432
