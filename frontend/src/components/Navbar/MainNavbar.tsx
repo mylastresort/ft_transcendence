@@ -5,8 +5,19 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { Grid, Image, Button } from '@nextui-org/react';
 import '@fontsource/poppins';
+import {login} from '@/pages/api/auth';
 
 function MainNavbar() {
+
+  const HandleLogin = () => {
+    login().then((res) => {
+      console.log(res);
+    }
+    ).catch((err) => {
+      console.log(err);
+    }
+    );
+  };
   return (
     <Grid css={{ background: '#141414' }}>
       <Box sx={{ flexGrow: 1 }}>
@@ -23,6 +34,7 @@ function MainNavbar() {
                 fontWeight: '600',
                 padding: '0 1.8em 0 1.8em',
               }}
+              onClick={HandleLogin}
             >
               Login
             </Button>

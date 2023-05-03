@@ -1,7 +1,7 @@
-import React, { useCallback } from "react";
-import Particles from "react-tsparticles";
-import ParticlesConfig from "./config/particles-config";
-import { loadFull } from "tsparticles";
+import React, { useCallback } from 'react';
+import Particles from 'react-tsparticles';
+import ParticlesConfig from './config/particles-config';
+import { loadFull } from 'tsparticles';
 
 function ParticlesBackground() {
   const particlesInit = useCallback(async (engine) => {
@@ -14,9 +14,7 @@ function ParticlesBackground() {
   }, []);
 
   return (
-    <div
-  
-    >
+    <div>
       <Particles
         id="tsparticles"
         particlesLoaded="particlesLoaded"

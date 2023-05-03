@@ -8,16 +8,18 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-@Controller({
-  path: 'auth',
-  // version: '1',
-})
+@ApiTags('User')
+@Controller('v1/auth')
+
 export class AuthController {
+  
+
   @UseGuards(AuthGuard('42'))
   @Post('signin/42')
   async signIn() {
-    return;
+    return { message: 'success'}
   }
 
   @UseGuards(AuthGuard('42'))

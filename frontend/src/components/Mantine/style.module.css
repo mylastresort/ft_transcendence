@@ -1,0 +1,10 @@
+.Banner_layout{
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	width: 100vw;
+	background-color: #fff;
+	padding: 70px 0;
+	z-index: 1;
+}
