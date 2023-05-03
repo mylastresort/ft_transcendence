@@ -1,21 +1,15 @@
-import '@/styles/globals.css'
-import type { AppProps } from 'next/app'
+import type { AppProps } from 'next/app';
+import { NextUIProvider } from '@nextui-org/react';
+import MainNavbar from '@/components/Navbar/MainNavbar';
+import './styles/globals.css'
+import Particles_background from '@/components/Animated_bg/Particles_background';
 
-function Xxx () {
-  return(
-    <h1>wefwefwefwefwef</h1>
-  )
-}
 
 export default function App({ Component, pageProps }: AppProps) {
-
-
   return (
-    <div>
-
-    <Xxx/>
+    <NextUIProvider>
+      <MainNavbar />
       <Component {...pageProps} />
-    </div>
-  )
-
+    </NextUIProvider>
+  );
 }
