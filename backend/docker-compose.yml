@@ -6,7 +6,5 @@ services:
     restart: on-failure
     env_file:
       - .env
-    volumes:
-      - ./.data:/var/lib/postgresql/data
     ports:
       - 9577:5432
