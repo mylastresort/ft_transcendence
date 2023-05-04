@@ -13,7 +13,6 @@ export default function App({ Component, pageProps }: AppProps) {
       <MainNavbar />
       <Component {...pageProps} />
     </NextUIProvider>
-      <Footer/>
     </div>
   );
 }
