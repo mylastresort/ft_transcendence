@@ -1,10 +1,20 @@
-import { Container } from "@mantine/core";
+import { Container, MantineNumberSize } from '@mantine/core';
+import { Interface } from 'readline';
 
-function UserInfo() {
-    return (
-        <Container style={{backgroundColor: '#C1C1C1', height: '100vh'}}>
-        </Container>
-    )
+interface Props {
+  width: string | number | undefined;
+}
+
+function UserInfo({ width }: Props) {
+  return (
+    <Container
+      style={{
+        backgroundColor: '#C1C1C1',
+        height: '100%',
+        width: width,
+      }}
+    ></Container>
+  );
 }
 
 export default UserInfo;
