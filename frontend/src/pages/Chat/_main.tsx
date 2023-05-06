@@ -11,6 +11,7 @@ function MainChat({ width }: Props) {
         backgroundColor: '#EAEAEA',
         height: '100%',
         width: width,
+        maxWidth: width,
       }}
     ></Container>
   );

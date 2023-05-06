@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button, Container, Flex, Grid } from '@mantine/core';
 import { useElementSize } from '@mantine/hooks';
-import SideBar from './_sideBar';
+import ChatList from './_chatList';
 import MainChat from './_main';
 import UserInfo from './_info';
 
@@ -14,9 +14,8 @@ function Chat() {
     style={{
       height: '100vh',
       width: '100%',
-      maxWidth: '100%',
     }}>
-      <SideBar width="25%" />
+      <ChatList width="25%" />
       <MainChat width="50%" />
       <UserInfo width="25%" />
     </Flex>

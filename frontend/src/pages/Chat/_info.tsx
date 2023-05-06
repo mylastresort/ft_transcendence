@@ -12,6 +12,7 @@ function UserInfo({ width }: Props) {
         backgroundColor: '#C1C1C1',
         height: '100%',
         width: width,
+        maxWidth: width,
       }}
     ></Container>
   );
