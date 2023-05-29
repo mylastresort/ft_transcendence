@@ -17,6 +17,7 @@ import CardContent from '@mui/material/CardContent';
 import { FeaturesAsymmetrical } from '@/components/Mantine/FeaturesAsymmetrical';
 import { UserCardImage } from '@/components/Mantine/UserCardImage';
 import {AboutBanner}  from '@/components/Mantine/AboutBanner';
+import {Footer} from '../components/Footer/Footer';
 
 
 const user_data = {
@@ -44,6 +45,7 @@ const user_data = {
 
 export default function LandingPage() {
   return (
+    <>
     <React.Fragment>
       <Particles_background />
       <Grid>
@@ -162,5 +164,7 @@ export default function LandingPage() {
         {/* <Spacer y={2} /> */}
       </Grid>
     </React.Fragment>
+    <Footer/>
+    </>
   );
 }
