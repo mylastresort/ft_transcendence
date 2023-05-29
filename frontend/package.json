@@ -2,7 +2,6 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:4400",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -22,6 +21,7 @@
     "@types/react": "18.2.0",
     "@types/react-dom": "18.2.1",
     "@types/superagent": "^4.1.17",
+    "boxicons": "^2.1.4",
     "eslint": "8.39.0",
     "eslint-config-next": "13.3.2",
     "next": "13.3.2",
@@ -36,7 +36,9 @@
     "typescript": "5.0.4"
   },
   "devDependencies": {
-    "http-proxy-middleware": "^2.0.6",
+    "@types/js-cookie": "^3.0.3",
+    "js-cookie": "^3.0.5",
+    "next-cookies": "^2.0.3",
     "prettier": "^2.8.8"
   }
 }

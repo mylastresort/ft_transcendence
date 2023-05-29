@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
@@ -9,29 +10,30 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AuthService } from './auth.service';
+import { AuthDto } from './dto/auth.dto';
 
-@ApiTags('User')
-@Controller('v1/auth')
-
+@ApiTags('Auth')
+@Controller('/v1/auth')
 export class AuthController {
-  
+  constructor(public service: AuthService) {}
 
+  @Get('42')
   @UseGuards(AuthGuard('42'))
-  @Post('signin/42')
-  async signIn() {
-    return { message: 'success'}
+  async fortyTwoLogin() {}
+
+  @Post('register')
+  @UseGuards(AuthGuard('token'))
+  @ApiBearerAuth()
+  async register(@Req() req: any) {
+    return this.service.register(req.user);
   }
 
-  @UseGuards(AuthGuard('42'))
-  @Get('callback/42')
-  @HttpCode(HttpStatus.OK)
-  async callback(@Req() req) {
-    return req.user;
-  }
-
-  @UseGuards(AuthGuard('42'))
   @Get('me')
-  async profile(@Req() req) {
-    return req.user?.pofile;
+  @UseGuards(AuthGuard('token'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async me(@Req() req: any) {
+    return req.user;
   }
 }

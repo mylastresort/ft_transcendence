@@ -1,8 +1,7 @@
 import { createStyles, Container, Group, ActionIcon, rem } from '@mantine/core';
 import { FaGamepad } from 'react-icons/fa';
-import {Image} from '@nextui-org/react';
-import {AiFillGithub, AiFillLinkedin, AiFillFacebook} from 'react-icons/ai';
-
+import { Image } from '@nextui-org/react';
+import { AiFillGithub, AiFillLinkedin, AiFillFacebook } from 'react-icons/ai';
 
 const useStyles = createStyles((theme) => ({
   footer: {
@@ -10,9 +9,8 @@ const useStyles = createStyles((theme) => ({
     borderTop: `${rem(1)} solid ${
       theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[2]
     }`,
-	backgroundColor: '#141414',
-	zIndex: 1,
-
+    backgroundColor: '#141414',
+    zIndex: 1,
   },
 
   inner: {
@@ -21,9 +19,8 @@ const useStyles = createStyles((theme) => ({
     alignItems: 'center',
     paddingTop: theme.spacing.xl,
     paddingBottom: theme.spacing.xl,
-	backgroundColor: '#141414',
-	zIndex: 1,
-
+    backgroundColor: '#141414',
+    zIndex: 1,
 
     [theme.fn.smallerThan('xs')]: {
       flexDirection: 'column',
@@ -37,7 +34,8 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export function Footer() {
+export function Footer({ Show }) {
+  if (!Show) return;
   const { classes } = useStyles();
 
   return (
