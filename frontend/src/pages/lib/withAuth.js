@@ -7,7 +7,7 @@ const withAuth = (WrappedComponent) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     useEffect(() => {
-      const jwtToken = localStorage.getItem('access_token');
+      const jwtToken = localStorage.getItem('jwtToken');
       if (!jwtToken) {
         router.push('/');
       } else {

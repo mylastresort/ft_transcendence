@@ -34,8 +34,8 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export function Footer({ Show }) {
-  if (!Show) return;
+export function Footer({ Show, isTwoFactorAuth }) {
+  if (!Show || isTwoFactorAuth) return;
   const { classes } = useStyles();
 
   return (

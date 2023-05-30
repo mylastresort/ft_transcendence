@@ -15,7 +15,6 @@ import {
 import { FiSearch } from 'react-icons/fi';
 import { Button } from '@mantine/core';
 import { BiBook } from 'react-icons/bi';
-import Cookies from 'js-cookie';
 import Styles from './Sidebar.module.css';
 import { MdDashboard } from 'react-icons/md';
 import { HiOutlineChatAlt2 } from 'react-icons/hi';
@@ -25,7 +24,7 @@ import { FaUserAlt } from 'react-icons/fa';
 import { useRouter } from 'next/router';
 import { GetUserData } from '@/pages/api/user';
 
-export function User_Sidebar({ Show }) {
+export function User_Sidebar({ Show }: { Show: boolean }) {
   if (Show) return;
 
   const router = useRouter();
@@ -64,7 +63,7 @@ export function User_Sidebar({ Show }) {
         console.log(err);
       });
 
-    const body = document.querySelector('body'),
+    const body = document.querySelector('body') as HTMLBodyElement,
       sidebar = body.querySelector('nav'),
       toggle = body.querySelector('.toggle'),
       searchBtn = body.querySelector('.search-box'),
@@ -100,18 +99,18 @@ export function User_Sidebar({ Show }) {
   }, []);
 
   const HandleLogout = () => {
-    localStorage.removeItem('access_token');
+    localStorage.removeItem('jwtToken');
     // router.push('/');
     window.location.href = '/';
   };
 
-  const handleActions = (actionKey) => {
+  const handleActions = (actionKey: string) => {
     if (actionKey === 'logout') {
       HandleLogout();
     }
   };
 
-  const HandleSelected = (index) => {
+  const HandleSelected = (index: number) => {
     setClickedon(index);
   };
 

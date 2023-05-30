@@ -18,7 +18,7 @@ export class UsersController {
   constructor(public service: UsersService) {}
 
   @Get('me')
-  @UseGuards(AuthGuard('token'))
+  @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async me(@Req() req: any) {

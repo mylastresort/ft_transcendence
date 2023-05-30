@@ -15,37 +15,6 @@ export class AuthService {
     return bcrypt.hash(value, 10);
   }
 
-  async getTokens(userId: number, user_42: string) {
-    const [accessToken, refreshToken] = await Promise.all([
-      this.JwtService.signAsync(
-        {
-          sub: userId,
-          user_42,
-        },
-        {
-          secret: process.env.JWT_SECRET,
-          expiresIn: '1h',
-        },
-      ),
-
-      this.JwtService.signAsync(
-        {
-          sub: userId,
-          user_42,
-        },
-        {
-          secret: process.env.JWT_SECRET,
-          expiresIn: '1y',
-        },
-      ),
-    ]);
-
-    return {
-      accessToken,
-      refreshToken,
-    };
-  }
-
   async register(User: any): Promise<any> {
     const user = await this.Prisma.user.findUnique({
       where: {
@@ -53,7 +22,35 @@ export class AuthService {
       },
     });
 
-    if (user) return user;
+    if (user) {
+      if (user.twoFactorAuth) {
+        const token = await this.JwtService.signAsync(
+          {
+            id: user.id,
+            username: user.username,
+            id_42: user.id_42,
+          },
+          {
+            secret: process.env.TMP_JWT_SECRET,
+            expiresIn: process.env.TMP_JWT_TOKEN_EXPIRES_IN,
+          },
+        );
+        return {
+          token,
+          twoFactorAuth: user.twoFactorAuth,
+        };
+      } else {
+        const token = await this.JwtService.sign({
+          id: user.id,
+          username: user.username,
+          id_42: user.id_42,
+        });
+        return {
+          user,
+          token,
+        };
+      }
+    }
     if (!user) {
       const newUser = await this.Prisma.user.create({
         data: {
@@ -66,7 +63,15 @@ export class AuthService {
       });
 
       if (newUser) {
-        return newUser;
+        const token = await this.JwtService.sign({
+          id: newUser.id,
+          username: newUser.username,
+          id_42: newUser.id_42,
+        });
+        return {
+          newUser,
+          token,
+        };
       } else {
         throw new HttpException(
           {
@@ -78,24 +83,19 @@ export class AuthService {
       }
     }
   }
-
   async generateQRCode() {
-    const secret = speakeasy.generateSecret({
+    const secret = await speakeasy.generateSecret({
       name: 'Your App Name',
     });
 
-    const qrCodeUrl = speakeasy.otpauthURL({
-      secret: secret.ascii,
-      label: 'Your App Name',
-      issuer: 'Your App Issuer',
-    });
+    console.log(secret);
 
-    return new Promise<string>((resolve, reject) => {
-      qrcode.toDataURL(qrCodeUrl, (error: any, url: string) => {
+    return new Promise<{ url: string; secret: string }>((resolve, reject) => {
+      qrcode.toDataURL(secret.otpauth_url, (error: any, url: string) => {
         if (error) {
           reject(error);
         } else {
-          resolve(url);
+          resolve({ url, secret: secret.ascii });
         }
       });
     });
@@ -104,7 +104,7 @@ export class AuthService {
   async GettwoFactorAuth(User: any, body: any): Promise<any> {
     const user = await this.Prisma.user.findUnique({
       where: {
-        id_42: User.id,
+        id: User.id,
       },
     });
 
@@ -119,39 +119,94 @@ export class AuthService {
     }
 
     try {
-      if (user) {
-        if (body.twoFactorAuth) {
-          if (!user.qr2fa) {
-            const qrCodeUrl = await this.generateQRCode();
-            await this.Prisma.user.update({
-              where: {
-                id_42: User.id,
-              },
-              data: {
-                twoFactorAuth: body.twoFactorAuth,
-                qr2fa: qrCodeUrl,
-              },
-            });
-            return { qrCodeUrl };
-          } else {
-            return { qrCodeUrl: user.qr2fa };
-          }
+      if (body.twoFactorAuth) {
+        if (!user.qr2fa) {
+          const generated2FA = await this.generateQRCode();
+          await this.Prisma.user.update({
+            where: {
+              id: User.id,
+            },
+            data: {
+              twoFactorAuth: body.twoFactorAuth,
+              qr2fa: generated2FA.url,
+              twoFactorAuthSecret: generated2FA.secret,
+            },
+          });
+          return { qrCodeUrl: generated2FA.url };
         } else {
           await this.Prisma.user.update({
             where: {
-              id_42: User.id,
+              id: User.id,
             },
             data: {
               twoFactorAuth: body.twoFactorAuth,
             },
           });
+          return { qrCodeUrl: user.qr2fa };
         }
+      } else {
+        await this.Prisma.user.update({
+          where: {
+            id: User.id,
+          },
+          data: {
+            twoFactorAuth: body.twoFactorAuth,
+          },
+        });
       }
     } catch (err) {
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
           error: 'Qrcode not found',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async VerifytwoFactorAuth(User: any, body: any): Promise<any> {
+    const code = body.code;
+
+    const user = await this.Prisma.user.findUnique({
+      where: {
+        id: User.id,
+      },
+    });
+
+    if (!user) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'User not found',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const verified = speakeasy.totp.verify({
+      secret: user.twoFactorAuthSecret,
+      encoding: 'ascii',
+      token: code,
+    });
+
+    console.log(verified);
+    70616;
+    if (verified) {
+      const token = await this.JwtService.sign({
+        id: user.id,
+        username: user.username,
+        id_42: user.id_42,
+      });
+      return {
+        user,
+        token,
+      };
+    } else {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'Code is not valid',
         },
         HttpStatus.BAD_REQUEST,
       );

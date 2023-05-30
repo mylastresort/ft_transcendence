@@ -1,9 +1,6 @@
 import request from 'superagent';
-import Cookies from 'js-cookie';
 
 export const PostTokens = (url: string) => {
-  const Token42 = localStorage.getItem('access_token');
-
   return request
     .get(url)
     .then((res) => {
@@ -15,8 +12,6 @@ export const PostTokens = (url: string) => {
 };
 
 export const PostLogin = (AcToken: string) => {
-  const Token42 = localStorage.getItem('access_token');
-
   return request
     .post('http://localhost:4400/api/v1/auth/register')
     .set('Authorization', `Bearer ${AcToken}`)
@@ -29,11 +24,11 @@ export const PostLogin = (AcToken: string) => {
 };
 
 export const GetMe = () => {
-  const Token42 = localStorage.getItem('access_token');
+  const jwtToken = localStorage.getItem('jwtToken');
 
   return request
     .get('http://localhost:4400/api/v1/auth/me')
-    .set('Authorization', `Bearer ${Token42}`)
+    .set('Authorization', `Bearer ${jwtToken}`)
     .then((res) => {
       return res;
     })
@@ -43,11 +38,24 @@ export const GetMe = () => {
 };
 
 export const Post2fa = (data: any) => {
-  const Token42 = localStorage.getItem('access_token');
-
+  const jwtToken = localStorage.getItem('jwtToken');
   return request
     .post('http://localhost:4400/api/v1/auth/Get2fa')
-    .set('Authorization', `Bearer ${Token42}`)
+    .set('Authorization', `Bearer ${jwtToken}`)
+    .send(data)
+    .then((res) => {
+      return res;
+    })
+    .catch((err) => {
+      return err;
+    });
+};
+
+export const PostVerify2fa = (data: any) => {
+  const TmpToken = localStorage.getItem('TmpJwt');
+  return request
+    .post('http://localhost:4400/api/v1/auth/Verify2fa')
+    .set('Authorization', `Bearer ${TmpToken}`)
     .send(data)
     .then((res) => {
       return res;

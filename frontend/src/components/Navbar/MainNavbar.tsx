@@ -6,10 +6,9 @@ import Typography from '@mui/material/Typography';
 import { Grid, Image, Button } from '@nextui-org/react';
 import '@fontsource/poppins';
 import { useRouter } from 'next/router';
-import Cookies from 'js-cookie';
 
-function MainNavbar({ Show }) {
-  if (!Show) {
+function MainNavbar({ Show, isTwoFactorAuth }) {
+  if (!Show || isTwoFactorAuth) {
     return;
   } else {
     const router = useRouter();

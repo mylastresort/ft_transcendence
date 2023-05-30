@@ -8,7 +8,7 @@ export class UsersService {
   async me(user: any) {
     const me = await this.Prisma.user.findUnique({
       where: {
-        id_42: user.id,
+        id: user.id,
       },
     });
 

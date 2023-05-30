@@ -1,10 +1,10 @@
 import request from 'superagent';
 
 export const GetUserData = () => {
-  const Token42 = localStorage.getItem('access_token');
+  const jwtToken = localStorage.getItem('jwtToken');
   return request
     .get('http://localhost:4400/api/v1/users/me')
-    .set('Authorization', `Bearer ${Token42}`)
+    .set('Authorization', `Bearer ${jwtToken}`)
     .then((res) => {
       return res;
     })

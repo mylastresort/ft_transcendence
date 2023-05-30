@@ -10,6 +10,7 @@ function account() {
   const [Username, setUsername] = useState<string>('');
   const [is2fa, set2fa] = useState<boolean>(false);
   const [qr, setQr] = useState<string>('');
+  const [Loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     GetUserData()
@@ -17,6 +18,17 @@ function account() {
         setUserData(res.body);
         setUsername(res.body.username);
         set2fa(res.body.twoFactorAuth);
+        const data = {
+          twoFactorAuth: res.body.twoFactorAuth,
+        };
+        Post2fa(data)
+          .then((res) => {
+            if (res.body.qrCodeUrl) setQr(res.body.qrCodeUrl);
+            setLoading(false);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       })
       .catch((err) => {
         console.log(err);
@@ -31,8 +43,8 @@ function account() {
       };
       Post2fa(data)
         .then((res) => {
-          console.log(res);
           setQr(res.body.qrCodeUrl);
+          setLoading(false);
         })
         .catch((err) => {
           console.log(err);
@@ -129,11 +141,11 @@ function account() {
               >
                 <Checkbox
                   label="Enable Google 2FA"
-                  value={is2fa}
+                  checked={is2fa}
                   onChange={(e) => Handle2fa(e)}
                 />
                 <Spacer y={0.5} />
-                {is2fa && (
+                {is2fa && !Loading && (
                   <Grid>
                     <Image src={qr} />
                   </Grid>

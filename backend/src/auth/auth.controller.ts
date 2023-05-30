@@ -30,7 +30,7 @@ export class AuthController {
   }
 
   @Get('me')
-  @UseGuards(AuthGuard('token'))
+  @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async me(@Req() req: any) {
@@ -38,10 +38,18 @@ export class AuthController {
   }
 
   @Post('Get2fa')
-  @UseGuards(AuthGuard('token'))
+  @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async twoFactorAuth(@Req() req: any, @Body() body: any) {
     return this.service.GettwoFactorAuth(req.user, body);
+  }
+
+  @Post('Verify2fa')
+  @UseGuards(AuthGuard('tmpJwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async verifyTwoFactorAuth(@Req() req: any, @Body() body: any) {
+    return this.service.VerifytwoFactorAuth(req.user, body);
   }
 }
