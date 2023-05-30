@@ -4,6 +4,7 @@ import { NextUIProvider } from '@nextui-org/react';
 import MainNavbar from '@/components/Navbar/MainNavbar';
 import { Footer } from '@/components/Footer/Footer';
 import './styles/globals.css';
+import './styles/layout.css';
 import { GetMe } from '@/pages/api/auth/auth';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/router';
@@ -13,19 +14,20 @@ export default function App({ Component, pageProps }: AppProps) {
   const [show, setShow] = useState(true);
   const router = useRouter();
   useEffect(() => {
-    const token = Cookies.get('access_token');
+    const token = localStorage.getItem('access_token');
+    console.log(token);
     if (token) {
       setShow(false);
-      GetMe()
-        .then((res) => {
-          if (res.status !== 200) {
-            Cookies.remove('access_token');
-            router.push('/');
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      // GetMe()
+      //   .then((res) => {
+      //     if (res.status !== 200) {
+      //       Cookies.remove('access_token');
+      //       router.push('/');
+      //     }
+      //   })
+      //   .catch((err) => {
+      //     console.log(err);
+      //   });
     }
   }, []);
 
@@ -35,8 +37,8 @@ export default function App({ Component, pageProps }: AppProps) {
         <MainNavbar Show={show} />
         <User_Sidebar Show={show} />
         <Component {...pageProps} />
+        <Footer Show={show} />
       </NextUIProvider>
-      <Footer Show={show} />
     </div>
   );
 }

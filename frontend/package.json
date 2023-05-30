@@ -36,9 +36,6 @@
     "typescript": "5.0.4"
   },
   "devDependencies": {
-    "@types/js-cookie": "^3.0.3",
-    "js-cookie": "^3.0.5",
-    "next-cookies": "^2.0.3",
     "prettier": "^2.8.8"
   }
 }

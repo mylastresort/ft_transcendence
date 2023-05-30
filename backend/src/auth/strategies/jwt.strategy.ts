@@ -8,7 +8,6 @@ export class TokenStrategy extends PassportStrategy(Strategy, 'token') {
   async authenticate(req: any, options?: any): Promise<any> {
     const { authorization } = req.headers;
     if (!authorization) {
-      console.log(req.headers);
       return this.fail('Unauthorized');
     }
     const token = authorization.split(' ')[1];

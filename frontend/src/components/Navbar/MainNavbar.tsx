@@ -22,7 +22,9 @@ function MainNavbar({ Show }) {
         <Box sx={{ flexGrow: 1 }}>
           <AppBar position="sticky" style={{ backgroundColor: '#141414' }}>
             <Toolbar>
-              <Image src="/images/LOGO.png" />
+              <a href="/">
+                <Image src="/images/LOGO.png" />
+              </a>
               <Typography variant="h6" component="div" sx={{ flexGrow: 1 }} />
 
               <Button

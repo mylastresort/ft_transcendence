@@ -14,11 +14,14 @@ model User {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   id_42        Int   @unique
-  username     String  @unique
-
-
+  username     String?  @unique
+  imgProfile   String?
+  firstName    String?
+  lastName     String?
+  twoFactorAuth          Boolean? @default(false)
+  qr2fa     String?
+ 
   @@map("users")
 }
 

@@ -36,4 +36,12 @@ export class AuthController {
   async me(@Req() req: any) {
     return req.user;
   }
+
+  @Post('Get2fa')
+  @UseGuards(AuthGuard('token'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async twoFactorAuth(@Req() req: any, @Body() body: any) {
+    return this.service.GettwoFactorAuth(req.user, body);
+  }
 }

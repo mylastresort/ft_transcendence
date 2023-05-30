@@ -16,18 +16,54 @@ import { FiSearch } from 'react-icons/fi';
 import { Button } from '@mantine/core';
 import { BiBook } from 'react-icons/bi';
 import Cookies from 'js-cookie';
+import Styles from './Sidebar.module.css';
+import { MdDashboard } from 'react-icons/md';
+import { HiOutlineChatAlt2 } from 'react-icons/hi';
+import { FiUsers } from 'react-icons/fi';
+import { BiBarChartAlt2 } from 'react-icons/bi';
+import { FaUserAlt } from 'react-icons/fa';
+import { useRouter } from 'next/router';
+import { GetUserData } from '@/pages/api/user';
 
 export function User_Sidebar({ Show }) {
   if (Show) return;
 
-  const [phone, setPhone] = useState('');
+  const router = useRouter();
+
   const [FirstName, setFirstName] = useState('');
   const [LastName, setLastName] = useState('');
-  const [Email, setEmail] = useState('');
+  const [Username, setUsername] = useState('');
   const [Clickedon, setClickedon] = useState(1);
   const [PhotoUrl, setPhotoUrl] = useState('');
+  const [UserData, setUserData] = useState<any>(null);
 
   useEffect(() => {
+    const urlPath = window.location.pathname;
+
+    if (urlPath === '/home/dashboard') {
+      setClickedon(1);
+    } else if (urlPath === '/home/orders') {
+      setClickedon(2);
+    } else if (urlPath === '/home/notifications') {
+      setClickedon(3);
+    } else if (urlPath === '/home/favorites') {
+      setClickedon(4);
+    } else if (urlPath === '/home/account') {
+      setClickedon(5);
+    }
+
+    GetUserData()
+      .then((res) => {
+        setUserData(res.body);
+        setFirstName(res.body.firstName);
+        setLastName(res.body.lastName);
+        setUsername(res.body.username);
+        setPhotoUrl(res.body.imgProfile);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
     const body = document.querySelector('body'),
       sidebar = body.querySelector('nav'),
       toggle = body.querySelector('.toggle'),
@@ -64,8 +100,9 @@ export function User_Sidebar({ Show }) {
   }, []);
 
   const HandleLogout = () => {
-    Cookies.remove('access_token');
-    window.location.reload();
+    localStorage.removeItem('access_token');
+    // router.push('/');
+    window.location.href = '/';
   };
 
   const handleActions = (actionKey) => {
@@ -80,7 +117,7 @@ export function User_Sidebar({ Show }) {
 
   return (
     <React.Fragment>
-      <nav className="sidebar ">
+      <nav className="sidebar close">
         <header>
           <div className="image-text">
             <span className="image">
@@ -112,16 +149,112 @@ export function User_Sidebar({ Show }) {
                   HandleSelected(1);
                 }}
               >
-                <Link href="/">
+                <Link href="/home/dashboard">
                   <i
                     className=" icon"
-                    style={{ color: Clickedon === 1 ? '#6366F1' : '' }}
+                    style={{ color: Clickedon === 1 ? '#F31260' : '' }}
                   >
-                    <BiBook />
+                    <MdDashboard />
                   </i>
                   <span
                     className="text nav-text"
                     style={{ color: Clickedon === 1 ? '#fff' : '' }}
+                  >
+                    Pronominal Verbs
+                  </span>
+                </Link>
+              </li>
+            </ul>
+
+            <ul className="menu-links">
+              <li
+                className={`nav-link ${Clickedon === 2 ? 'activeSelect' : ''}`}
+                onClick={() => {
+                  HandleSelected(2);
+                }}
+              >
+                <Link href="/">
+                  <i
+                    className=" icon"
+                    style={{ color: Clickedon === 2 ? '#F31260' : '' }}
+                  >
+                    <HiOutlineChatAlt2 />
+                  </i>
+                  <span
+                    className="text nav-text"
+                    style={{ color: Clickedon === 2 ? '#fff' : '' }}
+                  >
+                    Pronominal Verbs
+                  </span>
+                </Link>
+              </li>
+            </ul>
+
+            <ul className="menu-links">
+              <li
+                className={`nav-link ${Clickedon === 3 ? 'activeSelect' : ''}`}
+                onClick={() => {
+                  HandleSelected(3);
+                }}
+              >
+                <Link href="/">
+                  <i
+                    className=" icon"
+                    style={{ color: Clickedon === 3 ? '#F31260' : '' }}
+                  >
+                    <FiUsers />
+                  </i>
+                  <span
+                    className="text nav-text"
+                    style={{ color: Clickedon === 3 ? '#fff' : '' }}
+                  >
+                    Pronominal Verbs
+                  </span>
+                </Link>
+              </li>
+            </ul>
+
+            <ul className="menu-links">
+              <li
+                className={`nav-link ${Clickedon === 4 ? 'activeSelect' : ''}`}
+                onClick={() => {
+                  HandleSelected(4);
+                }}
+              >
+                <Link href="/">
+                  <i
+                    className=" icon"
+                    style={{ color: Clickedon === 4 ? '#F31260' : '' }}
+                  >
+                    <BiBarChartAlt2 />
+                  </i>
+                  <span
+                    className="text nav-text"
+                    style={{ color: Clickedon === 4 ? '#fff' : '' }}
+                  >
+                    Pronominal Verbs
+                  </span>
+                </Link>
+              </li>
+            </ul>
+
+            <ul className="menu-links">
+              <li
+                className={`nav-link ${Clickedon === 5 ? 'activeSelect' : ''}`}
+                onClick={() => {
+                  HandleSelected(5);
+                }}
+              >
+                <Link href="/home/account">
+                  <i
+                    className=" icon"
+                    style={{ color: Clickedon === 5 ? '#F31260' : '' }}
+                  >
+                    <FaUserAlt />
+                  </i>
+                  <span
+                    className="text nav-text"
+                    style={{ color: Clickedon === 5 ? '#fff' : '' }}
                   >
                     Pronominal Verbs
                   </span>
@@ -188,7 +321,7 @@ export function User_Sidebar({ Show }) {
                 as="button"
                 color="primary"
                 size="md"
-                src="/images/LOGO.png"
+                src={PhotoUrl}
               />
             </Dropdown.Trigger>
             <Dropdown.Menu
@@ -201,7 +334,7 @@ export function User_Sidebar({ Show }) {
                   Signed in as
                 </Text>
                 <Text b color="inherit" css={{ d: 'flex' }}>
-                  {Email}
+                  {Username}
                 </Text>
               </Dropdown.Item>
               <Dropdown.Item key="settings" withDivider>

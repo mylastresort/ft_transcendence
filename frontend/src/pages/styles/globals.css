@@ -1,15 +1,16 @@
-html,
-body {
-  background-color: #141414;
-}
-
-/* Google Font Import - Poppins */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: 'Poppins', sans-serif;
+}
+
+html,
+body {
+  min-height: 100vh;
+  background-color: var(--body-color);
+  transition: var(--tran-05);
 }
 
 ul {
@@ -30,12 +31,6 @@ ul {
   --tran-03: all 0.3s ease;
   --tran-04: all 0.3s ease;
   --tran-05: all 0.3s ease;
-}
-
-body {
-  min-height: 100vh;
-  background-color: var(--body-color);
-  transition: var(--tran-05);
 }
 
 ::selection {
@@ -62,7 +57,7 @@ body.dark {
   padding: 10px 14px;
   background: var(--sidebar-color);
   transition: var(--tran-05);
-  z-index: 100;
+  z-index: 300;
 }
 .sidebar.close {
   width: 88px;
@@ -299,6 +294,9 @@ body.dark .switch::before {
   height: 100%;
   width: calc(100% - 280px);
   background-color: var(--body-color);
+
+  background-image: url('/images/wallpaper.png');
+
   transition: var(--tran-05);
 }
 .home .text {
