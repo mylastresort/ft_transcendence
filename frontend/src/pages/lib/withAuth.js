@@ -11,6 +11,9 @@ const withAuth = (WrappedComponent) => {
       if (!jwtToken) {
         router.push('/');
       } else {
+        if (router.pathname === '/' || router.pathname === '/login') {
+          router.push('/home/dashboard');
+        }
         setIsAuthenticated(true);
       }
     }, []);

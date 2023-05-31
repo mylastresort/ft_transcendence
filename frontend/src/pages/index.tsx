@@ -18,6 +18,7 @@ import { FeaturesAsymmetrical } from '@/components/Mantine/FeaturesAsymmetrical'
 import { UserCardImage } from '@/components/Mantine/UserCardImage';
 import { AboutBanner } from '@/components/Mantine/AboutBanner';
 import { Footer } from '../components/Footer/Footer';
+import withAuth from './lib/withAuth';
 
 const user_data = {
   image:
@@ -42,7 +43,7 @@ const user_data = {
   ],
 };
 
-export default function LandingPage() {
+function LandingPage() {
   return (
     <div style={{ backgroundColor: '#141414' }}>
       <React.Fragment>
@@ -165,3 +166,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+export default withAuth(LandingPage);

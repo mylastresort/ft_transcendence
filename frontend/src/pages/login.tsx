@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { PostLogin, PostTokens, PostVerify2faTmp } from './api/auth/auth';
 import { Grid, Text, Spacer } from '@nextui-org/react';
 import { Input } from '@mantine/core';
+import withAuth from './lib/withAuth';
 
 const Styles = {
   body: {
@@ -100,4 +101,4 @@ function login({ setIsTwoFactorAuth }) {
   );
 }
 
-export default login;
+export default withAuth(login);

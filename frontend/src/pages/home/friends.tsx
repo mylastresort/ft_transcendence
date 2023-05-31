@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Grid, Table, Spacer, Text, User, Badge } from '@nextui-org/react';
-import { Container, Button } from '@mantine/core';
+import { Container, Button, Card, Input } from '@mantine/core';
+import CardContent from '@mui/material/CardContent';
 import { AiOutlineUserAdd } from 'react-icons/ai';
 import { CgGames } from 'react-icons/cg';
+import { FiSearch } from 'react-icons/fi';
+
 import Styles from './friends.module.css';
 import withAuth from '../lib/withAuth';
 
@@ -46,6 +49,24 @@ const DummyData = [
 ];
 
 function friends() {
+  const [searchUsername, setSearchUsername] = useState('');
+
+  const Seach_card = [
+    <React.Fragment>
+      <CardContent>
+        <Grid>
+          <Input
+            icon={<FiSearch />}
+            placeholder="Search username"
+            style={{ width: '25em' }}
+            onChange={(e) => setSearchUsername(e.target.value)}
+            value={searchUsername}
+          />
+        </Grid>
+      </CardContent>
+    </React.Fragment>,
+  ];
+
   return (
     <Grid className="dash_container">
       <Container size="xl">
@@ -64,6 +85,19 @@ function friends() {
             Friends
           </Text>
           <Spacer y={1} />
+          <Grid>
+            <Card
+              variant="outlined"
+              style={{
+                borderRadius: '25px',
+                borderWidth: '0px',
+                width: '100%',
+              }}
+            >
+              {Seach_card[0]}
+            </Card>
+          </Grid>
+          <Spacer y={1} />
           <Table
             aria-label="Example static collection table"
             css={{
@@ -81,7 +115,11 @@ function friends() {
               <Table.Column>Friend</Table.Column>
             </Table.Header>
             <Table.Body>
-              {DummyData.map((data, index) => {
+              {DummyData.filter((item) =>
+                item.username
+                  .toLowerCase()
+                  .includes(searchUsername.toLowerCase())
+              ).map((data, index) => {
                 return (
                   <Table.Row key={index}>
                     <Table.Cell>
