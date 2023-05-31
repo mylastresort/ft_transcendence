@@ -20,7 +20,9 @@ model User {
   firstName    String?
   lastName     String?
   twoFactorAuth          Boolean? @default(false)
+  verified2FA               Boolean? @default(false)
   twoFactorAuthSecret    String?
+
   qr2fa     String?
  
   @@map("users")

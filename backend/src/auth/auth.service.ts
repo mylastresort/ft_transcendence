@@ -83,22 +83,16 @@ export class AuthService {
       }
     }
   }
+
   async generateQRCode() {
-    const secret = await speakeasy.generateSecret({
-      name: 'Your App Name',
+    const secret = speakeasy.generateSecret({ length: 20 });
+    const otpauthUrl = speakeasy.otpauthURL({
+      secret: secret.base32,
+      label: 'My App',
+      issuer: 'My Company',
     });
-
-    console.log(secret);
-
-    return new Promise<{ url: string; secret: string }>((resolve, reject) => {
-      qrcode.toDataURL(secret.otpauth_url, (error: any, url: string) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve({ url, secret: secret.ascii });
-        }
-      });
-    });
+    const qrCode = await qrcode.toDataURL(secret.otpauth_url);
+    return { secret, otpauthUrl: secret.otpauth_url, qrCode };
   }
 
   async GettwoFactorAuth(User: any, body: any): Promise<any> {
@@ -127,21 +121,12 @@ export class AuthService {
               id: User.id,
             },
             data: {
-              twoFactorAuth: body.twoFactorAuth,
-              qr2fa: generated2FA.url,
-              twoFactorAuthSecret: generated2FA.secret,
+              qr2fa: generated2FA.qrCode,
+              twoFactorAuthSecret: generated2FA.secret.base32,
             },
           });
-          return { qrCodeUrl: generated2FA.url };
+          return { qrCodeUrl: generated2FA.qrCode };
         } else {
-          await this.Prisma.user.update({
-            where: {
-              id: User.id,
-            },
-            data: {
-              twoFactorAuth: body.twoFactorAuth,
-            },
-          });
           return { qrCodeUrl: user.qr2fa };
         }
       } else {
@@ -165,8 +150,19 @@ export class AuthService {
     }
   }
 
+  async verify2FACode(user: any, code: string) {
+    const verified = speakeasy.totp.verify({
+      secret: user.twoFactorAuthSecret,
+      encoding: 'base32',
+      token: code,
+      window: 2,
+    });
+    return verified;
+  }
+
   async VerifytwoFactorAuth(User: any, body: any): Promise<any> {
     const code = body.code;
+    const login = body.login;
 
     const user = await this.Prisma.user.findUnique({
       where: {
@@ -184,15 +180,9 @@ export class AuthService {
       );
     }
 
-    const verified = speakeasy.totp.verify({
-      secret: user.twoFactorAuthSecret,
-      encoding: 'ascii',
-      token: code,
-    });
+    const verified = await this.verify2FACode(user, code);
 
-    console.log(verified);
-    70616;
-    if (verified) {
+    if (verified && !login) {
       const token = await this.JwtService.sign({
         id: user.id,
         username: user.username,
@@ -201,6 +191,20 @@ export class AuthService {
       return {
         user,
         token,
+      };
+    } else if (verified && login) {
+      await this.Prisma.user.update({
+        where: {
+          id: User.id,
+        },
+        data: {
+          twoFactorAuth: true,
+          verified2FA: true,
+        },
+      });
+      return {
+        twoFactorAuth: true,
+        verified2FA: true,
       };
     } else {
       throw new HttpException(

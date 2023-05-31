@@ -52,10 +52,25 @@ export const Post2fa = (data: any) => {
 };
 
 export const PostVerify2fa = (data: any) => {
-  const TmpToken = localStorage.getItem('TmpJwt');
+  const jwtToken = localStorage.getItem('jwtToken');
+  console.log(jwtToken);
   return request
     .post('http://localhost:4400/api/v1/auth/Verify2fa')
-    .set('Authorization', `Bearer ${TmpToken}`)
+    .set('Authorization', `Bearer ${jwtToken}`)
+    .send(data)
+    .then((res) => {
+      return res;
+    })
+    .catch((err) => {
+      return err;
+    });
+};
+
+export const PostVerify2faTmp = (data: any) => {
+  const TmpJwt = localStorage.getItem('TmpJwt');
+  return request
+    .post('http://localhost:4400/api/v1/auth/Verify2faTmp')
+    .set('Authorization', `Bearer ${TmpJwt}`)
     .send(data)
     .then((res) => {
       return res;

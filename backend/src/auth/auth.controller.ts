@@ -45,8 +45,16 @@ export class AuthController {
     return this.service.GettwoFactorAuth(req.user, body);
   }
 
-  @Post('Verify2fa')
+  @Post('Verify2faTmp')
   @UseGuards(AuthGuard('tmpJwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async verifyTwoFactorAuthTmp(@Req() req: any, @Body() body: any) {
+    return this.service.VerifytwoFactorAuth(req.user, body);
+  }
+
+  @Post('Verify2fa')
+  @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async verifyTwoFactorAuth(@Req() req: any, @Body() body: any) {

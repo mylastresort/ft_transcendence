@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { PostLogin, PostTokens, PostVerify2fa } from './api/auth/auth';
+import { PostLogin, PostTokens, PostVerify2faTmp } from './api/auth/auth';
 import { Grid, Text, Spacer } from '@nextui-org/react';
+import { Input } from '@mantine/core';
 
 const Styles = {
   body: {
@@ -18,6 +19,7 @@ function login({ setIsTwoFactorAuth }) {
   const router = useRouter();
   const [Is2fa, setIs2fa] = useState(false);
   const [Code, setCode] = useState('');
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
     const QueryCode = window.location.search.split('code=')[1];
@@ -52,24 +54,25 @@ function login({ setIsTwoFactorAuth }) {
 
   const HandleCode = (e) => {
     if (e.target.value.length === 6 && e.target.value.match(/^[0-9]+$/)) {
+      setCode(e.target.value);
       const data = {
         code: e.target.value,
       };
       console.log(e.target.value);
-      PostVerify2fa(data)
+      PostVerify2faTmp(data)
         .then((res) => {
           if (res.status === 200) {
             localStorage.setItem('jwtToken', res.body.token);
             window.location.href = '/home/dashboard';
+          } else {
+            setIsError(true);
           }
         })
         .catch((err) => {
           console.log(err);
         });
-    } else if (e.target.value.match(/^[0-9]+$/)) {
+    } else if (e.target.value.length < 6) {
       setCode(e.target.value);
-    } else {
-      setCode('');
     }
   };
 
@@ -81,18 +84,13 @@ function login({ setIsTwoFactorAuth }) {
             Enter 2FA Code
           </Text>
           <Spacer y={1} />
-          <input
+          <Input
             type="text"
             placeholder="2FA Code"
             onChange={(e) => HandleCode(e)}
             value={Code}
-            style={{
-              background: '#1f1f1f',
-              border: 'none',
-              color: '#fff',
-              padding: '10px',
-              borderRadius: '5px',
-            }}
+            error={isError}
+            color="dark"
           />
         </Grid>
       ) : (
