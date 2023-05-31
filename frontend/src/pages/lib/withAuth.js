@@ -9,6 +9,9 @@ const withAuth = (WrappedComponent) => {
     useEffect(() => {
       const jwtToken = localStorage.getItem('jwtToken');
       if (!jwtToken) {
+        if (router.pathname === '/' || router.pathname === '/login') {
+          setIsAuthenticated(true);
+        }
         router.push('/');
       } else {
         if (router.pathname === '/' || router.pathname === '/login') {

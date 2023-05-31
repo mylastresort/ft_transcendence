@@ -57,8 +57,11 @@ function friends() {
         <Grid>
           <Input
             icon={<FiSearch />}
+            radius="md"
             placeholder="Search username"
-            style={{ width: '25em' }}
+            style={{
+              width: '25em',
+            }}
             onChange={(e) => setSearchUsername(e.target.value)}
             value={searchUsername}
           />
@@ -88,11 +91,8 @@ function friends() {
           <Grid>
             <Card
               variant="outlined"
-              style={{
-                borderRadius: '25px',
-                borderWidth: '0px',
-                width: '100%',
-              }}
+              radius="lg"
+              style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
             >
               {Seach_card[0]}
             </Card>
