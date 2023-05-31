@@ -41,11 +41,11 @@ export function User_Sidebar({ Show }: { Show: boolean }) {
 
     if (urlPath === '/home/dashboard') {
       setClickedon(1);
-    } else if (urlPath === '/home/orders') {
+    } else if (urlPath === '/home/chat') {
       setClickedon(2);
-    } else if (urlPath === '/home/notifications') {
+    } else if (urlPath === '/home/friends') {
       setClickedon(3);
-    } else if (urlPath === '/home/favorites') {
+    } else if (urlPath === '/home/leaderboard') {
       setClickedon(4);
     } else if (urlPath === '/home/account') {
       setClickedon(5);
@@ -159,7 +159,7 @@ export function User_Sidebar({ Show }: { Show: boolean }) {
                     className="text nav-text"
                     style={{ color: Clickedon === 1 ? '#fff' : '' }}
                   >
-                    Pronominal Verbs
+                    Dashboard
                   </span>
                 </Link>
               </li>
@@ -172,7 +172,7 @@ export function User_Sidebar({ Show }: { Show: boolean }) {
                   HandleSelected(2);
                 }}
               >
-                <Link href="/">
+                <Link href="/home/chat">
                   <i
                     className=" icon"
                     style={{ color: Clickedon === 2 ? '#F31260' : '' }}
@@ -183,7 +183,7 @@ export function User_Sidebar({ Show }: { Show: boolean }) {
                     className="text nav-text"
                     style={{ color: Clickedon === 2 ? '#fff' : '' }}
                   >
-                    Pronominal Verbs
+                    Chat
                   </span>
                 </Link>
               </li>
@@ -196,7 +196,7 @@ export function User_Sidebar({ Show }: { Show: boolean }) {
                   HandleSelected(3);
                 }}
               >
-                <Link href="/">
+                <Link href="/home/friends">
                   <i
                     className=" icon"
                     style={{ color: Clickedon === 3 ? '#F31260' : '' }}
@@ -207,7 +207,7 @@ export function User_Sidebar({ Show }: { Show: boolean }) {
                     className="text nav-text"
                     style={{ color: Clickedon === 3 ? '#fff' : '' }}
                   >
-                    Pronominal Verbs
+                    Friends
                   </span>
                 </Link>
               </li>
@@ -220,7 +220,7 @@ export function User_Sidebar({ Show }: { Show: boolean }) {
                   HandleSelected(4);
                 }}
               >
-                <Link href="/">
+                <Link href="/home/leaderboard">
                   <i
                     className=" icon"
                     style={{ color: Clickedon === 4 ? '#F31260' : '' }}
@@ -231,7 +231,7 @@ export function User_Sidebar({ Show }: { Show: boolean }) {
                     className="text nav-text"
                     style={{ color: Clickedon === 4 ? '#fff' : '' }}
                   >
-                    Pronominal Verbs
+                    Leaderboard
                   </span>
                 </Link>
               </li>
@@ -255,7 +255,7 @@ export function User_Sidebar({ Show }: { Show: boolean }) {
                     className="text nav-text"
                     style={{ color: Clickedon === 5 ? '#fff' : '' }}
                   >
-                    Pronominal Verbs
+                    Account
                   </span>
                 </Link>
               </li>

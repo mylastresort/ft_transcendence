@@ -35,19 +35,17 @@ export default function App({ Component, pageProps }: AppProps) {
   }, []);
 
   return (
-    <div>
-      <NextUIProvider>
-        <UserContext.Provider value={user}>
-          <MainNavbar Show={show} isTwoFactorAuth={isTwoFactorAuth} />
-          <User_Sidebar Show={show} />
-          <Component
-            {...pageProps}
-            setIsTwoFactorAuth={setIsTwoFactorAuth}
-          />{' '}
-          {/* Pass setShow as a prop */}
-          <Footer Show={show} isTwoFactorAuth={isTwoFactorAuth} />
-        </UserContext.Provider>
-      </NextUIProvider>
-    </div>
+    <NextUIProvider>
+      <UserContext.Provider value={user}>
+        <MainNavbar Show={show} isTwoFactorAuth={isTwoFactorAuth} />
+        <User_Sidebar Show={show} />
+        <Component
+          {...pageProps}
+          setIsTwoFactorAuth={setIsTwoFactorAuth}
+        />{' '}
+        {/* Pass setShow as a prop */}
+        <Footer Show={show} isTwoFactorAuth={isTwoFactorAuth} />
+      </UserContext.Provider>
+    </NextUIProvider>
   );
 }

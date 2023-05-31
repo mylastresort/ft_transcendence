@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Card, Input, Checkbox } from '@mantine/core';
+import { Container, Card, Input, Checkbox, Button } from '@mantine/core';
 import { Text, Grid, Spacer, Avatar, Image } from '@nextui-org/react';
 import Styles from './account.module.css';
-import { GetUserData } from '@/pages/api/user';
+import { GetUserData, PostUpdateProfile } from '@/pages/api/user';
 import { Post2fa, PostVerify2fa } from '@/pages/api/auth/auth';
+import { PostUpload } from '@/pages/api/file';
+import withAuth from '@/pages/lib/withAuth';
 
 function account() {
   const [UserData, setUserData] = useState<any>(null);
@@ -14,11 +16,16 @@ function account() {
   const [Code, setCode] = useState<string>('');
   const [verified2FA, setVerified2FA] = useState<boolean>(false);
   const [Error2FA, setError2FA] = useState<boolean>(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [UpdatedImage, setUpdatedImage] = useState(null);
+  const [ProfileImage, setProfileImage] = useState(null);
+  const inputRef = React.useRef(null);
 
   useEffect(() => {
     GetUserData()
       .then((res) => {
         setUserData(res.body);
+        setProfileImage(res.body.imgProfile);
         setUsername(res.body.username);
         set2fa(res.body.twoFactorAuth);
         setVerified2FA(res.body.verified2FA);
@@ -41,19 +48,18 @@ function account() {
 
   const Handle2fa = (e: any) => {
     set2fa(e.currentTarget.checked);
-    if (e.currentTarget.checked) {
-      const data = {
-        twoFactorAuth: e.currentTarget.checked,
-      };
-      Post2fa(data)
-        .then((res) => {
-          setQr(res.body.qrCodeUrl);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
+
+    const data = {
+      twoFactorAuth: e.currentTarget.checked,
+    };
+    Post2fa(data)
+      .then((res) => {
+        setQr(res.body.qrCodeUrl);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const HandleCode = (e: any) => {
@@ -77,6 +83,33 @@ function account() {
           console.log(err);
         });
     }
+  };
+
+  const handleImageChange = (event) => {
+    if (event.target.files[0]) {
+      setSelectedImage(URL.createObjectURL(event.target.files[0]));
+      setUpdatedImage(event.target.files[0]);
+    }
+  };
+
+  const handleClick = () => {
+    inputRef.current.click();
+  };
+
+  const HandleSave = () => {
+    if (UpdatedImage) {
+      PostUpload(UpdatedImage).then((res) => {
+        console.log(res);
+      });
+    }
+
+    if (Username === UserData.username && !Username) return;
+    const data = {
+      username: Username,
+    };
+    PostUpdateProfile(data).then((res) => {
+      console.log(res);
+    });
   };
 
   return (
@@ -128,7 +161,7 @@ function account() {
               >
                 <label htmlFor="file-upload">
                   <Avatar
-                    src={UserData?.imgProfile}
+                    src={selectedImage ? selectedImage : ProfileImage}
                     color="primary"
                     bordered
                     className={Styles.Upload_circle}
@@ -136,10 +169,10 @@ function account() {
                   <input
                     id="file-upload"
                     type="file"
-                    // onClick={handleClick}
-                    // onChange={handleImageChange}
+                    onClick={handleClick}
+                    onChange={handleImageChange}
                     accept="image/jpeg, image/png"
-                    // ref={inputRef}
+                    ref={inputRef}
                     style={{ display: 'none' }}
                   />
                 </label>
@@ -187,6 +220,7 @@ function account() {
                   )}
                 </Grid>
               </Grid>
+              <Button onClick={HandleSave}>Save</Button>
             </Grid>
           </Card>
         </Grid>
@@ -195,4 +229,4 @@ function account() {
   );
 }
 
-export default account;
+export default withAuth(account);

@@ -135,7 +135,8 @@ export class AuthService {
             id: User.id,
           },
           data: {
-            twoFactorAuth: body.twoFactorAuth,
+            twoFactorAuth: false,
+            verified2FA: false,
           },
         });
       }
