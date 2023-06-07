@@ -13,10 +13,18 @@
   width: 80%;
 }
 
+.Center_LayoutH {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 90%;
+  justify-content: space-around;
+}
+
 .Card_css {
   background-color: rgba(255, 255, 255, 0.8);
   justify-content: center;
-  width: 80%;
+  width: 100%;
   display: flex;
   padding: 50px 0 !important;
 }

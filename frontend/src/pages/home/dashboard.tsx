@@ -12,6 +12,7 @@ import { Text, Grid, Spacer, Loading } from '@nextui-org/react';
 import withAuth from '../lib/withAuth';
 import { ImageSlider } from '@/components/Mantine/ImageSlider';
 import Styles from './dashboard.module.css';
+import { UserCardGmage } from '@/components/Mantine/UserCardGmage';
 
 const SliderData = [
   {
@@ -82,7 +83,13 @@ function SelectGame({ setSelectedGame }) {
         >
           Create Game
         </Button>
-        <Button radius="sm" color="red">
+        <Button
+          radius="sm"
+          color="red"
+          onClick={() => {
+            setSelectedGame(2);
+          }}
+        >
           Join Game
         </Button>
       </Group>
@@ -126,8 +133,84 @@ function CreateGame({ setSelectedGame }) {
   );
 }
 
+function JoinGame({ setSelectedGame }) {
+  const data = {
+    image:
+      'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=80',
+    avatar:
+      'https://images.unsplash.com/photo-1623582854588-d60de57fa33f?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=250&q=80',
+    name: 'Bill Headbanger',
+    job: 'Fullstack engineer',
+    stats: [
+      {
+        value: '3',
+        label: 'Level',
+      },
+      {
+        value: '12',
+        label: 'Wins',
+      },
+      {
+        value: '4',
+        label: 'Losses',
+      },
+    ],
+  };
+
+  return (
+    <Grid className={Styles.Center_LayoutW}>
+      <Text
+        className="text"
+        h2
+        css={{
+          fontSize: '1.8rem',
+          fontFamily: 'poppins',
+          fontWeight: '500',
+          color: '#000',
+        }}
+      >
+        Looking for a Game
+      </Text>
+      <Spacer y={2} />
+      <Grid className={Styles.Center_LayoutH}>
+        <Grid css={{ width: '35%' }}>
+          <UserCardGmage
+            image={data.image}
+            avatar={data.avatar}
+            name="mza7a"
+            stats={data.stats}
+          />
+        </Grid>
+        <Grid css={{ width: '17%' }}>
+          <Image src="/images/versus.png" />
+        </Grid>
+        <Grid css={{ width: '35%' }}>
+          <UserCardGmage
+            image={data.image}
+            avatar={data.avatar}
+            name="mza7a"
+            stats={data.stats}
+          />
+        </Grid>
+      </Grid>
+      <Spacer y={2} />
+      <Button
+        w={200}
+        radius="sm"
+        color="red"
+        size="md"
+        onClick={() => {
+          setSelectedGame(0);
+        }}
+      >
+        Leave
+      </Button>
+    </Grid>
+  );
+}
+
 function dashboard() {
-  const [SelectedGame, setSelectedGame] = useState(0);
+  const [SelectedGame, setSelectedGame] = useState(2);
   return (
     <Grid className="dash_container">
       <Container size="xl">
@@ -146,7 +229,9 @@ function dashboard() {
             {SelectedGame === 1 && (
               <CreateGame setSelectedGame={setSelectedGame} />
             )}
-            {SelectedGame === 2 && <div>wdwdwdwdw</div>}
+            {SelectedGame === 2 && (
+              <JoinGame setSelectedGame={setSelectedGame} />
+            )}
           </Card>
         </Grid>
       </Container>

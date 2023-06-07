@@ -1,135 +1,64 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Card, Input, Checkbox, Button } from '@mantine/core';
+import { Container, Card, Input, Checkbox, Button, Tabs } from '@mantine/core';
 import { Text, Grid, Spacer, Avatar, Image } from '@nextui-org/react';
 import Styles from './account.module.css';
 import { GetUserData, PostUpdateProfile } from '@/pages/api/user';
 import { Post2fa, PostVerify2fa } from '@/pages/api/auth/auth';
 import { PostUpload } from '@/pages/api/file';
 import withAuth from '@/pages/lib/withAuth';
+import { Account_Settings } from '@/components/Pageutils/Account_Settings';
+import { Last_Matches } from '@/components/Pageutils/Last_Matches';
+import { Friends_List } from '@/components/Pageutils/Friends_List';
+import { Blocked_List } from '@/components/Pageutils/Blocked_List';
+import { User_Status } from '@/components/Pageutils/User_Status';
+
+const DummyData = {
+  title: 'Stats',
+  level: 2.3,
+  total: 99,
+  stats: [
+    {
+      value: 2.3,
+      label: 'Lvl',
+    },
+    {
+      value: 23,
+      label: 'Wins',
+    },
+    {
+      value: 5,
+      label: 'Losses',
+    },
+  ],
+};
 
 function account() {
   const [UserData, setUserData] = useState<any>(null);
-  const [Username, setUsername] = useState<string>('');
-  const [is2fa, set2fa] = useState<boolean>(false);
-  const [qr, setQr] = useState<string>('');
-  const [Loading, setLoading] = useState<boolean>(true);
-  const [Code, setCode] = useState<string>('');
-  const [verified2FA, setVerified2FA] = useState<boolean>(false);
-  const [Error2FA, setError2FA] = useState<boolean>(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [UpdatedImage, setUpdatedImage] = useState(null);
-  const [ProfileImage, setProfileImage] = useState(null);
-  const inputRef = React.useRef(null);
 
   useEffect(() => {
     GetUserData()
       .then((res) => {
         setUserData(res.body);
-        setProfileImage(res.body.imgProfile);
-        setUsername(res.body.username);
-        set2fa(res.body.twoFactorAuth);
-        setVerified2FA(res.body.verified2FA);
-        const data = {
-          twoFactorAuth: res.body.twoFactorAuth,
-        };
-        Post2fa(data)
-          .then((res) => {
-            if (res.body.qrCodeUrl) setQr(res.body.qrCodeUrl);
-            setLoading(false);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
       })
       .catch((err) => {
         console.log(err);
       });
   }, []);
 
-  const Handle2fa = (e: any) => {
-    set2fa(e.currentTarget.checked);
-
-    const data = {
-      twoFactorAuth: e.currentTarget.checked,
-    };
-    Post2fa(data)
-      .then((res) => {
-        setQr(res.body.qrCodeUrl);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
-  const HandleCode = (e: any) => {
-    if (e.target.value.length === 6 && e.target.value.match(/^[0-9]+$/)) {
-      setCode(e.target.value);
-      const data = {
-        code: e.target.value,
-        login: true,
-      };
-      console.log(e.target.value);
-      PostVerify2fa(data)
-        .then((res) => {
-          if (res.status === 200) {
-            set2fa(true);
-            setVerified2FA(true);
-          } else {
-            setError2FA(true);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
-  };
-
-  const handleImageChange = (event) => {
-    if (event.target.files[0]) {
-      setSelectedImage(URL.createObjectURL(event.target.files[0]));
-      setUpdatedImage(event.target.files[0]);
-    }
-  };
-
-  const handleClick = () => {
-    inputRef.current.click();
-  };
-
-  const HandleSave = () => {
-    if (UpdatedImage) {
-      PostUpload(UpdatedImage).then((res) => {
-        console.log(res);
-      });
-    }
-
-    if (Username === UserData.username && !Username) return;
-    const data = {
-      username: Username,
-    };
-    PostUpdateProfile(data).then((res) => {
-      console.log(res);
-    });
-  };
-
   return (
     <Grid className="dash_container">
       <Container size="xl">
         <Spacer y={4} />
         <Grid className={Styles.Account_layout}>
-          <Text
-            className="text"
-            h2
-            css={{
-              fontSize: '30px',
-              fontFamily: 'poppins',
-              fontWeight: '500',
-              color: '#fff',
-            }}
-          >
-            Account
-          </Text>
-          <Spacer y={1} />
+          <Grid>
+            <User_Status
+              title={DummyData.title}
+              level={DummyData.level}
+              total={DummyData.total}
+              stats={DummyData.stats}
+            />
+          </Grid>
+          {/* <Spacer y={1} /> */}
           <Card
             shadow="sm"
             padding="lg"
@@ -142,86 +71,42 @@ function account() {
               display: 'flex',
             }}
           >
-            <Spacer y={1} />
-            <Grid
-              css={{
-                display: 'flex',
-                justifyContent: 'center',
-                flexDirection: 'column',
-                width: '35%',
-              }}
-            >
-              <Grid
-                css={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                }}
-              >
-                <label htmlFor="file-upload">
-                  <Avatar
-                    src={selectedImage ? selectedImage : ProfileImage}
-                    color="primary"
-                    bordered
-                    className={Styles.Upload_circle}
-                  />
-                  <input
-                    id="file-upload"
-                    type="file"
-                    onClick={handleClick}
-                    onChange={handleImageChange}
-                    accept="image/jpeg, image/png"
-                    ref={inputRef}
-                    style={{ display: 'none' }}
-                  />
-                </label>
-                <Spacer y={1} />
+            <Tabs defaultValue="4" style={{ width: '100%' }}>
+              <Tabs.List>
+                <Tabs.Tab value="1" color="lime">
+                  Friends
+                </Tabs.Tab>
+                <Tabs.Tab value="2" color="red">
+                  Blocked
+                </Tabs.Tab>
+                <Tabs.Tab value="3" color="green">
+                  Last Matches
+                </Tabs.Tab>
+                <Tabs.Tab value="4" color="blue">
+                  Accout Settings
+                </Tabs.Tab>
+              </Tabs.List>
 
-                <Input.Wrapper
-                  label="username"
-                  required
-                  style={{ width: '100%' }}
-                >
-                  <Input
-                    size="md"
-                    placeholder="Your usernname"
-                    value={Username}
-                    onChange={(e) => setUsername(e.currentTarget.value)}
-                  />
-                </Input.Wrapper>
-              </Grid>
-              <Spacer y={1} />
-              <Grid
-                css={{
-                  display: 'flex',
-                  justifyContent: 'left',
-                  flexDirection: 'column',
+              <Tabs.Panel value="1" pt="xl">
+                <Friends_List />
+              </Tabs.Panel>
+              <Tabs.Panel value="2" pt="xl">
+                <Blocked_List />
+              </Tabs.Panel>
+              <Tabs.Panel value="3" pt="xl">
+                <Last_Matches UserData={UserData} />
+              </Tabs.Panel>
+              <Tabs.Panel
+                value="4"
+                style={{
+                  padding: '40px 0',
                 }}
               >
-                <Checkbox
-                  label="Enable Google 2FA"
-                  checked={is2fa}
-                  onChange={(e) => Handle2fa(e)}
-                />
-                <Grid>
-                  <Spacer y={1} />
-                  {is2fa && !verified2FA && !Loading && (
-                    <Image src={qr} width={164} height={164} />
-                  )}
-                  <Spacer y={1} />
-                  {!verified2FA && is2fa && (
-                    <Input
-                      size="md"
-                      placeholder="Enter 2FA code"
-                      error={Error2FA}
-                      onChange={(e) => HandleCode(e)}
-                    />
-                  )}
+                <Grid css={{ display: 'flex', justifyContent: 'center' }}>
+                  <Account_Settings UserData={UserData} />
                 </Grid>
-              </Grid>
-              <Button onClick={HandleSave}>Save</Button>
-            </Grid>
+              </Tabs.Panel>
+            </Tabs>
           </Card>
         </Grid>
       </Container>
