@@ -41,7 +41,7 @@ export function User_Sidebar({ Show }: { Show: boolean }) {
 
     if (urlPath === '/home/dashboard') {
       setClickedon(1);
-    } else if (urlPath === '/home/chat') {
+    } else if (urlPath === '/chat') {
       setClickedon(2);
     } else if (urlPath === '/home/friends') {
       setClickedon(3);
@@ -172,7 +172,7 @@ export function User_Sidebar({ Show }: { Show: boolean }) {
                   HandleSelected(2);
                 }}
               >
-                <Link href="/home/chat">
+                <Link href="/Chat">
                   <i
                     className=" icon"
                     style={{ color: Clickedon === 2 ? '#F31260' : '' }}

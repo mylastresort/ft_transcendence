@@ -295,7 +295,7 @@ body.dark .switch::before {
   width: calc(100% - 280px);
   background-color: var(--body-color);
 
-  background-image: url('/images/wallpaper.png');
+  /* background-image: url('/images/wallpaper.png'); */
 
   transition: var(--tran-05);
 }

@@ -18,6 +18,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     const token = localStorage.getItem('jwtToken');
+    console.log(token);
     if (token) {
       setShow(false);
       GetMe()
