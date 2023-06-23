@@ -14,6 +14,7 @@ function MainChat({ width }: Props) {
         width: width,
         maxWidth: width,
       }}
+      p={0}
     >
       <MsgInput />
     </Container>
