@@ -1,6 +1,15 @@
-import { Box, Flex, Input, ThemeIcon } from '@mantine/core';
+import {
+  Box,
+  Flex,
+  Input,
+  MantineTheme,
+  ThemeIcon,
+  createStyles,
+} from '@mantine/core';
 import Styles from './Chat.module.css';
 import { positions } from '@mui/system';
+import { theme } from '@nextui-org/react';
+import { useState } from 'react';
 
 function SendButton() {
   return (
@@ -19,7 +28,19 @@ function SendButton() {
   );
 }
 
+const useInputStyle = createStyles((theme: MantineTheme) => ({
+  input: {
+    border: '2px solid #F31260',
+    background: "#EAEAEA",
+    '&:focus': {
+      border: '2px solid #F31260',
+    }
+  },
+}));
+
 export default function MsgInput() {
+  const inputStyles = useInputStyle();
+  let [inputValue, setInputValue] = useState('');
   return (
     <Flex
       w="100%"
@@ -28,18 +49,16 @@ export default function MsgInput() {
       align="center"
       justify="center"
       bg="white"
+      bottom={0}
     >
       <Input
-        className={Styles.InputRaduis}
         size="lg"
-        style={{
-          
-        }}
         w="70%"
         h="50px"
+        placeholder="Send message here..."
         radius={50}
-        color="red"
-    
+        classNames={inputStyles.classes}
+        onSubmit={(event)=> console.log(event)}
       ></Input>
       <SendButton />
     </Flex>

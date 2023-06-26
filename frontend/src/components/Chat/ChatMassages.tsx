@@ -1,8 +1,27 @@
-import { Container } from '@mantine/core';
+import { Container, Text } from '@mantine/core';
 import MsgInput from './MsgInput';
 
 interface Props {
   width: string | number | undefined;
+}
+
+function Message({content, pos}: {content:string, pos:string}){
+  return (
+    <Container left={pos}>
+      <Text>{content}</Text>
+    </Container>
+  );
+}
+
+function ListMessages(){
+  return (
+    <Container
+      style={{
+        height:"calc(100% - 77px)"
+      }}>
+        {/* <Message content='hello world' pos></Message> */}
+    </Container>
+  )
 }
 
 function MainChat({ width }: Props) {
@@ -10,12 +29,12 @@ function MainChat({ width }: Props) {
     <Container
       style={{
         backgroundColor: '#EAEAEA',
-        // height: '100%',
         width: width,
         maxWidth: width,
       }}
       p={0}
     >
+      <ListMessages />
       <MsgInput />
     </Container>
   );
