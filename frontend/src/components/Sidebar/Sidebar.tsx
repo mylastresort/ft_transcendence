@@ -45,24 +45,6 @@ export const User_Sidebar = (Show: any) => {
   const [Auth, setAuth] = useState(false);
   const [Notifications, setNotifications] = useState<any>([]);
 
-  const DammyData = [
-    {
-      msg: 'hello im norifinaction',
-    },
-    {
-      msg: 'hello im norifinaction',
-    },
-    {
-      msg: 'hello im norifinaction',
-    },
-    {
-      msg: 'hello im norifinaction',
-    },
-    {
-      msg: 'hello im norifinaction',
-    },
-  ];
-
   useEffect(() => {
     UserSocket.on('GetNotifications', (data) => {
       setNotifications(data);

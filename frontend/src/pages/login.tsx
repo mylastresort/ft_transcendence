@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { PostLogin, PostTokens, PostVerify2faTmp } from './api/auth/auth';
 import { Grid, Text, Spacer } from '@nextui-org/react';
@@ -18,7 +19,13 @@ const Styles = {
 
 function login({ setIsTwoFactorAuth }) {
   setIsTwoFactorAuth(true);
+function login({ setIsTwoFactorAuth }) {
+  setIsTwoFactorAuth(true);
   const router = useRouter();
+  const [Is2fa, setIs2fa] = useState(false);
+  const [Code, setCode] = useState('');
+  const [isError, setIsError] = useState(false);
+
   const [Is2fa, setIs2fa] = useState(false);
   const [Code, setCode] = useState('');
   const [isError, setIsError] = useState(false);
@@ -26,6 +33,7 @@ function login({ setIsTwoFactorAuth }) {
   useEffect(() => {
     const QueryCode = window.location.search.split('code=')[1];
     if (QueryCode) {
+      const url = `/api/auth/callback?access_code=${QueryCode}`;
       const url = `/api/auth/callback?access_code=${QueryCode}`;
       PostTokens(url)
         .then((res) => {
@@ -107,4 +115,5 @@ function login({ setIsTwoFactorAuth }) {
   );
 }
 
+export default withAuth(login);
 export default withAuth(login);
