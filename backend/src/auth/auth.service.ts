@@ -84,6 +84,46 @@ export class AuthService {
     }
   }
 
+  async me(Userid: number) {
+    try {
+      const user = await this.Prisma.user.findUnique({
+        where: {
+          id: Userid,
+        },
+        select: {
+          imgProfile: true,
+          username: true,
+          firstName: true,
+          lastName: true,
+          location: true,
+          sammary: true,
+          twoFactorAuth: true,
+          verified2FA: true,
+        },
+      });
+
+      if (!user) {
+        throw new HttpException(
+          {
+            status: HttpStatus.BAD_REQUEST,
+            error: 'User not found',
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      return user;
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: 'Internal server error',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   async generateQRCode() {
     const secret = speakeasy.generateSecret({ length: 20 });
     const otpauthUrl = speakeasy.otpauthURL({

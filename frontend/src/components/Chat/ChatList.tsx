@@ -49,7 +49,8 @@ function SwitchButton({ selectedState }: SwitchButtonProps) {
           span={6}
           style={{
             border: '1px solid #000000',
-            backgroundColor: selected === 1 ? '#F31260' : '#FFFFFF',
+            backgroundColor:
+              selected === 1 ? 'var(--secondary-color)' : 'var(--white-color)',
             cursor: 'pointer',
           }}
           onClick={() => setSelected(1)}
@@ -62,7 +63,8 @@ function SwitchButton({ selectedState }: SwitchButtonProps) {
           span={6}
           style={{
             border: '1px solid #000000',
-            backgroundColor: selected === 2 ? '#F31260' : '#FFFFFF',
+            backgroundColor:
+              selected === 2 ? 'var(--secondary-color)' : 'var(--white-color)',
             cursor: 'pointer',
           }}
           onClick={() => setSelected(2)}
@@ -82,14 +84,19 @@ function UserCard({ user }: { user: User }) {
       maw={300}
       mx="auto"
       style={{
-        backgroundColor: '#FFFFFF',
+        backgroundColor: 'var(--white-color)',
         borderRadius: '10px',
-        border: '2px solid #F31260',
+        border: '2px solid var(--secondary-color)',
         padding: '10px',
         margin: '15px auto',
       }}  
     >
-      <User src={user.img} name={user.name} description={user.lastmsg} size="xl" />
+      <User
+        src={user.img}
+        name={user.name}
+        description={user.lastmsg}
+        size="xl"
+      />
     </Box>
   );
 }
@@ -111,9 +118,11 @@ function ChatList({ width }: Props) {
       }}
     >
       <SwitchButton selectedState={selectedState} />
-      {selected === 1 ? dummyUsers.map((user: User) => (
-        <UserCard user={dummyUsers[0]} />
-      )): <></>}
+      {selected === 1 ? (
+        dummyUsers.map((user: User) => <UserCard user={dummyUsers[0]} />)
+      ) : (
+        <></>
+      )}
     </Container>
   );
 }

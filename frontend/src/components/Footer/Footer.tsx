@@ -1,5 +1,4 @@
 import { createStyles, Container, Group, ActionIcon, rem } from '@mantine/core';
-import { FaGamepad } from 'react-icons/fa';
 import { Image } from '@nextui-org/react';
 import { AiFillGithub, AiFillLinkedin, AiFillFacebook } from 'react-icons/ai';
 
@@ -9,7 +8,7 @@ const useStyles = createStyles((theme) => ({
     borderTop: `${rem(1)} solid ${
       theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[2]
     }`,
-    backgroundColor: '#141414',
+    backgroundColor: 'var(--sidebar-color)',
     zIndex: 1,
   },
 
@@ -19,7 +18,7 @@ const useStyles = createStyles((theme) => ({
     alignItems: 'center',
     paddingTop: theme.spacing.xl,
     paddingBottom: theme.spacing.xl,
-    backgroundColor: '#141414',
+    backgroundColor: 'var(--sidebar-color)',
     zIndex: 1,
 
     [theme.fn.smallerThan('xs')]: {
@@ -34,7 +33,12 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-export function Footer({ Show, isTwoFactorAuth }) {
+type FooterProps = {
+  Show: boolean;
+  isTwoFactorAuth: boolean;
+};
+
+export const Footer: React.FC<FooterProps> = ({ Show, isTwoFactorAuth }) => {
   if (!Show || isTwoFactorAuth) return;
   const { classes } = useStyles();
 
@@ -56,4 +60,4 @@ export function Footer({ Show, isTwoFactorAuth }) {
       </Container>
     </div>
   );
-}
+};

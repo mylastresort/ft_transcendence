@@ -1,0 +1,30 @@
+{
+  "colorScheme": "dark",
+  "colors": {
+    "blue": [
+      "#d5d7e0",
+      "#acaebf",
+      "#8c8fa3",
+      "#666980",
+      "#D5D7E0",
+      "#34354a",
+      "#2b2c3d",
+      "#1d1e30",
+      "#99E9F2",
+      "#ad1046"
+    ],
+    "dark": [
+      "#d5d7e0",
+      "#acaebf",
+      "#8c8fa3",
+      "#666980",
+      "#3c4557",
+      "#34354a",
+      "#1C2536",
+      "#1d1e30",
+      "#1C2536",
+      "#fff"
+    ]
+  },
+  "fontFamily": "Inter, sans-serif"
+}

@@ -56,7 +56,7 @@ export function ImageSlider({ slides }) {
                     fontSize: '1.2rem',
                     fontFamily: 'poppins',
                     fontWeight: '400',
-                    color: '#000',
+                    color: '#fff',
                   }}
                 >
                   {slide.title}

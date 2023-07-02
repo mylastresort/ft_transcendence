@@ -14,7 +14,10 @@ import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 
 @ApiTags('Auth')
-@Controller('/v1/auth')
+@Controller({
+  path: 'auth',
+  version: '1',
+})
 export class AuthController {
   constructor(public service: AuthService) {}
 
@@ -31,11 +34,11 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async me(@Req() req: any) {
-    console.log('user: ', req.user);
-    return req.user;
+    return this.service.me(req.user.id);
   }
 
   @Post('Get2fa')

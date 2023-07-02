@@ -1,6 +1,22 @@
-import React, { use, useEffect, useState } from 'react';
-import { Avatar, Badge, Group, Text, Select, ScrollArea } from '@mantine/core';
-import { Grid, Spacer, Image, Table } from '@nextui-org/react';
+import React, { useState } from 'react';
+import {
+  Avatar,
+  Badge,
+  Group,
+  Text,
+  Select,
+  ScrollArea,
+  Table,
+  UnstyledButton,
+  Pagination,
+  Stack,
+} from '@mantine/core';
+import { Grid, Spacer, Image } from '@nextui-org/react';
+import Styles from './account.module.css';
+import { HiUsers } from 'react-icons/hi';
+import { FaLevelUpAlt } from 'react-icons/fa';
+import { MdAccessTimeFilled, MdOutput } from 'react-icons/md';
+import { BsFillCalendar2DateFill } from 'react-icons/bs';
 
 interface UsersTableProps {
   data: {
@@ -12,136 +28,113 @@ interface UsersTableProps {
   }[];
 }
 
-const dummyData = {
-  data: [
-    {
-      player1: 'player1',
-      player2: 'player2',
-      result: 'winer',
-      level: '2',
-      date: '2021-10-10',
-      duration: '10min:00sec',
-    },
-    {
-      player1: 'player1',
-      player2: 'player2',
-      result: 'winer',
-      level: '2',
+export function Last_Matches() {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
-      date: '2021-10-10',
-      duration: '10min:00sec',
-    },
-    {
-      player1: 'player1',
-      player2: 'player2',
-      result: 'winer',
-      level: '2',
+  const data = [1, 2, 3, 4, 5, 6, 7, 8];
 
-      date: '2021-10-10',
-      duration: '10min:00sec',
-    },
-    {
-      player1: 'player1',
-      player2: 'player2',
-      result: 'winer',
-      level: '2',
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentData = data.slice(startIndex, endIndex);
 
-      date: '2021-10-10',
-      duration: '10min:00sec',
-    },
-    {
-      player1: 'player1',
-      player2: 'player2',
-      result: 'winer',
-      level: '2',
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
-      date: '2021-10-10',
-      duration: '10min:00sec',
-    },
-  ],
-};
-
-export function Last_Matches({ data }: UsersTableProps) {
   return (
-    <Table
-      lined
-      headerLined
-      shadow={false}
-      aria-label="Example table with static content"
-      css={{
-        height: 'auto',
-        minWidth: '100%',
-      }}
-    >
-      <Table.Header>
-        <Table.Column>Players</Table.Column>
-        <Table.Column>Result</Table.Column>
-        <Table.Column>Level</Table.Column>
-        <Table.Column>Date</Table.Column>
-        <Table.Column>Duration</Table.Column>
-      </Table.Header>
-      <Table.Body>
-        {dummyData.data.map((item, index) => (
-          <Table.Row key="1">
-            <Table.Cell>
-              <Text
-                style={{
-                  fontSize: '0.9rem',
-                  fontFamily: 'poppins',
-                  fontWeight: '400',
-                }}
-              >
-                {item.player1}
-              </Text>
-              <Text
-                style={{
-                  fontSize: '0.9rem',
-                  fontFamily: 'poppins',
-                  fontWeight: '400',
-                }}
-              >
-                {item.player2}
-              </Text>
-            </Table.Cell>
-            <Table.Cell>
-              <Badge color="green">{item.result}</Badge>
-            </Table.Cell>
-            <Table.Cell>
-              <Text
-                style={{
-                  fontSize: '0.9rem',
-                  fontFamily: 'poppins',
-                  fontWeight: '400',
-                }}
-              >
-                {item.level}
-              </Text>
-            </Table.Cell>
-            <Table.Cell>
-              <Text
-                style={{
-                  fontSize: '0.9rem',
-                  fontFamily: 'poppins',
-                  fontWeight: '400',
-                }}
-              >
-                {item.date}
-              </Text>
-            </Table.Cell>
-            <Table.Cell>
-              <Text
-                style={{
-                  fontSize: '0.9rem',
-                  fontFamily: 'poppins',
-                  fontWeight: '400',
-                }}
-              >
-                {item.duration}
-              </Text>
-            </Table.Cell>
-          </Table.Row>
-        ))}
-      </Table.Body>
-    </Table>
+    <Stack justify="center" align="center">
+      <Stack style={{ minHeight: '48em', width: '100%' }}>
+        <Table verticalSpacing="xs" fontSize="md" highlightOnHover>
+          <thead>
+            <tr>
+              <th>
+                <Group spacing={10}>
+                  <HiUsers />
+                  Players
+                </Group>
+              </th>
+              <th>
+                <Group spacing={10}>
+                  <MdOutput />
+                  Result
+                </Group>
+              </th>
+
+              <th>
+                <Group spacing={10}>
+                  <FaLevelUpAlt />
+                  Level
+                </Group>
+              </th>
+              <th>
+                <Group spacing={10}>
+                  <BsFillCalendar2DateFill />
+                  Date
+                </Group>
+              </th>
+              <th>
+                <Group spacing={10}>
+                  <MdAccessTimeFilled />
+                  Duration
+                </Group>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentData.map((item, index) => (
+              <tr key={index}>
+                <td>
+                  <Stack>
+                    <UnstyledButton>
+                      <Group>
+                        <Avatar size={40} color="cyan" variant="light">
+                          BH
+                        </Avatar>
+                        <div style={{ flex: 1 }}>
+                          <Text size="sm" weight={500}>
+                            player1
+                          </Text>
+                        </div>
+                      </Group>
+                    </UnstyledButton>
+                    <UnstyledButton>
+                      <Group>
+                        <Avatar size={40} color="cyan" variant="light">
+                          BH
+                        </Avatar>
+                        <div style={{ flex: 1 }}>
+                          <Text size="sm" weight={500}>
+                            player2
+                          </Text>
+                        </div>
+                      </Group>
+                    </UnstyledButton>
+                  </Stack>
+                </td>
+                <td>
+                  <Badge color="green" size="lg" radius="sm">
+                    winner
+                  </Badge>
+                </td>
+                <td>
+                  <Avatar color="cyan" radius="xl">
+                    7
+                  </Avatar>
+                </td>
+                <td>2021-10-10</td>
+                <td>10min:00sec</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </Stack>
+      <Pagination
+        color="cyan"
+        total={Math.ceil(data.length / itemsPerPage)}
+        value={currentPage}
+        onChange={handlePageChange}
+      />
+    </Stack>
   );
 }

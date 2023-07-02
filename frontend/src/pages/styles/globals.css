@@ -11,22 +11,23 @@ body {
   min-height: 100vh;
   background-color: var(--body-color);
   transition: var(--tran-05);
-}
-
-ul {
-  margin: 0;
+  color: #fff;
 }
 
 :root {
-  /* ===== Colors ===== */
-  --body-color: #f5f6f8;
+  --body-color: #141b26;
   --sidebar-color: #1c2536;
   --primary-color: #252e3e;
   --primary-color-light: #f6f5ff;
   --toggle-color: #ddd;
   --text-color: #9da4ae;
+  --button-color: #141b26;
+  --button-hover-color: #0e121a;
+  --success-color: #2ecc71;
+  --secondary-color: #87d1db;
+  --white-color: #fff;
+  --sky-blue-color: #18394a;
 
-  /* ====== Transition ====== */
   --tran-03: all 0.2s ease;
   --tran-03: all 0.3s ease;
   --tran-04: all 0.3s ease;
@@ -36,15 +37,6 @@ ul {
 ::selection {
   background-color: var(--primary-color);
   color: #fff;
-}
-
-body.dark {
-  --body-color: #18191a;
-  --sidebar-color: #242526;
-  --primary-color: #3a3b3c;
-  --primary-color-light: #3a3b3c;
-  --toggle-color: #fff;
-  --text-color: #ccc;
 }
 
 /* ===== Sidebar ===== */
@@ -58,6 +50,7 @@ body.dark {
   background: var(--sidebar-color);
   transition: var(--tran-05);
   z-index: 300;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 .sidebar.close {
   width: 88px;
@@ -289,13 +282,10 @@ body.dark .switch::before {
 .home {
   position: absolute;
   top: 0;
-  top: 0;
   left: 280px;
   height: 100%;
   width: calc(100% - 280px);
   background-color: var(--body-color);
-
-  /* background-image: url('/images/wallpaper.png'); */
 
   transition: var(--tran-05);
 }
@@ -376,4 +366,9 @@ body.dark .home .text {
 
 .menu-links {
   margin: 0;
+}
+
+.nextui-c-hhqfap-gqZKcP-disableBlur-false .nextui-c-egxOLa {
+  background-color: var(--sidebar-color);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }

@@ -1,0 +1,12 @@
+.Account_layout {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+
+.Card_friend {
+  width: 15rem;
+  background-color: var(--sidebar-color);
+  /* height: 21rem; */
+  border-color: #9da4ae !important;
+}

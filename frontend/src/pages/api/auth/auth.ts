@@ -53,7 +53,6 @@ export const Post2fa = (data: any) => {
 
 export const PostVerify2fa = (data: any) => {
   const jwtToken = localStorage.getItem('jwtToken');
-  console.log(jwtToken);
   return request
     .post('http://localhost:4400/api/v1/auth/Verify2fa')
     .set('Authorization', `Bearer ${jwtToken}`)

@@ -18,7 +18,10 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 
 @ApiTags('Users')
-@Controller('/v1/user')
+@Controller({
+  path: 'users',
+  version: '1',
+})
 export class UsersController {
   constructor(public service: UsersService) {}
 
@@ -60,11 +63,27 @@ export class UsersController {
     return this.service.UploadtoS3(req.user, file);
   }
 
+  @Post('updateProfileImg')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async updateProfileImg(@Req() req: any, @Body() body: any) {
+    return this.service.updateProfileImg(req.user.id, body);
+  }
+
   @Post('updateProfile')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async updateProfile(@Req() req: any, @Body() body: any) {
-    return this.service.updateProfile(req.user, body);
+    return this.service.updateProfile(req.user.id, body);
+  }
+
+  @Post('userProfile')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async userProfile(@Req() req: any, @Body() body: any) {
+    return this.service.userProfile(req.user.id, body.username);
   }
 }

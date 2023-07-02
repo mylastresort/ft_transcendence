@@ -1,0 +1,28 @@
+.col_1 {
+  flex-direction: row;
+  display: flex;
+}
+
+.font_1 {
+  font-family: poppins;
+  font-size: 1.6rem;
+  font-weight: 500;
+}
+
+.font_2 {
+  font-family: poppins;
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+.UnstyledButton {
+  display: block;
+  padding: 10px;
+  background-color: var(--sidebar-color);
+  border-radius: 10px;
+  color: var(--text-color);
+}
+
+.UnstyledButton:hover {
+  background-color: var(--sky-blue-color);
+}

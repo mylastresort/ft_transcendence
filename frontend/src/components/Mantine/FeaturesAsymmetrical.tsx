@@ -30,7 +30,7 @@ const useStyles = createStyles((theme) => ({
   },
 
   title: {
-    color: '#141414',
+    color: 'var(--primary-color-light)',
   },
 }));
 

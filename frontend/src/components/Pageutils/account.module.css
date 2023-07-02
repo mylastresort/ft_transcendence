@@ -14,3 +14,10 @@
   flex-direction: row;
   justify-content: space-evenly;
 }
+
+.Text_table_css {
+  front-size: 0.9rem;
+  font-family: poppins;
+  font-weight: 400;
+  color: var(--text-color);
+}

@@ -1,25 +1,21 @@
 .Chat_container {
   position: absolute;
   top: 70px;
-  top: 70px;
   left: 250px;
   min-height: 100vh;
   width: calc(100% - 250px);
   background-color: var(--body-color);
   transition: var(--tran-05);
-  /* background-image: url('/images/wallpaper.png'); */
 }
 
 .dash_container {
   position: absolute;
-  top: 70px;
-  top: 70px;
+  top: 130px;
   left: 250px;
   min-height: 100vh;
   width: calc(100% - 250px);
   background-color: var(--body-color);
   transition: var(--tran-05);
-  background-image: url('/images/wallpaper.png');
 }
 .dash_container .Dash_text {
   font-size: 30px;

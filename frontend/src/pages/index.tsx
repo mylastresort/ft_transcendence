@@ -8,17 +8,15 @@ import {
   Dropdown,
 } from '@nextui-org/react';
 import Styles from './style.module.css';
-import Particles_background from '@/components/Animated_bg/Particles_background';
 import '@fontsource/poppins';
 import 'typeface-baumans';
 import React from 'react';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import { FeaturesAsymmetrical } from '@/components/Mantine/FeaturesAsymmetrical';
 import { UserCardImage } from '@/components/Mantine/UserCardImage';
 import { AboutBanner } from '@/components/Mantine/AboutBanner';
 import { Footer } from '../components/Footer/Footer';
-import withAuth from './lib/withAuth';
+import withAuth from '@/pages/lib/withAuth';
+import { Card } from '@mantine/core';
 
 const user_data = {
   image:
@@ -45,9 +43,8 @@ const user_data = {
 
 function LandingPage() {
   return (
-    <div style={{ backgroundColor: '#141414' }}>
+    <div style={{ backgroundColor: 'var(--body-color)' }}>
       <React.Fragment>
-        <Particles_background />
         <Grid>
           <Container lg>
             <Grid className={Styles.Landing_layout}>
@@ -101,6 +98,7 @@ function LandingPage() {
                     fontSize: '3rem',
                     textAlign: 'center',
                     fontWeight: '500',
+                    color: 'var(--primary-color-light)',
                   }}
                 >
                   Features
