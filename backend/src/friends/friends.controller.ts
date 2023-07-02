@@ -103,7 +103,7 @@ export class FriendsController {
   @Post('GetFriends')
   @HttpCode(HttpStatus.OK)
   async GetFriends(@Req() req: any, @Body() body: any) {
-    return this.service.GetFriends(req.user.id, body.ofuser);
+    return this.service.GetFriends(req.user.id, body.username);
   }
 
   @ApiBearerAuth()

@@ -22,6 +22,7 @@ import Styles from './friends.module.css';
 import withAuth from '@/pages/lib/withAuth';
 import { WsContext } from '@/context/WsContext';
 import { PostAcceptFriendRequest } from '@/pages/api/friends/friends';
+import Router from 'next/router';
 
 function friends() {
   const [Users, setUsers] = useState<any>(null);
@@ -80,7 +81,7 @@ function friends() {
       });
   }, [ReFetch]);
 
-  const HandleAddFriend = (data) => () => {
+  const HandleAddFriend = (data: any) => () => {
     const payload = {
       receiverId: data.id,
     };
@@ -96,7 +97,7 @@ function friends() {
       });
   };
 
-  const HandleCancelRequest = (data) => () => {
+  const HandleCancelRequest = (data: any) => () => {
     console.log(data);
     const payload = {
       receiverId: data.id,
@@ -114,7 +115,7 @@ function friends() {
       });
   };
 
-  const HandleCancelRequestReceiver = (data) => () => {
+  const HandleCancelRequestReceiver = (data: any) => () => {
     const payload = {
       senderId: data.sentRequests[0].senderId,
       receiverId: data.sentRequests[0].receiverId,
@@ -132,7 +133,7 @@ function friends() {
       });
   };
 
-  const HandleRemoveUser = (data) => () => {
+  const HandleRemoveUser = (data: any) => () => {
     const payload = {
       receiverId: data.id,
     };
@@ -148,7 +149,7 @@ function friends() {
       });
   };
 
-  const HandleAcceptRequest = (data) => () => {
+  const HandleAcceptRequest = (data: any) => () => {
     const payload = {
       id: data.sentRequests[0].senderId,
     };
@@ -190,14 +191,17 @@ function friends() {
               </Text>
             </Center>
           ) : (
-            Users?.map((data, index) => (
+            Users?.map((data: any, index: number) => (
               <Card
                 shadow="sm"
                 padding="lg"
                 radius="md"
                 withBorder
                 className={Styles.Card_friend}
-                key={index} // Add a unique key prop for each mapped item
+                key={index}
+                onClick={() => {
+                  Router.push(`/profile/${data.username}`);
+                }}
               >
                 <Card.Section component="a">
                   <Image
@@ -212,7 +216,9 @@ function friends() {
                   <Text className="Text_W500">
                     {data.firstName.slice(0, 5)} {data.lastName.slice(0, 5)}
                   </Text>
-                  <Badge variant="filled">{data.username}</Badge>
+                  <Badge color="gray" variant="filled">
+                    {data.username}
+                  </Badge>
                 </Group>
 
                 {data.receivedRequests.length > 0 ? (

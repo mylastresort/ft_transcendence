@@ -1,24 +1,20 @@
 import React, { useState, useEffect, useContext } from 'react';
-
 import {
   Container,
   Stack,
   Button,
   Flex,
-  Grid,
   Image,
   Group,
   Text,
   Indicator,
   ThemeIcon,
-  Center,
   ActionIcon,
   Menu,
   Avatar,
   Tabs,
   UnstyledButton,
   Anchor,
-  Divider,
 } from '@mantine/core';
 import { Spacer } from '@nextui-org/react';
 import { useRouter } from 'next/router';
@@ -30,114 +26,144 @@ import { BiBlock, BiUserX } from 'react-icons/bi';
 import { HiEmojiSad } from 'react-icons/hi';
 import { StyledTabs } from '@/components/Mantine/StayledTabs';
 import { Last_Matches } from '@/components/Pageutils/Last_Matches';
-import { AiFillProfile, AiOutlineMessage } from 'react-icons/ai';
+import { AiFillProfile } from 'react-icons/ai';
 import { GetMe } from '@/pages/api/auth/auth';
 import {
   Get_Not_Friends,
   PostSendFriendRequest,
   PostCancelFriendRequest,
-  PostRemoveFriendFromList,
   GetFriendsList,
   PostUnfriend,
+  PostBlockFriend,
+  PostAcceptFriendRequest,
+  GetBLockedFriends,
+  PostUnblock,
 } from '@/pages/api/friends/friends';
 import { WsContext } from '@/context/WsContext';
+import { BlockedPanel, ProfileNotFound } from '@/components/Pageutils/NotFound';
 
 function Pofile() {
-  const [user, setUser] = useState<any>(null);
-  const [userMe, setUserMe] = useState<any>(null);
-  const [friends, setFriends] = useState<any>(null);
-  const [socketEvent, setSocketEvent] = useState(false);
+  const [userProfile, setUserProfile] = useState<[]>([]);
+  const [userMe, setUserMe] = useState<[]>([]);
+  const [friends, setFriends] = useState<[]>([]);
+  const [PendingFriend, setPendingFriend] = useState<[]>([]);
+  const [username, setUsername] = useState<string>('');
 
   const [isMe, setIsMe] = useState<boolean>(false);
-  const [SelectedUser, setSelectedUser] = useState<any>(null);
+  const [socketEvent, setSocketEvent] = useState(false);
+  const [isBlocked, setIsBlocked] = useState<boolean>(false);
+  const [isBlockedBy, setIsBlockedBy] = useState<boolean>(false);
+  const [isLoaded, setIsLoaded] = useState<boolean>(true);
+  const [isNotFound, setIsNotFound] = useState<boolean>(false);
 
   const UserSocket = useContext(WsContext);
 
   const router = useRouter();
-  const { username } = router.query;
+  // const { username } = router.query;
 
   useEffect(() => {
-    UserSocket.on('RerenderFriends', (data) => {
-      setSocketEvent(!socketEvent);
-    });
+    const fetchData = async () => {
+      try {
+        UserSocket.on('RerenderFriends', (data) => {
+          setSocketEvent((prevSocketEvent) => !prevSocketEvent);
+        });
 
-    setIsMe(false);
-    console.log(username);
-    const payload = {
-      username: username,
-    };
+        const Username = window.location.pathname.split('/')[2];
+        setUsername(Username);
+        setIsMe(false);
+        // setIsLoaded(true);
+        setIsBlocked(false);
+        setIsNotFound(false);
+        setIsBlockedBy(false);
+        setUsername;
+        const payload = {
+          username: Username,
+        };
 
-    GetMe()
-      .then((res) => {
-        setUserMe(res.body);
-        if (res.body.username === username) {
+        const meResponse = await GetMe();
+        const me = meResponse.body;
+        setUserMe(me);
+        if (me.username === Username) {
           setIsMe(true);
         }
+        const userProfileResponse = await PostUserProfile(payload);
+        const UserProfile = userProfileResponse.body;
+        if (!UserProfile) {
+          setIsNotFound(true);
+          return () => {
+            UserSocket.off('RerenderFriends');
+            router.events.off('routeChangeComplete', fetchData);
+          };
+        }
+        setUserProfile(UserProfile);
 
-        PostUserProfile(payload)
-          .then((res) => {
-            setUser(res.body);
-            const payload = {
-              ofuser: res.body.id,
-            };
-            GetFriendsList(payload)
-              .then((res) => {
-                console.log('My Friends:', res.body);
-                setFriends(res.body);
-              })
-              .catch((err) => {
-                console.log(err);
-              });
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+        const blockedFriendsResponse = await GetBLockedFriends();
+        const blockedFriends = blockedFriendsResponse.body;
+        console.log(blockedFriends);
+        const BlockedUsers = blockedFriends.find(
+          (item: any) => item.username === Username
+        );
+        if (BlockedUsers) {
+          setIsBlocked(true);
+        }
+        if (BlockedUsers?.blockedBy.length > 0) {
+          setIsBlockedBy(true);
+          setIsLoaded(false);
 
-    Get_Not_Friends()
-      .then((res) => {
-        console.log(res);
-        setSelectedUser(
-          res.body.filter((item) => item.username === username)[0]
+          return () => {
+            UserSocket.off('RerenderFriends');
+            router.events.off('routeChangeComplete', fetchData);
+          };
+        }
+
+        setIsLoaded(false);
+
+        const friendsPayload = {
+          username: UserProfile?.username,
+        };
+        const friendsListResponse = await GetFriendsList(friendsPayload);
+        const friendsList = friendsListResponse.body;
+        setFriends(friendsList);
+
+        const notFriendsResponse = await Get_Not_Friends();
+        const notFriends = notFriendsResponse.body;
+        const PendingFriend = notFriends.find(
+          (item: any) => item.username === Username
         );
-        console.log(
-          'Selected User:',
-          res.body.filter((item) => item.username === username)
-        );
-      })
-      .catch((err) => {
+        setPendingFriend(PendingFriend);
+      } catch (err) {
         console.log(err);
-      });
+      }
+    };
+
+    fetchData();
+
+    router.events.on('routeChangeComplete', fetchData);
 
     return () => {
       UserSocket.off('RerenderFriends');
+      router.events.off('routeChangeComplete', fetchData);
     };
   }, [username, socketEvent]);
 
-  const HandleUnfriend = (data) => () => {
+  const HandleUnfriend = (data: any) => () => {
     const payload = {
       id: data.id,
     };
 
     PostUnfriend(payload)
-      .then((res) => {
-        console.log(res);
-      })
+      .then((res) => {})
       .catch((err) => {
         console.log(err);
       });
   };
 
-  const HandleAddFriend = (data) => () => {
+  const HandleAddFriend = (data: any) => () => {
     const payload = {
       receiverId: data.id,
     };
     PostSendFriendRequest(payload)
       .then((res) => {
-        console.log(res);
         if (res.status === 200) {
         }
       })
@@ -146,19 +172,52 @@ function Pofile() {
       });
   };
 
-  const HandleCancelRequest = (data) => () => {
-    console.log(data);
+  const HandleCancelRequest = (data: any) => () => {
     const payload = {
       receiverId: data.id,
       senderId: data.receivedRequests[0].senderId,
     };
-    console.log(payload);
     PostCancelFriendRequest(payload)
       .then((res) => {
-        console.log(res);
         if (res.status === 200) {
-          // setReFetch(!ReFetch);
         }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const HandleAcceptRequest = (data: any) => () => {
+    const payload = {
+      id: data.sentRequests[0].senderId,
+    };
+
+    PostAcceptFriendRequest(payload)
+      .then((res) => {})
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const HandleBlockFriend = (data: any) => () => {
+    const payload = {
+      id: data.id,
+    };
+
+    PostBlockFriend(payload)
+      .then((res) => {})
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const HandleUnblockFriend = (data: any) => () => {
+    const payload = {
+      id: data.id,
+    };
+    PostUnblock(payload)
+      .then((res) => {
+        // setRefresh(!Refresh);
       })
       .catch((err) => {
         console.log(err);
@@ -168,7 +227,8 @@ function Pofile() {
   return (
     <div className="dash_container">
       <Container size="xl">
-        <Stack>
+        <ProfileNotFound isNotFound={isNotFound} />
+        <Stack style={{ display: isLoaded || isNotFound ? 'none' : '' }}>
           <Flex
             mih={240}
             bg="var(--sidebar-color)"
@@ -177,7 +237,7 @@ function Pofile() {
             align="center"
             direction="row"
             wrap="wrap"
-            style={{ borderRadius: '5px' }}
+            style={{ borderRadius: '5px', display: isBlockedBy ? 'none' : '' }}
           >
             <Group align="start" spacing="30px">
               <Indicator
@@ -186,9 +246,11 @@ function Pofile() {
                 offset={3}
                 position="bottom-end"
                 color={
-                  user?.status === 'online'
+                  isBlocked
+                    ? 'red'
+                    : userProfile?.status === 'online'
                     ? 'green'
-                    : user?.status === 'offline'
+                    : userProfile?.status === 'offline'
                     ? 'red'
                     : 'yellow'
                 }
@@ -197,7 +259,7 @@ function Pofile() {
                 <Image
                   width={180}
                   height={180}
-                  src={user?.imgProfile}
+                  src={userProfile?.imgProfile}
                   alt="profile picture"
                   withPlaceholder
                   radius="xs"
@@ -205,15 +267,22 @@ function Pofile() {
                 />
               </Indicator>
               <Flex direction="column">
-                <Text className={Styles.font_1}>{user?.username}</Text>
+                <Text className={Styles.font_1}>{userProfile?.username}</Text>
                 <Text className={Styles.font_2}>
-                  {user?.firstName} {user?.lastName}
+                  {userProfile?.firstName} {userProfile?.lastName}
                 </Text>
                 <Spacer y={1.3} />
-                <Text w={320}>{user?.sammary}.</Text>
+                <Text w={320}>{userProfile?.sammary}.</Text>
               </Flex>
             </Group>
-            <Flex w={300} justify="center" align="center" wrap="wrap" gap="md">
+            <Flex
+              w={300}
+              justify="center"
+              align="center"
+              wrap="wrap"
+              gap="md"
+              style={{}}
+            >
               <Group spacing="xs">
                 <ThemeIcon color="cyan" variant="light" size="xl">
                   <FaGamepad size="1.5rem" />
@@ -259,7 +328,7 @@ function Pofile() {
                 ) : (
                   <Group spacing="10px">
                     {friends?.find(
-                      (friend) => friend.username === userMe.username
+                      (friend: any) => friend.username === userMe?.username
                     ) ? (
                       <Button
                         variant="light"
@@ -269,21 +338,31 @@ function Pofile() {
                       >
                         Message
                       </Button>
-                    ) : SelectedUser?.receivedRequests?.length > 0 ? (
+                    ) : PendingFriend?.receivedRequests?.length > 0 ? (
                       <Button
                         variant="light"
                         radius="xs"
                         color="red"
-                        onClick={HandleCancelRequest(SelectedUser)}
+                        onClick={HandleCancelRequest(PendingFriend)}
                       >
                         Cancel
+                      </Button>
+                    ) : PendingFriend?.sentRequests?.length > 0 ? (
+                      <Button
+                        variant="light"
+                        radius="xs"
+                        color="cyan"
+                        onClick={HandleAcceptRequest(PendingFriend)}
+                      >
+                        Accept Request
                       </Button>
                     ) : (
                       <Button
                         variant="light"
                         radius="xs"
                         color="cyan"
-                        onClick={HandleAddFriend(user)}
+                        disabled={isBlocked}
+                        onClick={HandleAddFriend(userProfile)}
                       >
                         Add Friend
                       </Button>
@@ -297,23 +376,40 @@ function Pofile() {
                       </Menu.Target>
                       <Menu.Dropdown>
                         {friends?.find(
-                          (friend) => friend.username === userMe.username
+                          (friend: any) => friend.username === userMe?.username
                         ) && (
                           <Menu.Item
                             icon={<BiUserX size={14} color="#f57e07" />}
-                            onClick={HandleUnfriend(user)}
+                            onClick={HandleUnfriend(userProfile)}
                           >
                             Unfriend
                           </Menu.Item>
                         )}
-                        <Menu.Item
-                          icon={
-                            <BiBlock size={14} color="var(--secondary-color)" />
-                          }
-                          // onClick={HandleBlockFriend(data)}
-                        >
-                          Block
-                        </Menu.Item>
+                        {isBlocked ? (
+                          <Menu.Item
+                            icon={
+                              <BiBlock
+                                size={14}
+                                color="var(--secondary-color)"
+                              />
+                            }
+                            onClick={HandleUnblockFriend(userProfile)}
+                          >
+                            Unblock
+                          </Menu.Item>
+                        ) : (
+                          <Menu.Item
+                            icon={
+                              <BiBlock
+                                size={14}
+                                color="var(--secondary-color)"
+                              />
+                            }
+                            onClick={HandleBlockFriend(userProfile)}
+                          >
+                            Block
+                          </Menu.Item>
+                        )}
                       </Menu.Dropdown>
                     </Menu>
                   </Group>
@@ -322,12 +418,16 @@ function Pofile() {
             </Flex>
           </Flex>
           <Spacer y={0.5} />
+          <BlockedPanel isBlocked={isBlocked} isBlockedBy={isBlockedBy} />
           <Flex
             justify="space-between"
             align="start"
             direction="row"
             wrap="wrap"
             mih="65em"
+            style={{
+              display: isBlocked || isLoaded ? 'none' : '',
+            }}
           >
             <Flex
               mih="65em"
@@ -337,7 +437,10 @@ function Pofile() {
               align="top"
               direction="row"
               wrap="wrap"
-              style={{ borderRadius: '5px', width: '74%' }}
+              style={{
+                borderRadius: '5px',
+                width: '74%',
+              }}
             >
               <StyledTabs
                 defaultValue="overview"
@@ -403,7 +506,12 @@ function Pofile() {
                         </UnstyledButton>
                         <Group spacing={10}>
                           {[1, 2, 3, 4, 5].map((item, index) => (
-                            <Avatar radius="md" size={45} color="cyan">
+                            <Avatar
+                              radius="md"
+                              size={45}
+                              color="cyan"
+                              key={index}
+                            >
                               BH
                             </Avatar>
                           ))}
@@ -433,7 +541,7 @@ function Pofile() {
                 padding: '20px 15px',
               }}
             >
-              {user?.status === 'online' ? (
+              {userProfile?.status === 'online' ? (
                 <Text size="1.3rem" weight={300} color="green">
                   Currently Online
                 </Text>
@@ -453,8 +561,8 @@ function Pofile() {
                   Achievements (6)
                 </Anchor>
                 <Group spacing="xs">
-                  {[1, 2, 3, 4].map((item) => (
-                    <UnstyledButton>
+                  {[1, 2, 3, 4].map((item, index) => (
+                    <UnstyledButton key={index}>
                       <Avatar size={60} color="cyan" variant="light">
                         BH
                       </Avatar>
@@ -467,14 +575,18 @@ function Pofile() {
                 <Anchor
                   size="1.1rem"
                   weight={300}
-                  href={`/id/${user?.username}/friends`}
+                  onClick={() => {
+                    router.push(`/id/${userProfile?.username}/friends`);
+                  }}
                 >
                   Friends ({friends?.length})
                 </Anchor>
-                {friends?.slice(0, 5).map((item, index) => (
+                {friends?.slice(0, 5).map((item: any, index: number) => (
                   <UnstyledButton
+                    key={index}
                     className={Styles.UnstyledButton}
                     onClick={() => {
+                      console.log(`/profile/${item?.username}`);
                       router.push(`/profile/${item?.username}`);
                     }}
                   >

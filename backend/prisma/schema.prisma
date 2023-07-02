@@ -35,6 +35,7 @@ model User {
   receivedRequests FriendRequest[] @relation("receivedRequests")
   Friends          Friend[]        @relation("UserFriends")
   FriendsOf        Friend[]        @relation("FriendUsers")
+  blockedBy        Friend[]        @relation("BlockedBy")
 
   notifications Notification[]
 }
@@ -69,6 +70,7 @@ model Friend {
   status String?
 
   blocked Boolean? @default(false)
+  blockedBy User[] @relation("BlockedBy")
 }
 
 model Notification {

@@ -48,6 +48,7 @@ const data = [
 function SideLink({ active, setActive }) {
   const items = data.map((item, index) => (
     <NavLink
+      key={index}
       style={{ borderRadius: '5px' }}
       color="cyan"
       key={item.label}
@@ -352,8 +353,8 @@ function UserAvatar() {
             '/images/avatar3.jpg',
             '/images/avatar4.jpg',
             '/images/avatar5.jpg',
-          ].map((item) => (
-            <div onClick={HandleSelectedImg(item)}>
+          ].map((item, index) => (
+            <div onClick={HandleSelectedImg(item)} key={index}>
               <Image
                 className={Styles.Avatar_img}
                 src={item}
