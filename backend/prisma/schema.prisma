@@ -11,16 +11,73 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  id_42        Int   @unique
-  username     String  @unique
+  id_42      Int     @unique
+  username   String? @unique
+  imgProfile String?
+  firstName  String?
+  lastName   String?
+  location   String?
+  sammary    String @default("No information given")
 
+  status String?
 
-  @@map("users")
+  twoFactorAuth       Boolean? @default(false)
+  verified2FA         Boolean? @default(false)
+  twoFactorAuthSecret String?
+  qr2fa               String?
+
+  sentRequests     FriendRequest[] @relation("sentRequests")
+  receivedRequests FriendRequest[] @relation("receivedRequests")
+  Friends          Friend[]        @relation("UserFriends")
+  FriendsOf        Friend[]        @relation("FriendUsers")
+
+  notifications Notification[]
 }
 
+model FriendRequest {
+  id Int @id @default(autoincrement())
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
+  sender   User @relation("sentRequests", fields: [senderId], references: [id])
+  senderId Int
+
+  receiver   User @relation("receivedRequests", fields: [receiverId], references: [id])
+  receiverId Int
+
+  status String
+}
+
+model Friend {
+  id Int @id @default(autoincrement())
+
+  //   createdAt DateTime @default(now())
+  // updatedAt DateTime @updatedAt
+
+  user   User @relation("UserFriends", fields: [userId], references: [id])
+  userId Int
+
+  friend   User @relation("FriendUsers", fields: [friendId], references: [id])
+  friendId Int
+
+  status String?
+
+  blocked Boolean? @default(false)
+}
+
+model Notification {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+
+  message String
+  read Boolean @default(false)
+}

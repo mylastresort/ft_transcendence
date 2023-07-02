@@ -1,0 +1,124 @@
+.Chat_container {
+  position: absolute;
+  top: 70px;
+  left: 250px;
+  min-height: 100vh;
+  width: calc(100% - 250px);
+  background-color: var(--body-color);
+  transition: var(--tran-05);
+}
+
+.dash_container {
+  position: absolute;
+  top: 130px;
+  left: 250px;
+  min-height: 100vh;
+  width: calc(100% - 250px);
+  background-color: var(--body-color);
+  transition: var(--tran-05);
+}
+.dash_container .Dash_text {
+  font-size: 30px;
+  font-weight: 500;
+  color: var(--text-color);
+  padding: 12px 60px !important;
+}
+
+.sidebar.close ~ .dash_container {
+  left: 78px;
+  /* height: 100%; */
+  width: calc(100% - 78px);
+}
+body.dark .dash_container .text {
+  color: var(--text-color);
+}
+
+.dash_card {
+  width: 100%;
+  /* height: 400px; */
+  background-color: #fff;
+  display: flex;
+  flex-direction: row;
+  /* justify-content: space-between; */
+  align-items: center;
+  box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
+  border-radius: 20px;
+}
+
+.dash_card_orders {
+  width: 100%;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  /* justify-content: space-between; */
+  /* align-items: center; */
+  box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.Card_css {
+  box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
+}
+
+.Orders_container {
+  padding: 1em 1em 1em 1em !important;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.Orders_filds {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.Overview_css {
+  display: flex;
+  /* flex-direction: row;
+		justify-content: space-between; */
+  /* align-items: center; */
+  padding: 0.7em 1em 0.7em 1em !important;
+}
+
+.dash_card_container {
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+}
+
+@media (max-width: 768px) {
+  .cn_css1 h2 {
+    /* font-size: 1.3rem; */
+  }
+
+  .dash_card {
+    padding: 3em 0 !important;
+    justify-content: center;
+  }
+  .dash_card .Img_css1 {
+    display: none;
+  }
+
+  .dash_card h2 {
+    text-align: center;
+  }
+
+  .dash_card .button_css1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dash_card_container {
+    flex-direction: column;
+  }
+  .dash_card_container h2 {
+    font-size: 0.9rem;
+    line-height: 1rem;
+  }
+}

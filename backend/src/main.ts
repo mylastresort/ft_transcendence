@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { config } from 'dotenv';
 
@@ -14,6 +14,10 @@ async function bootstrap() {
     origin: process.env.FRONTEND_DOMAIN,
     allowedHeaders: ['Content-Type', 'Authorization'],
     methods: ['GET', 'POST', 'DELETE', 'PATCH'],
+  });
+
+  app.enableVersioning({
+    type: VersioningType.URI,
   });
 
   const config = new DocumentBuilder()

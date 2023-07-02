@@ -1,0 +1,31 @@
+.Center_Layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.Center_LayoutW {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 80%;
+}
+
+.Center_LayoutH {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 90%;
+  justify-content: space-around;
+}
+
+.Card_css {
+  background-color: var(--sidebar-color);
+  justify-content: center;
+  width: 100%;
+  display: flex;
+  padding: 50px 0 !important;
+  border-color: #9da4ae !important;
+}

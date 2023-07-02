@@ -1,10 +1,57 @@
-.Banner_layout{
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	width: 100vw;
-	background-color: #fff;
-	padding: 70px 0;
-	z-index: 1;
+.Banner_layout {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  background-color: #fff;
+  padding: 70px 0;
+  z-index: 1;
+}
+
+.slider {
+  /* position: relative; */
+  /* height: 100vh; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.image {
+  width: 200px;
+  height: 300px;
+  border-radius: 10px;
+}
+
+.right_arrow {
+  position: absolute;
+  top: 50%;
+  right: 20%;
+  font-size: 3rem;
+  color: #000;
+  z-index: 10;
+  cursor: pointer;
+  user-select: none;
+}
+
+.left_arrow {
+  position: absolute;
+  top: 50%;
+  left: 20%;
+  font-size: 3rem;
+  color: #000;
+  z-index: 10;
+  cursor: pointer;
+  user-select: none;
+}
+
+.slide {
+  opacity: 0;
+  transition-duration: 1s ease;
+}
+
+.slide.active {
+  opacity: 1;
+  transition-duration: 1s;
+  transform: scale(1.08);
 }
