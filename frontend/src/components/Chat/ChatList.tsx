@@ -89,7 +89,7 @@ function UserCard({ user }: { user: User }) {
         border: '2px solid var(--secondary-color)',
         padding: '10px',
         margin: '15px auto',
-      }}
+      }}  
     >
       <User
         src={user.img}
