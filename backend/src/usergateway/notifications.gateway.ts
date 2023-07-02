@@ -21,7 +21,7 @@ export class NotificationsGateway {
   @WebSocketServer()
   server: Server;
 
-  private connectedSockets: Map<number, Socket> = new Map<number, Socket>();
+  private connectedSockets: Map<number, Socket[]> = new Map<number, Socket[]>();
 
   constructor(private prisma: PrismaService) {}
 
@@ -29,7 +29,12 @@ export class NotificationsGateway {
     client.use(SocketAuthMiddleware() as any);
 
     client.on('connection', async (socket: Socket) => {
-      this.connectedSockets.set(socket.data.id, socket);
+      if (this.connectedSockets.has(socket.data.id)) {
+        this.connectedSockets.get(socket.data.id).push(socket);
+      } else {
+        this.connectedSockets.set(socket.data.id, [socket]);
+      }
+
       await this.prisma.user.update({
         where: {
           id: socket.data.id,
@@ -39,10 +44,11 @@ export class NotificationsGateway {
         },
       });
 
-      await this.SendNotification(socket.data.id);
+      for (const esocket of this.connectedSockets.get(socket.data.id)) {
+        await this.SendNotification(esocket.data.id);
+      }
 
       socket.on('disconnect', async () => {
-        this.connectedSockets.delete(socket.data.id);
         await this.prisma.user.update({
           where: {
             id: socket.data.id,
@@ -51,15 +57,24 @@ export class NotificationsGateway {
             status: 'offline',
           },
         });
+
+        const sockets = this.connectedSockets.get(socket.data.id);
+        if (sockets.length === 1) {
+          this.connectedSockets.delete(socket.data.id);
+        }
+        if (sockets.length > 1) {
+          const index = sockets.indexOf(socket);
+          sockets.splice(index, 1);
+        }
       });
     });
   }
 
   async NewFriendReq(UserId: number, senderId: number) {
-    const socket = this.connectedSockets.get(UserId);
-    const socket2 = this.connectedSockets.get(senderId);
+    const sockets = this.connectedSockets.get(UserId);
+    const sockets2 = this.connectedSockets.get(senderId);
 
-    if (socket) {
+    if (sockets) {
       const sendername = await this.prisma.user.findUnique({
         where: {
           id: senderId,
@@ -71,7 +86,7 @@ export class NotificationsGateway {
 
       const notifications = await this.prisma.notification.findMany({
         where: {
-          userId: socket.data.id,
+          userId: UserId,
         },
       });
 
@@ -85,7 +100,7 @@ export class NotificationsGateway {
 
       await this.prisma.user.update({
         where: {
-          id: socket.data.id,
+          id: UserId,
         },
         data: {
           notifications: {
@@ -98,19 +113,21 @@ export class NotificationsGateway {
         },
       });
 
-      socket.emit('NewRequestNotification', sendername.username);
-      socket.emit('RerenderFriends', 'rerender');
-      await this.SendNotification(socket.data.id);
+      for (const socket of sockets) {
+        socket.emit('RerenderFriends', 'rerender');
+        await this.SendNotification(socket.data.id);
+      }
     }
-    if (socket2) {
-      socket2.emit('RerenderFriends', 'rerender');
+    if (sockets2) {
+      for (const socket2 of sockets2)
+        socket2.emit('RerenderFriends', 'rerender');
     }
   }
 
   async CandelFriendReq(UserId: number, senderId: number) {
-    const socket = this.connectedSockets.get(UserId);
+    const sockets = this.connectedSockets.get(UserId);
 
-    if (socket) {
+    if (sockets) {
       const sendername = await this.prisma.user.findUnique({
         where: {
           id: senderId,
@@ -122,7 +139,7 @@ export class NotificationsGateway {
 
       const notifications = await this.prisma.notification.findMany({
         where: {
-          userId: socket.data.id,
+          userId: UserId,
         },
       });
 
@@ -136,7 +153,7 @@ export class NotificationsGateway {
 
       await this.prisma.user.update({
         where: {
-          id: socket.data.id,
+          id: UserId,
         },
         data: {
           notifications: {
@@ -149,17 +166,21 @@ export class NotificationsGateway {
         },
       });
 
-      socket.emit('CandelFriendReq', sendername.username);
-      await this.SendNotification(socket.data.id);
+      for (const socket of sockets) {
+        socket.emit('CandelFriendReq', sendername.username);
+        await this.SendNotification(socket.data.id);
+      }
     }
   }
 
   async CandelFriendReqNotif(receiverId: number) {
-    const socket = this.connectedSockets.get(receiverId);
+    const sockets = this.connectedSockets.get(receiverId);
 
-    if (socket) {
-      socket.emit('CandelFriendReq', 'CanceledfrmSender');
-      await this.SendNotification(socket.data.id);
+    if (sockets) {
+      for (const socket of sockets) {
+        socket.emit('CandelFriendReq', 'CanceledfrmSender');
+        await this.SendNotification(socket.data.id);
+      }
     }
   }
 
@@ -173,17 +194,19 @@ export class NotificationsGateway {
       },
     });
 
-    const socket = this.connectedSockets.get(UserId);
-    if (socket) {
-      socket.emit('GetNotifications', Notifications);
+    const sockets = this.connectedSockets.get(UserId);
+    if (sockets) {
+      for (const socket of sockets) {
+        socket.emit('GetNotifications', Notifications);
+      }
     }
   }
 
   async AcceptFriendReq(UserId: number, senderId: number) {
-    const socket = this.connectedSockets.get(UserId);
-    const socket2 = this.connectedSockets.get(senderId);
+    const sockets = this.connectedSockets.get(UserId);
+    // const socket2 = this.connectedSockets.get(senderId);
 
-    if (socket) {
+    if (sockets) {
       const sendername = await this.prisma.user.findUnique({
         where: {
           id: senderId,
@@ -195,7 +218,7 @@ export class NotificationsGateway {
 
       const notifications = await this.prisma.notification.findMany({
         where: {
-          userId: socket.data.id,
+          userId: UserId,
         },
       });
 
@@ -209,7 +232,7 @@ export class NotificationsGateway {
 
       await this.prisma.user.update({
         where: {
-          id: socket.data.id,
+          id: UserId,
         },
         data: {
           notifications: {
@@ -221,24 +244,25 @@ export class NotificationsGateway {
         },
       });
 
-      socket.emit('AcceptFriendReq', sendername.username);
-
-      await this.SendNotification(socket.data.id);
+      for (const socket of sockets) {
+        socket.emit('AcceptFriendReq', sendername.username);
+        await this.SendNotification(socket.data.id);
+      }
     }
-    if (socket2) {
-      socket2.emit('AcceptFriendReq', 'Accepted');
-    }
+    // if (socket2) {
+    //   socket2.emit('AcceptFriendReq', 'Accepted');
+    // }
   }
 
   async RerenderFriends(UserId: number, senderId: number) {
-    const socket = this.connectedSockets.get(UserId);
-    const socket2 = this.connectedSockets.get(senderId);
+    const sockets = this.connectedSockets.get(UserId);
+    const sockets2 = this.connectedSockets.get(senderId);
 
-    if (socket) {
-      socket.emit('RerenderFriends', senderId);
+    if (sockets) {
+      for (const socket of sockets) socket.emit('RerenderFriends', senderId);
     }
-    if (socket2) {
-      socket2.emit('RerenderFriends', UserId);
+    if (sockets2) {
+      for (const socket2 of sockets2) socket2.emit('RerenderFriends', UserId);
     }
   }
 

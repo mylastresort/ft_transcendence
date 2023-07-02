@@ -60,6 +60,7 @@ function SideLink({ data, active, setActive }) {
       label={item.label}
       onClick={() => setActive(index)}
       p={14}
+      key={index}
     />
   ));
 
@@ -79,6 +80,7 @@ function AllFriends({ friends }) {
         <Group position="left">
           {friends?.map((item, index) => (
             <UnstyledButton
+              key={index}
               className={Styles.UnstyledButton}
               onClick={() => {
                 router.push(`/profile/${item?.username}`);
@@ -122,6 +124,7 @@ function RequestFriends({ friendReq }) {
         <Group position="left">
           {friendReq?.map((item, index) => (
             <UnstyledButton
+              key={index}
               className={Styles.UnstyledButton}
               onClick={() => {
                 router.push(`/profile/${item?.sender.username}`);
@@ -164,6 +167,7 @@ function BlockedFriends({ blockedFriends }) {
         <Group position="left">
           {blockedFriends?.map((item, index) => (
             <UnstyledButton
+              key={index}
               className={Styles.UnstyledButton}
               onClick={() => {
                 router.push(`/profile/${item?.username}`);
@@ -206,6 +210,7 @@ function AddFriends({ Addfriends }) {
         <Group position="left">
           {Addfriends?.map((item, index) => (
             <UnstyledButton
+              key={index}
               className={Styles.UnstyledButton}
               onClick={() => {
                 router.push(`/profile/${item?.username}`);
@@ -245,6 +250,8 @@ function Friends() {
   const [blockedFriends, setBlockedFriends] = useState<any>(null);
   const [Addfriends, setAddfriends] = useState<any>(null);
 
+  const [socketEvent, setSocketEvent] = useState(false);
+
   const router = useRouter();
   const { username } = router.query;
 
@@ -276,65 +283,46 @@ function Friends() {
   ];
 
   useEffect(() => {
-    UserSocket.on('RerenderFriends', (data) => {});
+    const fetchData = async () => {
+      try {
+        UserSocket.on('RerenderFriends', (data) => {
+          setSocketEvent((prevSocketEvent) => !prevSocketEvent);
+        });
 
-    GetFriendRequests()
-      .then((res) => {
-        setFriendReq(res.body);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    const payload = {
-      username: username,
-    };
-    GetMe()
-      .then((res) => {
-        if (res.body.username === username) {
+        const friendRequests = await GetFriendRequests();
+        setFriendReq(friendRequests.body);
+
+        const payload = {
+          username: username,
+        };
+
+        const me = await GetMe();
+        if (me.body.username === username) {
           setIsMe(true);
         }
 
-        PostUserProfile(payload)
-          .then((res) => {
-            const payload = {
-              ofuser: res.body.id,
-            };
-            GetFriendsList(payload)
-              .then((res) => {
-                setFriends(res.body);
-              })
-              .catch((err) => {
-                console.log(err);
-              });
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+        const userProfile = await PostUserProfile(payload);
+        const friendsList = await GetFriendsList({
+          username: userProfile.body.username,
+        });
+        setFriends(friendsList.body);
 
-    GetBLockedFriends()
-      .then((res) => {
-        setBlockedFriends(res.body);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+        const blockedFriends = await GetBLockedFriends();
+        setBlockedFriends(blockedFriends.body);
 
-    Get_Not_Friends()
-      .then((res) => {
-        setAddfriends(res.body);
-      })
-      .catch((err) => {
+        const notFriends = await Get_Not_Friends();
+        setAddfriends(notFriends.body);
+      } catch (err) {
         console.log(err);
-      });
+      }
+    };
+
+    fetchData();
 
     return () => {
       UserSocket.off('RerenderFriends');
     };
-  }, [username]);
+  }, [username, socketEvent]);
 
   return (
     <div className="dash_container">
