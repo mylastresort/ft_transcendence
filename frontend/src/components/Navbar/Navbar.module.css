@@ -1,0 +1,7 @@
+.Navbar_css {
+  background-color: 'var(--sidebar-color)';
+  display: 'flex';
+  align-items: 'center';
+  justify-content: 'space-between';
+  padding: '15px 20px';
+}

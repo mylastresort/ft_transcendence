@@ -1,7 +1,4 @@
 import request from 'superagent';
-import Cookies from 'js-cookie';
-
-const Token42 = Cookies.get('access_token');
 
 export const PostTokens = (url: string) => {
   return request
@@ -16,7 +13,7 @@ export const PostTokens = (url: string) => {
 
 export const PostLogin = (AcToken: string) => {
   return request
-    .post('/api/v1/auth/register')
+    .post('http://localhost:4400/api/v1/auth/register')
     .set('Authorization', `Bearer ${AcToken}`)
     .then((res) => {
       return res;
@@ -27,9 +24,53 @@ export const PostLogin = (AcToken: string) => {
 };
 
 export const GetMe = () => {
+  const jwtToken = localStorage.getItem('jwtToken');
+
   return request
-    .get('/api/v1/auth/me')
-    .set('Authorization', `Bearer ${Token42}`)
+    .get('http://localhost:4400/api/v1/auth/me')
+    .set('Authorization', `Bearer ${jwtToken}`)
+    .then((res) => {
+      return res;
+    })
+    .catch((err) => {
+      return err;
+    });
+};
+
+export const Post2fa = (data: any) => {
+  const jwtToken = localStorage.getItem('jwtToken');
+  return request
+    .post('http://localhost:4400/api/v1/auth/Get2fa')
+    .set('Authorization', `Bearer ${jwtToken}`)
+    .send(data)
+    .then((res) => {
+      return res;
+    })
+    .catch((err) => {
+      return err;
+    });
+};
+
+export const PostVerify2fa = (data: any) => {
+  const jwtToken = localStorage.getItem('jwtToken');
+  return request
+    .post('http://localhost:4400/api/v1/auth/Verify2fa')
+    .set('Authorization', `Bearer ${jwtToken}`)
+    .send(data)
+    .then((res) => {
+      return res;
+    })
+    .catch((err) => {
+      return err;
+    });
+};
+
+export const PostVerify2faTmp = (data: any) => {
+  const TmpJwt = localStorage.getItem('TmpJwt');
+  return request
+    .post('http://localhost:4400/api/v1/auth/Verify2faTmp')
+    .set('Authorization', `Bearer ${TmpJwt}`)
+    .send(data)
     .then((res) => {
       return res;
     })

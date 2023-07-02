@@ -14,7 +14,10 @@ import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 
 @ApiTags('Auth')
-@Controller('/v1/auth')
+@Controller({
+  path: 'auth',
+  version: '1',
+})
 export class AuthController {
   constructor(public service: AuthService) {}
 
@@ -30,10 +33,34 @@ export class AuthController {
   }
 
   @Get('me')
-  @UseGuards(AuthGuard('token'))
+  @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async me(@Req() req: any) {
-    return req.user;
+    return this.service.me(req.user.id);
+  }
+
+  @Post('Get2fa')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async twoFactorAuth(@Req() req: any, @Body() body: any) {
+    return this.service.GettwoFactorAuth(req.user, body);
+  }
+
+  @Post('Verify2faTmp')
+  @UseGuards(AuthGuard('tmpJwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async verifyTwoFactorAuthTmp(@Req() req: any, @Body() body: any) {
+    return this.service.VerifytwoFactorAuth(req.user, body);
+  }
+
+  @Post('Verify2fa')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async verifyTwoFactorAuth(@Req() req: any, @Body() body: any) {
+    return this.service.VerifytwoFactorAuth(req.user, body);
   }
 }

@@ -1,3 +1,3 @@
-import { getTokens } from '@/pages/api/v1/auth/42/callback';
+import { getTokens } from '@/pages/api/auth/callback';
 
 export default getTokens;

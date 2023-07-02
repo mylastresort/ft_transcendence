@@ -1,0 +1,16 @@
+.Upload_circle {
+  width: 120px;
+  height: 120px;
+  cursor: pointer;
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+}
+
+.Upload_circle:hover {
+  opacity: 0.8;
+}
+
+.Account_layout {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
