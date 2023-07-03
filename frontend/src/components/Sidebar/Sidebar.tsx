@@ -64,7 +64,7 @@ export const User_Sidebar = (Show: any) => {
       setClickedon(2);
     } else if (urlPath === '/home/friends') {
       setClickedon(3);
-    } else if (urlPath === '/profile' || urlPath === '/edit/info') {
+    } else if (urlPath.includes('/profile') || urlPath === '/edit/info') {
       setClickedon(5);
     }
 
@@ -334,11 +334,13 @@ export const User_Sidebar = (Show: any) => {
                 >
                   <Badge
                     color={
-                      Notifications.filter((item) => !item.read).length > 0
+                      Notifications.filter((item: any) => !item.read).length > 0
                         ? 'error'
                         : 'default'
                     }
-                    content={Notifications.filter((item) => !item.read).length}
+                    content={
+                      Notifications.filter((item: any) => !item.read).length
+                    }
                     // isInvisible={isInvisible}
                     shape="circle"
                     size="xs"
@@ -353,7 +355,7 @@ export const User_Sidebar = (Show: any) => {
               </Menu.Target>
 
               <Menu.Dropdown>
-                {Notifications.map((item, index) => (
+                {Notifications.map((item: any, index: number) => (
                   <div>
                     <Menu.Item
                       icon={
@@ -392,7 +394,7 @@ export const User_Sidebar = (Show: any) => {
               <Dropdown.Menu
                 aria-label="User menu actions"
                 color="secondary"
-                onAction={(actionKey) => handleActions(actionKey)}
+                onAction={(actionKey: any) => handleActions(actionKey)}
               >
                 <Dropdown.Item key="profile" css={{ height: '$18' }}>
                   <Text b color="inherit" css={{ d: 'flex' }}>
