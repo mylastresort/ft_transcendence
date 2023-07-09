@@ -30,7 +30,7 @@ export default function App({ Component, pageProps }: AppProps) {
       setShow(false);
       GetMe()
         .then((res) => {
-          user = res.body;
+          user.data = res.body;
           if (res.status !== 200) {
             localStorage.removeItem('jwtToken');
             router.push('/');
