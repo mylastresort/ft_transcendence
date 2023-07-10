@@ -89,7 +89,7 @@ export function Game() {
 function GameWrapper() {
   const socket = useMemo(
     () =>
-      io(`localhost:99`, {
+      io(`localhost:4400/game`, {
         autoConnect: false,
         extraHeaders: {
           Authorization: `Bearer ${localStorage.getItem('jwtToken')}`,

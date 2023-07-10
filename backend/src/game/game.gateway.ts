@@ -17,7 +17,8 @@ import { User } from '@prisma/client';
 @Catch()
 @UsePipes(new ValidationPipe())
 @UseFilters(BaseWsExceptionFilter, HttpGatewayExceptionFilter)
-@WebSocketGateway(99, {
+@WebSocketGateway({
+  namespace: 'game',
   cors: {
     allowedHeaders: 'Authorization',
     credentials: true,
