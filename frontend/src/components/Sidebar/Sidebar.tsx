@@ -58,7 +58,7 @@ export const User_Sidebar = (Show: any) => {
   useEffect(() => {
     const urlPath = window.location.pathname;
 
-    if (urlPath === '/home/dashboard') {
+    if (urlPath === '/game') {
       setClickedon(1);
     } else if (urlPath === '/chat') {
       setClickedon(2);
@@ -178,7 +178,7 @@ export const User_Sidebar = (Show: any) => {
                   HandleSelected(1);
                 }}
               >
-                <Link href="/home/dashboard">
+                <Link href="/game">
                   <i
                     className=" icon"
                     style={{

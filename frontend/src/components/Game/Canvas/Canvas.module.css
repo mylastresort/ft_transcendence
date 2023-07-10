@@ -1,0 +1,74 @@
+.canvas_container {
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-size: 1.5em;
+    font-weight: 600;
+    gap: 1em;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+
+.canvas_container::before {
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: absolute;
+    content: ' ';
+    height: 100%;
+    width: 100%;
+    opacity: .2;
+}
+
+.canvas_container .canvas {
+    border-bottom: .2em solid;
+    border-top: .2em solid;
+    box-sizing: content-box;
+}
+
+.canvas_container .name {
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.canvas {
+    position: relative;
+}
+
+.canvas .divider {
+    border-left: .2em dashed antiquewhite;
+    height: 100%;
+    position: absolute;
+    top: 0;
+}
+
+.canvas .ball {
+    --ball-x: 0px;
+    --ball-y: 0px;
+    border-radius: 50%;
+    transform: translate(var(--ball-x), var(--ball-y));
+    background-color: antiquewhite;
+}
+
+.canvas .player {
+    --player-y: 0px;
+    border-radius: 10px;
+    transform: translateY(calc(var(--player-y) * -1));
+    width: 8px;
+    background-color: antiquewhite;
+}
+
+.canvas .hostScore, .canvas .guestScore {
+    position: absolute;
+    top: 10px;
+    text-shadow: 0 0 3px antiquewhite;
+}
+
+.canvas .hostScore {
+    left: 35%;
+}
+
+.canvas .guestScore {
+    right: 35%;
+}

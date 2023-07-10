@@ -7,6 +7,7 @@ import { FriendsModule } from './friends/friends.module';
 import { SeedModule } from './seed/seed.module';
 import { UserGatewayModule } from './usergateway/usergateway.module';
 import { NotificationsGateway } from './usergateway/notifications.gateway';
+import { GameModule } from './game/game.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { NotificationsGateway } from './usergateway/notifications.gateway';
     FriendsModule,
     SeedModule,
     UserGatewayModule,
+    GameModule,
   ],
   providers: [NotificationsGateway],
 })
