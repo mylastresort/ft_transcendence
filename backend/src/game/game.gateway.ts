@@ -1,4 +1,11 @@
-import { Catch, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
+import {
+  Catch,
+  Inject,
+  UseFilters,
+  UsePipes,
+  ValidationPipe,
+  forwardRef,
+} from '@nestjs/common';
 import {
   BaseWsExceptionFilter,
   OnGatewayConnection,
@@ -6,7 +13,6 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  WsException,
 } from '@nestjs/websockets';
 import { GameService } from './game.service';
 import { HttpGatewayExceptionFilter } from './game-exception.filter';
@@ -17,37 +23,40 @@ import { User } from '@prisma/client';
 @Catch()
 @UsePipes(new ValidationPipe())
 @UseFilters(BaseWsExceptionFilter, HttpGatewayExceptionFilter)
-@WebSocketGateway(99, {
+@WebSocketGateway({
+  namespace: 'game',
   cors: {
-    allowedHeaders: 'Authorization',
-    credentials: true,
     origin: 'http://localhost:3000',
-  },
-  allowRequest: ({ headers: { authorization } }, cb) => {
-    try {
-      if (!authorization) throw new WsException('Missing authorization header');
-      verify(authorization.split(' ')[1], process.env.AUTH_JWT_SECRET);
-      cb(null, true);
-    } catch (err) {
-      cb(err, false);
-    }
   },
 })
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() readonly wss: Server;
 
-  constructor(private readonly game: GameService) {}
+  @Inject(forwardRef(() => GameService)) private game: GameService;
 
   handleDisconnect(socket) {
     this.game.leave(socket);
   }
 
   async handleConnection(socket) {
-    const { id } = verify(
-      socket.handshake.headers.authorization.split(' ')[1],
-      process.env.AUTH_JWT_SECRET,
-    ) as User;
-    socket.data = await this.game.getPlayer(id);
+    try {
+      if (!socket.handshake.auth.token) throw new Error('No token');
+      const user = verify(
+        socket.handshake.auth.token,
+        process.env.AUTH_JWT_SECRET,
+      ) as User;
+      if (!user) throw new Error('Invalid token');
+      socket.data = await this.game.getPlayer(user.id);
+      socket.data.sid = socket.id;
+    } catch (err) {
+      socket.emit('exception', err.error || err.message || err);
+      socket.disconnect();
+    }
+  }
+
+  @SubscribeMessage('leave')
+  handlePlayerLeave(socket) {
+    return this.game.leave(socket);
   }
 
   @SubscribeMessage('join')

@@ -39,7 +39,7 @@ function login({ setIsTwoFactorAuth }: any) {
                 } else {
                   localStorage.setItem('jwtToken', res.body.token);
                   if (res.status === 201) {
-                    router.push('/home/dashboard');
+                    router.push('/game');
                   }
                 }
               })
@@ -64,7 +64,7 @@ function login({ setIsTwoFactorAuth }: any) {
         .then((res) => {
           if (res.status === 200) {
             localStorage.setItem('jwtToken', res.body.token);
-            router.push('/home/dashboard');
+            router.push('/game');
           } else {
             setIsError(true);
           }

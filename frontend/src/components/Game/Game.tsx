@@ -1,7 +1,13 @@
 import { init, reducer } from './game.reducer';
 import { Socket, io } from 'socket.io-client';
 import { motion } from 'framer-motion';
-import { Center, MantineProvider, Text, useMantineTheme } from '@mantine/core';
+import {
+  Button,
+  Flex,
+  MantineProvider,
+  Text,
+  useMantineTheme,
+} from '@mantine/core';
 import { UserContext } from '@/context/user';
 import Canvas from './Canvas/Canvas';
 import Customizer from './Customizer/Customizer';
@@ -26,8 +32,11 @@ import request from 'superagent';
 
 export function Game() {
   const maps = useContext(MapsContext);
-  const [{ page, gameId, opponent, ready, role, config, conf }, dispatch] =
-    useReducer(reducer, { map: Math.floor(maps.length / 2) }, init);
+  const [state, dispatch] = useReducer(
+    reducer,
+    { map: Math.floor(maps.length / 2) },
+    init
+  );
   const socket = useContext(SocketContext) as Socket;
   const user = useContext(UserContext);
 
@@ -36,7 +45,8 @@ export function Game() {
       .on('joined', (gameId, member, conf) =>
         dispatch({ type: 'MATCH', value: [gameId, member, conf] })
       )
-      .on('started', (value) => dispatch({ type: 'STARTED', value }));
+      .on('started', (value) => dispatch({ type: 'STARTED', value }))
+      .on('left', () => dispatch({ type: 'LEAVE' }));
     return () => {
       socket.off('joined').off('started');
     };
@@ -53,30 +63,40 @@ export function Game() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            {page === 'home' && <Home />}
-            {page === 'custom' && <Customizer map={conf.map} />}
-            {page === 'lobby' &&
-              (opponent ? (
+            {state.page === 'home' && <Home />}
+            {state.page === 'custom' && <Customizer map={state.conf.map} />}
+            {state.page === 'lobby' &&
+              (state.opponent ? (
                 <Lobby
-                  gameId={gameId}
-                  ready={ready}
+                  gameId={state.gameId}
+                  ready={state.ready}
                   user={user.data}
-                  opponent={{ ...opponent, ...opponent.user }}
+                  opponent={{ ...state.opponent, ...state.opponent.user }}
                 />
               ) : (
-                <Center display="flex">Waiting for players to join...</Center>
+                <Flex justify="space-around" align="center" h="100%">
+                  <Text>Waiting for players to join...</Text>
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      socket.emit('leave', () => dispatch({ type: 'LEAVE' }))
+                    }
+                  >
+                    Cancel
+                  </Button>
+                </Flex>
               ))}
-            {page === 'game' && config && (
+            {state.page === 'game' && state.config && (
               <Canvas
-                name={conf.name}
-                speed={conf.speed}
-                height={config.limit[1] * 2}
-                map={conf.map}
-                paddle={config.paddle}
-                radius={config.radius}
-                role={role}
-                width={config.limit[0] * 2}
-                games={conf.games}
+                name={state.conf.name}
+                speed={state.conf.speed}
+                height={state.config.limit[1] * 2}
+                map={state.conf.map}
+                paddle={state.config.paddle}
+                radius={state.config.radius}
+                role={state.role}
+                width={state.config.limit[0] * 2}
+                games={state.conf.games}
               />
             )}
           </motion.div>
@@ -89,12 +109,10 @@ export function Game() {
 function GameWrapper() {
   const socket = useMemo(
     () =>
-      io(`localhost:99`, {
-        autoConnect: false,
-        extraHeaders: {
-          Authorization: `Bearer ${localStorage.getItem('jwtToken')}`,
+      io(`localhost:4400/game`, {
+        auth: {
+          token: localStorage.getItem('jwtToken'),
         },
-        withCredentials: true,
       }),
     []
   );
@@ -107,7 +125,7 @@ function GameWrapper() {
       .on('connect', () => setConnected(true))
       .on('disconnect', () => setConnected(false))
       .on('exception', (err: Error) => {
-        throw Error(err.message);
+        throw new Error(err.message);
       })
       .connect();
     request
