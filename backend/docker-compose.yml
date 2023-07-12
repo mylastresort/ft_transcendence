@@ -5,9 +5,9 @@ services:
     container_name: ft_postgres
     restart: on-failure
     ports:
-      - 9577:5432
+      - ${DATABASE_PORT}:5432
     volumes:
-      - ./data/db:/var/lib/postgresql/data
+      - ./.data/db:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: ${DATABASE_USERNAME}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}

@@ -90,11 +90,9 @@ function GameWrapper() {
   const socket = useMemo(
     () =>
       io(`localhost:4400/game`, {
-        autoConnect: false,
-        extraHeaders: {
-          Authorization: `Bearer ${localStorage.getItem('jwtToken')}`,
+        auth: {
+          token: localStorage.getItem('jwtToken'),
         },
-        withCredentials: true,
       }),
     []
   );

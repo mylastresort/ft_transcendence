@@ -20,18 +20,7 @@ import { User } from '@prisma/client';
 @WebSocketGateway({
   namespace: 'game',
   cors: {
-    allowedHeaders: 'Authorization',
-    credentials: true,
     origin: 'http://localhost:3000',
-  },
-  allowRequest: ({ headers: { authorization } }, cb) => {
-    try {
-      if (!authorization) throw new WsException('Missing authorization header');
-      verify(authorization.split(' ')[1], process.env.AUTH_JWT_SECRET);
-      cb(null, true);
-    } catch (err) {
-      cb(err, false);
-    }
   },
 })
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -44,11 +33,18 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   async handleConnection(socket) {
-    const { id } = verify(
-      socket.handshake.headers.authorization.split(' ')[1],
-      process.env.AUTH_JWT_SECRET,
-    ) as User;
-    socket.data = await this.game.getPlayer(id);
+    try {
+      if (!socket.handshake.auth.token) throw new Error('No token');
+      const user = verify(
+        socket.handshake.auth.token,
+        process.env.AUTH_JWT_SECRET,
+      ) as User;
+      if (!user) throw new Error('Invalid token');
+      socket.data = await this.game.getPlayer(user.id);
+    } catch (err) {
+      socket.emit('exception', err.error || err.message || err);
+      socket.disconnect();
+    }
   }
 
   @SubscribeMessage('join')

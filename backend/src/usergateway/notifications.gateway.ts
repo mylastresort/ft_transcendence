@@ -15,6 +15,14 @@ import { PrismaService } from 'src/prisma/prisma.service';
   cors: {
     origin: 'http://localhost:3000',
   },
+  // allowRequest: ({ headers: { Authorization } }, callback) => {
+  //   try {
+  //     const payload = WsJwtGuard.validateToken(Authorization);
+  //     callback(null, true);
+  //   } catch (err) {
+  //     callback(err, false);
+  //   }
+  // },
 })
 @UseGuards(WsJwtGuard)
 export class NotificationsGateway {
