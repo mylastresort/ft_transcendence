@@ -13,7 +13,6 @@ import { UserContext } from '@/context/user';
 import { WsProvider, UserSocket } from '@/context/WsContext';
 import { MantineProvider } from '@mantine/core';
 import Theme from './styles/theme';
-import { WsContext } from '@/context/WsContext';
 import { Notifications, notifications } from '@mantine/notifications';
 import { BiSolidUserPlus } from 'react-icons/bi';
 
@@ -22,6 +21,7 @@ export default function App({ Component, pageProps }: AppProps) {
   const [show, setShow] = useState(true);
   const [isTwoFactorAuth, setIsTwoFactorAuth] = useState(false);
   const router = useRouter();
+  // const UserSocket = useContext(WsContext);
 
   useEffect(() => {
     const token = localStorage.getItem('jwtToken');
@@ -32,6 +32,7 @@ export default function App({ Component, pageProps }: AppProps) {
         .then((res) => {
           user.data = res.body;
           if (res.status !== 200) {
+            UserSocket.disconnect();
             localStorage.removeItem('jwtToken');
             router.push('/');
           }
@@ -51,6 +52,7 @@ export default function App({ Component, pageProps }: AppProps) {
           .then((res) => {
             user = res.body;
             if (res.status !== 200) {
+              UserSocket.disconnect();
               localStorage.removeItem('jwtToken');
               router.push('/');
             }
@@ -70,8 +72,6 @@ export default function App({ Component, pageProps }: AppProps) {
       router.events.off('routeChangeComplete', handleRouteChange);
     };
   }, []);
-
-  const UserSocket = useContext(WsContext);
 
   useEffect(() => {
     UserSocket.on('NewRequestNotification', (name) => {

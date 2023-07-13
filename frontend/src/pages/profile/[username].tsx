@@ -39,7 +39,7 @@ import {
   GetBLockedFriends,
   PostUnblock,
 } from '@/pages/api/friends/friends';
-import { WsContext } from '@/context/WsContext';
+import { UserSocket } from '@/context/WsContext';
 import { BlockedPanel, ProfileNotFound } from '@/components/Pageutils/NotFound';
 
 function Pofile() {
@@ -56,7 +56,7 @@ function Pofile() {
   const [isLoaded, setIsLoaded] = useState<boolean>(true);
   const [isNotFound, setIsNotFound] = useState<boolean>(false);
 
-  const UserSocket = useContext(WsContext);
+  // const UserSocket = useContext(WsContext);
 
   const router = useRouter();
   // const { username } = router.query;

@@ -23,7 +23,7 @@ import { useRouter } from 'next/router';
 import { GetUserData } from '@/pages/api/user';
 import { Burger, Group, ActionIcon, Menu, Divider } from '@mantine/core';
 import { IoNotifications } from 'react-icons/io5';
-import { WsContext } from '@/context/WsContext';
+import { UserSocket } from '@/context/WsContext';
 import { MdLabelImportantOutline } from 'react-icons/md';
 
 export const User_Sidebar = (Show: any) => {
@@ -31,7 +31,7 @@ export const User_Sidebar = (Show: any) => {
     return null;
   }
 
-  const UserSocket = useContext(WsContext);
+  // const UserSocket = useContext(WsContext);
 
   const router = useRouter();
 
@@ -111,6 +111,7 @@ export const User_Sidebar = (Show: any) => {
   }, []);
 
   const HandleLogout = () => {
+    UserSocket.disconnect();
     localStorage.removeItem('jwtToken');
     router.push('/');
   };

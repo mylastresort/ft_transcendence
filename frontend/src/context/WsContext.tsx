@@ -13,6 +13,7 @@ if (typeof window !== 'undefined') {
 }
 
 export const UserSocket = io('http://localhost:4400/userws', socketOptions);
+console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
 export const WsContext = createContext<Socket>(UserSocket);
 
 export const WsProvider = WsContext.Provider;

@@ -46,7 +46,7 @@ import Styles from './friends.module.css';
 import { AiOutlineUser, AiOutlineUserAdd } from 'react-icons/ai';
 import { HiMail } from 'react-icons/hi';
 import { BiBlock } from 'react-icons/bi';
-import { WsContext } from '@/context/WsContext';
+import { UserSocket } from '@/context/WsContext';
 
 function SideLink({ data, active, setActive }) {
   const items = data.map((item, index) => (
@@ -241,7 +241,7 @@ function AddFriends({ Addfriends }) {
 }
 
 function Friends() {
-  const UserSocket = useContext(WsContext);
+  // const UserSocket = useContext(WsContext);
 
   const [active, setActive] = useState(0);
   const [isMe, setIsMe] = useState<boolean>(false);
