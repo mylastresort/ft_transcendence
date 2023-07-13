@@ -15,7 +15,7 @@ const withAuth = (WrappedComponent) => {
         router.push('/');
       } else {
         if (router.pathname === '/' || router.pathname === '/login') {
-          router.push('/home/dashboard');
+          router.push('/game');
         }
         setIsAuthenticated(true);
       }

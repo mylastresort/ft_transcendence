@@ -14,7 +14,7 @@ import {
   Badge,
 } from '@nextui-org/react';
 import { FiSearch } from 'react-icons/fi';
-import { MdDashboard } from 'react-icons/md';
+import { GiPingPongBat } from 'react-icons/gi';
 import { HiOutlineChatAlt2 } from 'react-icons/hi';
 import { FiUsers } from 'react-icons/fi';
 import { BiBarChartAlt2 } from 'react-icons/bi';
@@ -38,7 +38,7 @@ export const User_Sidebar = (Show: any) => {
   const [FirstName, setFirstName] = useState('');
   const [LastName, setLastName] = useState('');
   const [Username, setUsername] = useState('');
-  const [Clickedon, setClickedon] = useState(0);
+  const [Clickedon, setClickedon] = useState(1);
   const [PhotoUrl, setPhotoUrl] = useState('');
   const [UserData, setUserData] = useState<any>(null);
   const [Opened, setOpened] = useState(false);
@@ -58,7 +58,7 @@ export const User_Sidebar = (Show: any) => {
   useEffect(() => {
     const urlPath = window.location.pathname;
 
-    if (urlPath === '/home/dashboard') {
+    if (urlPath === '/game') {
       setClickedon(1);
     } else if (urlPath === '/chat') {
       setClickedon(2);
@@ -178,14 +178,14 @@ export const User_Sidebar = (Show: any) => {
                   HandleSelected(1);
                 }}
               >
-                <Link href="/home/dashboard">
+                <Link href="/game">
                   <i
                     className=" icon"
                     style={{
                       color: Clickedon === 1 ? 'var(--secondary-color)' : '',
                     }}
                   >
-                    <MdDashboard />
+                    <GiPingPongBat />
                   </i>
                   <span
                     className="text nav-text"
