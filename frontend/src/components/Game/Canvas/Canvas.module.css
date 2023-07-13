@@ -37,7 +37,7 @@
 }
 
 .canvas .divider {
-    border-left: .2em dashed antiquewhite;
+    border-left: .2em dashed whitesmoke;
     height: 100%;
     position: absolute;
     top: 0;
@@ -48,21 +48,23 @@
     --ball-y: 0px;
     border-radius: 50%;
     transform: translate(var(--ball-x), var(--ball-y));
-    background-color: antiquewhite;
+    background-color: whitesmoke;
 }
 
 .canvas .player {
     --player-y: 0px;
     border-radius: 10px;
-    transform: translateY(calc(var(--player-y) * -1));
+    transform: translateY(calc(var(--player-y)));
     width: 8px;
-    background-color: antiquewhite;
+    background-color: whitesmoke;
 }
 
-.canvas .hostScore, .canvas .guestScore {
+.canvas .hostScore,
+.canvas .guestScore {
     position: absolute;
     top: 10px;
-    text-shadow: 0 0 3px antiquewhite;
+    text-align: left;
+    text-shadow: 0 0 3px whitesmoke;
 }
 
 .canvas .hostScore {

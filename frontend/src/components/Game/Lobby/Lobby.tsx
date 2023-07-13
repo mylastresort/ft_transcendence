@@ -24,39 +24,39 @@ export default function Lobby({ gameId, ready, user, opponent }) {
   }, [gameId, ready]);
 
   return (
-    <Box className={styles.lobby}>
-      <Flex gap={0} className={styles.profiles}>
-        <Profile user={{ ...user, ...player.user, ...player }} />
-        <Profile user={opponent} />
-      </Flex>
-      <Flex
-        direction={{ base: 'column', sm: 'row' }}
-        justify="space-evenly"
-        align="center"
-        className={styles.actions}
-      >
-        <Button
-          variant="outline"
-          onClick={() =>
-            gameId
-              ? socket.emit('leave', () => dispatch({ type: 'LEAVE' }))
-              : dispatch({ type: 'LEAVE' })
-          }
+    <Flex align="center" h="100%">
+      <Box className={styles.lobby}>
+        <Flex gap={0} className={styles.profiles}>
+          <Profile user={{ ...user, ...player.user, ...player }} />
+          <Profile user={opponent} />
+        </Flex>
+        <Flex
+          direction={{ base: 'column', sm: 'row' }}
+          justify="space-evenly"
+          align="center"
+          className={styles.actions}
         >
-          Leave
-        </Button>
-        <Button
-          disabled={!gameId}
-          variant={ready ? 'filled' : 'outline'}
-          onClick={() =>
-            socket.emit('ready', !ready, () =>
-              dispatch({ type: 'READY', value: !ready })
-            )
-          }
-        >
-          Ready
-        </Button>
-      </Flex>
-    </Box>
+          <Button
+            variant="outline"
+            onClick={() =>
+              socket.emit('leave', () => dispatch({ type: 'LEAVE' }))
+            }
+          >
+            Leave
+          </Button>
+          <Button
+            disabled={!gameId}
+            variant={ready ? 'filled' : 'outline'}
+            onClick={() =>
+              socket.emit('ready', !ready, () =>
+                dispatch({ type: 'READY', value: !ready })
+              )
+            }
+          >
+            Ready
+          </Button>
+        </Flex>
+      </Box>
+    </Flex>
   );
 }

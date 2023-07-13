@@ -19,12 +19,13 @@ export default function usePlayers(
   const handleMouseMove: MouseEventHandler<HTMLDivElement> = (event) => {
     const top = event.currentTarget.getBoundingClientRect().top;
     return requestAnimationFrame(() => {
+      if (!Host.current || !Guest.current) return;
       const next = top + height / 2 - event.clientY;
       if (Math.abs(next) < height / 2 - paddle / 2) {
-        socket.emit('move', next, () =>
+        socket.emit('move', -next, () =>
           (role === 'host' ? Host : Guest).current.style.setProperty(
             '--player-y',
-            `${next}px`
+            `${-next}px`
           )
         );
       }

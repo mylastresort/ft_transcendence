@@ -49,7 +49,7 @@ export class Room implements RoomEntity {
     if (Math.abs(BallX) === Room.edges[0]) {
       const player = BallX > 0 ? 'guest' : 'host';
       const [pos] = this.players[player];
-      if (Math.abs(Math.abs(BallY) - Math.abs(pos)) > Room.paddle / 2) {
+      if (BallY > pos + Room.paddle / 2 || BallY < pos - Room.paddle / 2) {
         const opponent = player === 'guest' ? 'host' : 'guest';
         const [, score] = this.players[opponent];
         this.players[opponent][1] = score + 1;

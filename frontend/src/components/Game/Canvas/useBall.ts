@@ -25,6 +25,7 @@ export default function useBall(
           cord.current['--ball-y'] = [0, 0];
         })
         .on('ping', ([right, top, dx, dy], key) => {
+          if (!Ball.current) return;
           cancelAnimationFrame(rAFball.current);
           Ball.current.style.setProperty(
             '--ball-x',
@@ -38,6 +39,7 @@ export default function useBall(
           cord.current['--ball-y'] = [top, dy];
           rAFball.current = (function move() {
             return requestAnimationFrame(() => {
+              if (!Ball.current) return;
               if (
                 Object.entries(cord.current).reduce(
                   (_done, [name, [max, lsz]]) => {
@@ -70,16 +72,17 @@ export default function useBall(
                       .slice(0, -2)
                   );
                   if (
-                    paddle / 2 <
-                    Math.abs(Math.abs(BallY) - Math.abs(Player))
+                    BallY > Player + paddle / 2 ||
+                    BallY < Player - paddle / 2
                   ) {
                     allow.current = false;
                     Object.values(cord.current).forEach(
                       (cur) => (cur[0] += 50 * Math.sign(cur[1]))
                     );
                     rAFball.current = (function animateLoss() {
-                      return requestAnimationFrame(
-                        () =>
+                      return requestAnimationFrame(() => {
+                        if (!Ball.current) return;
+                        if (
                           !Object.entries(cord.current).reduce(
                             (_done, [name, [max, lsz]]) => {
                               const cur = Number(
@@ -97,8 +100,10 @@ export default function useBall(
                               return next === max;
                             },
                             true
-                          ) && (rAFball.current = animateLoss())
-                      );
+                          )
+                        )
+                          rAFball.current = animateLoss();
+                      });
                     })();
                   }
                 }

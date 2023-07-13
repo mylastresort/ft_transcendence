@@ -38,7 +38,7 @@ export default function Canvas({
     Guest as MutableRefObject<HTMLDivElement>,
     paddle,
     height,
-    role
+    role,
   );
   useBall(
     Ball as MutableRefObject<HTMLDivElement>,
@@ -49,7 +49,7 @@ export default function Canvas({
     speed,
     rAFball,
     cord,
-    allow
+    allow,
   );
   const [hostScore, setHostScore] = useState(0);
   const [guestScore, setGuestScore] = useState(0);
@@ -62,10 +62,14 @@ export default function Canvas({
       .on('scored', (role, score) =>
         role === 'host' ? setHostScore(score) : setGuestScore(score)
       )
-      .on('gameover', (role) => {
-        dispatch({ type: 'LEAVE' });
-      })
-      .on('games:counter', setGamesCounter);
+      .on('gameover', () => dispatch({ type: 'LEAVE' }))
+      .on('games:counter', (count) => {
+        setGamesCounter(count);
+        requestAnimationFrame(() => {
+          Host.current?.style.setProperty('--ball-y', '0px');
+          Guest.current?.style.setProperty('--ball-y', '0px');
+        });
+      });
     return () => {
       socket.off('scored').off('gameover').off('games:counter');
     };

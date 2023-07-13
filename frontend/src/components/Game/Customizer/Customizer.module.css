@@ -35,3 +35,8 @@
     min-width: 15rem;
     position: absolute;
 }
+
+.customizer .map_container {
+    min-height: 18rem;
+    min-width: 15rem;
+}

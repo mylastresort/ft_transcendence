@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { interval, map, switchMap, zip } from 'rxjs';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Socket } from 'socket.io';
 import { WsException } from '@nestjs/websockets';
 import Ball from './ball.class';
 import { Room } from './room.class';
+import { GameGateway } from './game.gateway';
 
 @Injectable()
 export class GameService {
@@ -33,9 +34,11 @@ export class GameService {
     .subscribe(async ({ host, guest, room: { id } }) => {
       await host.join(id);
       await guest.join(id);
-      host.to(id).emit('joined', id, guest.data, host.data);
-      guest.to(id).emit('joined', id, host.data, host.data);
+      host.to(id).emit('joined', id, host.data, host.data);
+      guest.to(id).emit('joined', id, guest.data, host.data);
     });
+
+  @Inject(forwardRef(() => GameGateway)) private gate: GameGateway;
 
   constructor(private prisma: PrismaService) {}
 
@@ -47,6 +50,7 @@ export class GameService {
           location: true,
           username: true,
           imgProfile: true,
+          id: true,
         },
       });
       return {
@@ -69,14 +73,40 @@ export class GameService {
   }
 
   join(socket, body) {
-    if (socket.data.role) throw new WsException('Already joined');
+    let alreadyJoined = false;
+    for (const { data } of this.hosts) {
+      if (data.user.id == socket.data.user.id) {
+        alreadyJoined = true;
+        break;
+      }
+    }
+    for (const { data } of this.guests) {
+      if (data.user.id == socket.data.user.id) {
+        alreadyJoined = true;
+        break;
+      }
+    }
+    if (alreadyJoined) throw new WsException('Already joined');
     socket.data = { ...socket.data, ...body };
     (body.role === 'host' ? this.hosts : this.guests).add(socket);
     return true;
   }
 
   leave(socket) {
-    if (socket.data.gameId) this.rooms.get(socket.data.gameId)?.leave();
+    if (socket.data.role)
+      (socket.data.role === 'host' ? this.hosts : this.guests).delete(socket);
+    delete socket.data.role;
+    if (socket.data.gameId) {
+      const room = this.rooms.get(socket.data.gameId);
+      if (room) {
+        this.gate.wss.to(room.id).emit('left', room.id);
+        this.gate.wss
+          .in([room.guest.sid, room.host.sid])
+          .socketsLeave(socket.data.gameId);
+        this.rooms.delete(socket.data.gameId);
+      }
+      delete socket.data.gameId;
+    }
     return true;
   }
 
@@ -114,7 +144,7 @@ export class GameService {
 
   pong(socket, key: number) {
     const room = this.rooms.get(socket.data.gameId);
-    if (room.isFirst(key)) {
+    if (room && room.isFirst(key)) {
       const isOut = room.isBallOut();
       if (isOut) {
         this.broadcast(socket, 'scored', ...isOut);
@@ -129,18 +159,18 @@ export class GameService {
             room.resetPlayers();
             this.broadcast(socket, 'scored', 'host', 0);
             this.broadcast(socket, 'scored', 'guest', 0);
+            const values = room.resetBall();
             setTimeout(() => {
               socket.to(room.id).emit('reset');
               socket.emit('reset');
-              const values = room.resetBall();
               this.broadcast(socket, 'ping', ...values);
             }, 1000);
           }
         } else {
+          const values = room.resetBall();
           setTimeout(() => {
             socket.to(room.id).emit('reset');
             socket.emit('reset');
-            const values = room.resetBall();
             this.broadcast(socket, 'ping', ...values);
           }, 1000);
         }

@@ -72,7 +72,7 @@ function NotFoundTitle() {
           <Button
             variant="subtle"
             size="md"
-            onClick={() => router.push('/home/dashboard')}
+            onClick={() => router.push('/game')}
           >
             Take me back to home page
           </Button>
