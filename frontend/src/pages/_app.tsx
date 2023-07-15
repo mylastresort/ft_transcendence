@@ -20,12 +20,13 @@ export default function App({ Component, pageProps }: AppProps) {
   let user = useContext(UserContext);
   const [show, setShow] = useState(true);
   const [isTwoFactorAuth, setIsTwoFactorAuth] = useState(false);
+  const [Token, setToken] = useState<string | null>(null);
   const router = useRouter();
   // const UserSocket = useContext(WsContext);
 
   useEffect(() => {
     const token = localStorage.getItem('jwtToken');
-    console.log(token);
+    setToken(token);
     if (token) {
       setShow(false);
       GetMe()
@@ -46,6 +47,8 @@ export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
     const handleRouteChange = (url) => {
       const token = localStorage.getItem('jwtToken');
+      setToken(token);
+
       if (token) {
         setShow(false);
         GetMe()
@@ -126,7 +129,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS theme={Theme}>
       <Notifications position="top-right" />
-      <WsProvider value={UserSocket}>
+      <WsProvider token={Token}>
         <NextUIProvider>
           <UserContext.Provider value={user}>
             <MainNavbar Show={show} isTwoFactorAuth={isTwoFactorAuth} />

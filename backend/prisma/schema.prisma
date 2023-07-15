@@ -115,30 +115,3 @@ model Room {
   players    Player[]
   status     String
 }
-
-model Achievement {
-  description String
-  id          Int      @id @default(autoincrement())
-  name        String
-  players     Player[]
-}
-
-model Player {
-  achievements  Achievement[]
-  currentStreak Int           @default(0)
-  level         Int           @default(0)
-  longestStreak Int           @default(0)
-  losses        Int           @default(0)
-  Room          Room?         @relation(fields: [roomId], references: [id])
-  roomId        String?
-  score         Int           @default(0)
-  user          User?         @relation(fields: [userId], references: [id])
-  userId        Int           @id
-  wins          Int           @default(0)
-}
-
-model Room {
-  id      String   @id @unique
-  players Player[]
-  status  String   @default("ongoing")
-}

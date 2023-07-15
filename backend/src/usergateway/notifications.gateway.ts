@@ -37,8 +37,6 @@ export class NotificationsGateway {
     client.use(SocketAuthMiddleware() as any);
     try {
       client.on('connection', async (socket: Socket) => {
-        console.log('connected');
-        console.log(socket.data.id);
         if (this.connectedSockets.has(socket.data.id)) {
           this.connectedSockets.get(socket.data.id).push(socket);
         } else {
@@ -64,8 +62,6 @@ export class NotificationsGateway {
 
         socket.on('disconnect', async () => {
           try {
-            console.log('disconnected');
-            console.log(socket.data.id);
             await this.prisma.user.update({
               where: {
                 id: socket.data.id,

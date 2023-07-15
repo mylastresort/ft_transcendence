@@ -99,7 +99,6 @@ function Pofile() {
 
         const blockedFriendsResponse = await GetBLockedFriends();
         const blockedFriends = blockedFriendsResponse.body;
-        console.log(blockedFriends);
         const BlockedUsers = blockedFriends.find(
           (item: any) => item.username === Username
         );
