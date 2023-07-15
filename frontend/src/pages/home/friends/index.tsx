@@ -20,7 +20,7 @@ import {
 
 import Styles from './friends.module.css';
 import withAuth from '@/pages/lib/withAuth';
-import { WsContext } from '@/context/WsContext';
+import { UserSocket } from '@/context/WsContext';
 import { PostAcceptFriendRequest } from '@/pages/api/friends/friends';
 import Router from 'next/router';
 
@@ -28,7 +28,7 @@ function friends() {
   const [Users, setUsers] = useState<any>(null);
   const [ReFetch, setReFetch] = useState(false);
 
-  const UserSocket = useContext(WsContext);
+  // const UserSocket = useContext(WsContext);
 
   useEffect(() => {
     UserSocket.on('NewRequestNotification', (data) => {
@@ -199,9 +199,6 @@ function friends() {
                 withBorder
                 className={Styles.Card_friend}
                 key={index}
-                onClick={() => {
-                  Router.push(`/profile/${data.username}`);
-                }}
               >
                 <Card.Section component="a">
                   <Image
@@ -209,6 +206,9 @@ function friends() {
                     height={200}
                     alt="Norway"
                     fit="cover"
+                    onClick={() => {
+                      Router.push(`/profile/${data.username}`);
+                    }}
                   />
                 </Card.Section>
 

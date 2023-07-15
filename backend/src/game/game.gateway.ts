@@ -53,13 +53,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socket.disconnect();
     }
   }
-
-  @SubscribeMessage('leave')
   handlePlayerLeave(socket) {
     return this.game.leave(socket);
   }
 
-  @SubscribeMessage('join')
   handlePlayerJoin(socket, body) {
     return this.game.join(socket, body);
   }

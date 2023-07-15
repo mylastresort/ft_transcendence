@@ -5,6 +5,7 @@ import { Grid, Text, Spacer } from '@nextui-org/react';
 import { Input } from '@mantine/core';
 import withAuth from '@/pages/lib/withAuth';
 import { Loading } from '@nextui-org/react';
+import { io } from 'socket.io-client';
 
 const Styles = {
   body: {

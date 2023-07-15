@@ -13,6 +13,7 @@ import withAuth from '@/pages/lib/withAuth';
 import { ImageSlider } from '@/components/Mantine/ImageSlider';
 import Styles from './dashboard.module.css';
 import { UserCardGmage } from '@/components/Mantine/UserCardGmage';
+import { UserSocket } from '@/context/WsContext';
 
 const SliderData = [
   {

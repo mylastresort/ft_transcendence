@@ -14,7 +14,7 @@ import { HiOutlineDotsVertical } from 'react-icons/hi';
 import { BiBlock } from 'react-icons/bi';
 import { Center } from '@mantine/core';
 import { GetBLockedFriends, PostUnblock } from '@/pages/api/friends/friends';
-import { WsContext } from '@/context/WsContext';
+import { UserSocket } from '@/context/WsContext';
 import { ImNotification } from 'react-icons/im';
 
 const useStyles = createStyles((theme) => ({
@@ -37,7 +37,7 @@ export function Blocked_List() {
   const [BlockedUsers, setBlockedUsers] = useState([]);
   const [Refresh, setRefresh] = useState(false);
 
-  const UserSocket = useContext(WsContext);
+  // const UserSocket = useContext(WsContext);
 
   useEffect(() => {
     UserSocket.on('RerenderFriends', (data) => {
