@@ -21,7 +21,15 @@ export class GameController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  async getPlayer(@Req() req) {
+  getPlayer(@Req() req) {
     return this.game.getPlayer(req.user.id);
+  }
+
+  @Get('games')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  getGames(@Req() req) {
+    return this.game.getGames(req.user.id);
   }
 }

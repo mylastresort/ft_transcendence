@@ -77,7 +77,7 @@ export default function Customizer({ map }: { map: number }) {
               <Box className={styles.map_container} {...handlers}>
                 {maps.map((item, idx) => (
                   <Box
-                    key={item.name}
+                    key={item.name + idx}
                     component={motion.div}
                     className={styles.map}
                     bg={`url(${item.url})`}

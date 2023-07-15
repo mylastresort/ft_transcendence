@@ -47,25 +47,16 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       ) as User;
       if (!user) throw new Error('Invalid token');
       socket.data = await this.game.getPlayer(user.id);
-<<<<<<< HEAD
-=======
       socket.data.sid = socket.id;
->>>>>>> upstream/master
     } catch (err) {
       socket.emit('exception', err.error || err.message || err);
       socket.disconnect();
     }
-<<<<<<< HEAD
-=======
   }
-
-  @SubscribeMessage('leave')
   handlePlayerLeave(socket) {
     return this.game.leave(socket);
->>>>>>> upstream/master
   }
 
-  @SubscribeMessage('join')
   handlePlayerJoin(socket, body) {
     return this.game.join(socket, body);
   }

@@ -53,20 +53,28 @@ export class GameService {
           id: true,
         },
       });
-      return {
-        user,
-        ...(await this.prisma.player.upsert({
+      const player =
+        (await this.prisma.player.findUnique({
           where: { userId: id },
-          create: { user: { connect: { id } } },
-          update: {},
           select: {
             wins: true,
             level: true,
             currentStreak: true,
             longestStreak: true,
           },
-        })),
-      };
+        })) ||
+        (await this.prisma.player.create({
+          data: {
+            user: { connect: { id } },
+          },
+          select: {
+            wins: true,
+            level: true,
+            currentStreak: true,
+            longestStreak: true,
+          },
+        }));
+      return { user, player };
     } catch (err) {
       throw new WsException(err.message);
     }
@@ -110,14 +118,12 @@ export class GameService {
     return true;
   }
 
-  private syncGame() {}
-
   ready(socket, ready: boolean) {
     if (!socket.data.gameId) throw new WsException('Not in room');
     this.rooms
       .get(socket.data.gameId)
       ?.markReady(socket.data, ready)
-      .subscribe(([areReady, room]) => {
+      .subscribe(async ([areReady, room]) => {
         const conf = {
           limit: Room.edges,
           paddle: Room.paddle,
@@ -125,9 +131,22 @@ export class GameService {
         };
         if (areReady) {
           const values = room.start();
-          this.syncGame();
           socket.to(room.id).emit('started', conf);
           socket.emit('started', conf);
+          await this.prisma.room.create({
+            data: {
+              id: room.id,
+              players: {
+                connect: [
+                  { userId: room.host.user.id },
+                  { userId: room.guest.user.id },
+                ],
+              },
+              map: room.host.map,
+              maxGames: room.maxGames,
+              status: room.status,
+            },
+          });
           setTimeout(() => {
             socket.to(room.id).emit('ping', ...values);
             socket.emit('ping', ...values);
@@ -142,16 +161,17 @@ export class GameService {
     socket.emit(event, ...args);
   }
 
-  pong(socket, key: number) {
+  async pong(socket, key: number) {
     const room = this.rooms.get(socket.data.gameId);
     if (room && room.isFirst(key)) {
       const isOut = room.isBallOut();
       if (isOut) {
         this.broadcast(socket, 'scored', ...isOut);
-        if (isOut[1] === 11) {
+        if (isOut[1] === 4) {
           room.games++;
           if (room.games === room.maxGames) {
             this.broadcast(socket, 'gameover', isOut[0]);
+            room.status = 'finished';
             delete room.host.gameId;
             delete room.guest.gameId;
           } else {
@@ -174,6 +194,16 @@ export class GameService {
             this.broadcast(socket, 'ping', ...values);
           }, 1000);
         }
+        await this.prisma.room.update({
+          where: { id: room.id },
+          data: {
+            hostScore: room.players.host[1],
+            guestScore: room.players.guest[1],
+            status: room.status,
+            games: room.games,
+          },
+        });
+        if (room.status === 'finished') this.rooms.delete(socket.data.gameId);
       } else {
         const values = room.pong(key);
         if (values) {
@@ -192,5 +222,16 @@ export class GameService {
     }
     socket.to(room.id).emit('moved', crd);
     return true;
+  }
+
+  async getGames(id) {
+    return await this.prisma.player.findMany({
+      where: { userId: id },
+      select: {
+        rooms: {
+          take: 10,
+        },
+      },
+    });
   }
 }

@@ -22,7 +22,7 @@ model User {
   firstName  String?
   lastName   String?
   location   String?
-  sammary    String @default("No information given")
+  sammary    String  @default("No information given")
 
   status String?
 
@@ -70,19 +70,50 @@ model Friend {
 
   status String?
 
-  blocked Boolean? @default(false)
-  blockedBy User[] @relation("BlockedBy")
+  blocked   Boolean? @default(false)
+  blockedBy User[]   @relation("BlockedBy")
 }
 
 model Notification {
-  id Int @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
 
   userId Int
-  user User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id])
 
   message String
-  read Boolean @default(false)
+  read    Boolean @default(false)
+}
+
+model Achievement {
+  description String
+  id          Int      @id @default(autoincrement())
+  name        String
+  players     Player[]
+}
+
+model Player {
+  achievements  Achievement[]
+  currentStreak Int           @default(0)
+  level         Int           @default(0)
+  longestStreak Int           @default(0)
+  losses        Int           @default(0)
+  rooms         Room[]
+  user          User?         @relation(fields: [userId], references: [id])
+  userId        Int           @id
+  wins          Int           @default(0)
+}
+
+model Room {
+  createdAt  DateTime @default(now())
+  games      Int      @default(0)
+  guestScore Int      @default(0)
+  hostScore  Int      @default(0)
+  id         String   @id
+  map        String
+  maxGames   Int
+  players    Player[]
+  status     String
 }
 
 model Achievement {

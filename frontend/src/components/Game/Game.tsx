@@ -50,7 +50,7 @@ export function Game() {
     return () => {
       socket.off('joined').off('started');
     };
-  }, [socket]);
+  }, []);
 
   const theme = useMantineTheme();
 

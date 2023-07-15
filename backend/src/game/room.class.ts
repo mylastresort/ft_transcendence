@@ -1,22 +1,21 @@
-import { Room as RoomEntity } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { EMPTY, every, map, of } from 'rxjs';
 import Ball from './ball.class';
 
-export class Room implements RoomEntity {
+export class Room {
   static readonly edges = [180, 150];
 
   static readonly paddle = 100;
 
-  id = randomUUID();
+  status = 'playing';
 
-  status = 'waiting';
+  id = randomUUID();
 
   private ball: Ball;
 
   maxGames;
 
-  private readonly players = { guest: [0, 0], host: [0, 0] };
+  readonly players = { guest: [0, 0], host: [0, 0] };
 
   games = 0;
 
@@ -39,7 +38,6 @@ export class Room implements RoomEntity {
   }
 
   start() {
-    this.status = 'playing';
     this.ball = new Ball();
     return this.ball?.ping();
   }

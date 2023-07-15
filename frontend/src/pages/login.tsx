@@ -65,12 +65,7 @@ function login({ setIsTwoFactorAuth }: any) {
         .then((res) => {
           if (res.status === 200) {
             localStorage.setItem('jwtToken', res.body.token);
-<<<<<<< HEAD
-
-            router.push('/home/dashboard');
-=======
             router.push('/game');
->>>>>>> upstream/master
           } else {
             setIsError(true);
           }
