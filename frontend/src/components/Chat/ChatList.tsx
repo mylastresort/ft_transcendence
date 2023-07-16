@@ -1,7 +1,17 @@
-import { Container, Grid, Center, Title, Avatar, Box } from '@mantine/core';
+import {
+  Container,
+  Grid,
+  Center,
+  Title,
+  Avatar,
+  Box,
+  Text,
+} from '@mantine/core';
 import { User } from '@nextui-org/react';
 import { useHover } from '@mantine/hooks';
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import request from 'superagent';
+import { UserContext } from '@/context/user';
 
 interface Props {
   width: string | number | undefined;
@@ -11,23 +21,6 @@ interface SwitchButtonProps {
   selectedState: [number, React.Dispatch<React.SetStateAction<number>>];
 }
 
-const dummyUsers = [
-  {
-    name: 'Mohammed Benkhattab',
-    img: 'https://cdn.intra.42.fr/users/85a6f5f2cca2789dcbc6e4884ac3f176/mbenkhat.jpg',
-    lastmsg: 'Hello, this is first message',
-  },
-  {
-    name: 'John Doe',
-    img: 'https://cdn.intra.42.fr/users/85a6f5f2cca2789dcbc6e4884ac3f176/mbenkhat.jpg',
-    lastmsg: 'Hello, this is first message',
-  },
-  {
-    name: 'John Doe',
-    img: 'https://cdn.intra.42.fr/users/85a6f5f2cca2789dcbc6e4884ac3f176/mbenkhat.jpg',
-    lastmsg: 'Hello, this is first message',
-  },
-];
 interface User {
   name: string;
   img: string;
@@ -89,7 +82,7 @@ function UserCard({ user }: { user: User }) {
         border: '2px solid var(--secondary-color)',
         padding: '10px',
         margin: '15px auto',
-      }}  
+      }}
     >
       <User
         src={user.img}
@@ -108,7 +101,23 @@ function ChannelsList({ users }: { users: User[] }) {
 function ChatList({ width }: Props) {
   let selectedState = useState(1);
   const [selected, setSelected] = selectedState;
+  const [friends, setFriends] = useState([]);
+  const user = useContext(UserContext);
+
+  useEffect(() => {
+    const jwtToken = localStorage.getItem('jwtToken');
+    request
+      .post('http://localhost:4400/api/v1/friends/GetFriends')
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .send({username: 'mbenkhat'})
+      .then((res) => setFriends(res.body))
+      .catch((err) => {
+        return err;
+      });
+  }, []);
+
   return (
+    <UserContext.Provider value={user}>
     <Container
       style={{
         backgroundColor: '#C1C1C1',
@@ -119,11 +128,12 @@ function ChatList({ width }: Props) {
     >
       <SwitchButton selectedState={selectedState} />
       {selected === 1 ? (
-        dummyUsers.map((user: User) => <UserCard user={dummyUsers[0]} />)
+        friends.map((user: User) => <UserCard user={friends[0]} />)
       ) : (
         <></>
       )}
     </Container>
+    </UserContext.Provider>
   );
 }
 

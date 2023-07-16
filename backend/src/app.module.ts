@@ -8,6 +8,9 @@ import { SeedModule } from './seed/seed.module';
 import { UserGatewayModule } from './usergateway/usergateway.module';
 import { NotificationsGateway } from './usergateway/notifications.gateway';
 import { GameModule } from './game/game.module';
+import { ChatController } from './chat/chat.controller';
+import { ChatService } from './chat/chat.service';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -19,7 +22,9 @@ import { GameModule } from './game/game.module';
     SeedModule,
     UserGatewayModule,
     GameModule,
+    ChatModule,
   ],
-  providers: [NotificationsGateway],
+  providers: [NotificationsGateway, ChatService],
+  controllers: [ChatController],
 })
 export class AppModule {}
