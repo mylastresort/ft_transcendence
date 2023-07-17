@@ -18,6 +18,7 @@ export class ChatService {
           },
         },
       });
+      console.log("Res: getRooms=> ", rooms);
       return rooms;
     } catch (error) {
       throw new HttpException(
@@ -44,16 +45,18 @@ export class ChatService {
     }
   }
   
-  async createRoom(room: any) {
+  async createRoom(user: any, room: any) {
     try {
       return this.prisma.chat.create({
         data: {
           roomName: room.name,
           roomIcon: room.icon,
           members: {
-            connect: {
-              id: room.users,
-            }
+            connect: [
+              {id: user.id},
+              {username: room.users},
+
+            ]
           }
         }
       });

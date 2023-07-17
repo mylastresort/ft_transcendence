@@ -71,7 +71,7 @@ function SwitchButton({ selectedState }: SwitchButtonProps) {
   );
 }
 
-function UserCard({ user }: { user: User }) {
+function UserCard({ user }: { user: any }) {
   return (
     <Box
       maw={300}
@@ -85,9 +85,9 @@ function UserCard({ user }: { user: User }) {
       }}
     >
       <User
-        src={user.img}
-        name={user.name}
-        description={user.lastmsg}
+        src={user.roomIcon}
+        name={user.roomName}
+        description={"lorm ipsum"}
         size="xl"
       />
     </Box>
@@ -101,16 +101,16 @@ function ChannelsList({ users }: { users: User[] }) {
 function ChatList({ width }: Props) {
   let selectedState = useState(1);
   const [selected, setSelected] = selectedState;
-  const [friends, setFriends] = useState([]);
+  const [rooms, setRooms] = useState([]);
   const user = useContext(UserContext);
 
   useEffect(() => {
     const jwtToken = localStorage.getItem('jwtToken');
     request
-      .post('http://localhost:4400/api/v1/friends/GetFriends')
+      .get('http://localhost:4400/api/chat')
       .set('Authorization', `Bearer ${jwtToken}`)
-      .send({username: 'mbenkhat'})
-      .then((res) => setFriends(res.body))
+      .send({id:1})
+      .then((res) => setRooms(res.body))
       .catch((err) => {
         return err;
       });
@@ -126,12 +126,12 @@ function ChatList({ width }: Props) {
       }}
     >
       <SwitchButton selectedState={selectedState} />
-      <CreateRoom></CreateRoom>
+      <CreateRoom context={user}></CreateRoom>
   
       {selected === 1 ? (
-        friends.map((user: User) => <UserCard user={friends[0]} />)
+        rooms.map((data: any) => <UserCard user={data} />)
       ) : (
-        <></>
+        <>test</>
       )}
     </Container>
     </UserContext.Provider>
