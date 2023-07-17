@@ -130,6 +130,9 @@ model Message{
 
 model Chat{
   id Int @id @default(autoincrement())
+  roomName String
+  roomIcon String
+  createdAt DateTime @default(now())
   members User[]
   Messages Message[]
 }

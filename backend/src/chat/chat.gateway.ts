@@ -9,6 +9,10 @@ export class ChatGateway {
     handleMessage(@MessageBody() message: string): void {
         this.server.emit('message', message)
     }
+    @SubscribeMessage('message')
+    newConnection(@MessageBody() req: string): void {
+        this.server.emit('room', req)
+    }
     onModuleInit(){
         this.server.on("connection", (socket) => {
            console.log("connected:", socket.id);

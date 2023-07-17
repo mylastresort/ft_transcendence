@@ -12,7 +12,7 @@ import { useHover } from '@mantine/hooks';
 import { useContext, useEffect, useState } from 'react';
 import request from 'superagent';
 import { UserContext } from '@/context/user';
-
+import { CreateRoom } from './CreateRoom'
 interface Props {
   width: string | number | undefined;
 }
@@ -121,12 +121,13 @@ function ChatList({ width }: Props) {
     <Container
       style={{
         backgroundColor: '#C1C1C1',
-        // height: '100%',
         width: width,
         maxWidth: width,
       }}
     >
       <SwitchButton selectedState={selectedState} />
+      <CreateRoom></CreateRoom>
+  
       {selected === 1 ? (
         friends.map((user: User) => <UserCard user={friends[0]} />)
       ) : (

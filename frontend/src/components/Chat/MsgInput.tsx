@@ -10,7 +10,9 @@ import {
 import Styles from './Chat.module.css';
 import { positions } from '@mui/system';
 import { theme } from '@nextui-org/react';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
+import { socketContext } from '../../pages/Chat/index'
+
 
 function sendMessage(content: String){
   console.log(content)
@@ -35,6 +37,8 @@ const useInputStyle = createStyles((theme: MantineTheme) => ({
 
 
 export default function MsgInput() {
+  const socket = useContext(socketContext);
+
   const inputStyles = useInputStyle();
   let [inputValue, setInputValue] = useState('');
   return (
@@ -56,7 +60,7 @@ export default function MsgInput() {
         classNames={inputStyles.classes}
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
-        ></Input>
+        />
       <ThemeIcon
       radius="xl"
       h="50px"
