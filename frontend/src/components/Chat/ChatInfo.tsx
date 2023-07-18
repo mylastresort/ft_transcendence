@@ -8,11 +8,8 @@ interface Props {
 function UserInfo({ width }: Props) {
   return (
     <Container
-      style={{
-        backgroundColor: '#C1C1C1',
-        width: width,
-        maxWidth: width,
-      }}
+      bg={'#C1C1C1'}
+      w={350}
     ></Container>
   );
 }

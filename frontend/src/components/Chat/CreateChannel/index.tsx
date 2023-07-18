@@ -4,29 +4,19 @@ import { useContext, useEffect, useState } from 'react';
 import request from 'superagent';
 import { User, UserContext } from '@/context/user';
 
-// const data = [
-//   { value: 'react', label: 'React' },
-//   { value: 'ng', label: 'Angular' },
-//   { value: 'svelte', label: 'Svelte' },
-//   { value: 'vue', label: 'Vue' },
-//   { value: 'riot', label: 'Riot' },
-//   { value: 'next', label: 'Next.js' },
-//   { value: 'blitz', label: 'Blitz.js' },
-// ];
 
-export function CreateRoom({context}: any) {
+export function CreateChannel({ context }: any) {
   const [opened, { open, close }] = useDisclosure(false);
   const [roomName, setRoomName] = useState('');
   const [roomMember, setRoomMember] = useState('');
 
   function createNewRoom(event) {
-    // const user = useContext(UserContext);
-
     const roomData = {
       name: roomName,
-      icon: context.data.imgProfile,
-      users: roomMember
-    }
+      icon: 'test',
+      users: roomMember,
+      isChannel: true,
+    };
     const jwtToken = localStorage.getItem('jwtToken');
     request
       .post('http://localhost:4400/api/chat')
@@ -42,7 +32,7 @@ export function CreateRoom({context}: any) {
 
   return (
     <>
-      <Modal opened={opened} onClose={close} title="Create New Room">
+      <Modal opened={opened} onClose={close} centered title="Create New Room">
         <TextInput
           label="Room name:"
           placeholder="Room name ..."
@@ -56,13 +46,13 @@ export function CreateRoom({context}: any) {
           mt="md"
           onChange={(event) => setRoomMember(event.target.value)}
         />
-        <Button maw={300} w={'100%'} onClick={createNewRoom}>
+        <Button mt={20} w={'100%'} onClick={createNewRoom}>
           Create New Room
         </Button>
       </Modal>
 
       <Group position="center">
-        <Button onClick={open} maw={300} w={286}>
+        <Button onClick={open} >
           Create New Room
         </Button>
       </Group>

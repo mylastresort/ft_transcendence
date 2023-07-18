@@ -1,13 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Socket } from 'socket.io';
+// import { Socket } from 'socket.io';
 
 @Injectable()
 export class ChatService {
   constructor(private prisma: PrismaService) {}
 
   async getRooms(user: any) {
-    // console.log('error!', user);
     try {
       const rooms = await this.prisma.chat.findMany({
         where: {
@@ -15,8 +14,18 @@ export class ChatService {
             some: {
               id: user.id
             }
-          },
+          }
         },
+        include: {
+          members: {
+            where: {
+              id: {
+                not: user.id,
+              }
+            }
+          }
+          
+        }
       });
       console.log("Res: getRooms=> ", rooms);
       return rooms;
@@ -31,9 +40,19 @@ export class ChatService {
     }
   }
 
-  async getUsers() {
+  async getUsers(username: any, me: any) {
     try {
-      return await this.prisma.chat.findMany();
+      return await this.prisma.user.findMany({
+        where:{
+          username: {
+            startsWith: username,
+            not: me.username,
+          }
+        },
+        // select: {
+        //   username: true
+        // }
+      });
     } catch (error) {
       throw new HttpException(
         {
@@ -49,13 +68,13 @@ export class ChatService {
     try {
       return this.prisma.chat.create({
         data: {
-          roomName: room.name,
-          roomIcon: room.icon,
+          name: room.name,
+          img: room.icon,
+          isChannel: room.isChannel,
           members: {
             connect: [
               {id: user.id},
-              {username: room.users},
-
+              {username: room.users}
             ]
           }
         }

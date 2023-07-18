@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { Button, Container, Flex, Grid } from '@mantine/core';
-import { useElementSize } from '@mantine/hooks';
+import { useElementSize, useMediaQuery } from '@mantine/hooks';
 import ChatList from '@/components/Chat/ChatList';
 import MainChat from '@/components/Chat/ChatMassages';
 import UserInfo from '@/components/Chat/ChatInfo';
@@ -10,23 +10,23 @@ import withAuth from '@/pages/lib/withAuth';
 import { createContext } from 'react';
 import { io } from 'socket.io-client';
 
-export const socketContext = createContext(
-  io('localhost:4400/chat', {
-    // auth: {
-    //   token: localStorage.getItem('jwtToken'),
-    // },
-    autoConnect: false
-  }
-));
+// export const socketContext = createContext(
+//   io('localhost:4400/chat', {
+//     // auth: {
+//     //   token: localStorage.getItem('jwtToken'),
+//     // },
+//     autoConnect: false
+//   }
+// ));
 
 function Chat() {
-  const socket = useContext(socketContext);
-  useEffect(()=>{
-    socket.connect();
-    return ()=>{
-      socket.disconnect();
-    }
-  }, []);
+  // const socket = useContext(socketContext);
+  // useEffect(()=>{
+  //   socket.connect();
+  //   return ()=>{
+  //     socket.disconnect();
+  //   }
+  // }, []);
 
 
   return (

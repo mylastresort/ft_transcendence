@@ -1,24 +1,27 @@
 import {
-  Container,
   Grid,
   Center,
   Title,
   Avatar,
   Box,
   Text,
+  Container,
+  Navbar,
+  ScrollArea,
+  Group,
+  Burger,
+  Transition,
 } from '@mantine/core';
 import { User } from '@nextui-org/react';
-import { useHover } from '@mantine/hooks';
+import { useHover, useMediaQuery, useDisclosure } from '@mantine/hooks';
 import { useContext, useEffect, useState } from 'react';
 import request from 'superagent';
 import { UserContext } from '@/context/user';
-import { CreateRoom } from './CreateRoom'
+import { CreateChannel } from './CreateChannel';
+import { RoomsList } from './RoomsList';
+import { SearchUser } from './SearchUser';
 interface Props {
   width: string | number | undefined;
-}
-
-interface SwitchButtonProps {
-  selectedState: [number, React.Dispatch<React.SetStateAction<number>>];
 }
 
 interface User {
@@ -27,78 +30,8 @@ interface User {
   lastmsg: string;
 }
 
-function SwitchButton({ selectedState }: SwitchButtonProps) {
-  const [selected, setSelected] = selectedState;
-  return (
-    <Center>
-      <Grid
-        style={{
-          width: '286px',
-          margin: '32px 0px',
-          border: '1px solid #000000',
-        }}
-      >
-        <Grid.Col
-          span={6}
-          style={{
-            border: '1px solid #000000',
-            backgroundColor:
-              selected === 1 ? 'var(--secondary-color)' : 'var(--white-color)',
-            cursor: 'pointer',
-          }}
-          onClick={() => setSelected(1)}
-        >
-          <Center>
-            <Title order={3}>Friends</Title>
-          </Center>
-        </Grid.Col>
-        <Grid.Col
-          span={6}
-          style={{
-            border: '1px solid #000000',
-            backgroundColor:
-              selected === 2 ? 'var(--secondary-color)' : 'var(--white-color)',
-            cursor: 'pointer',
-          }}
-          onClick={() => setSelected(2)}
-        >
-          <Center>
-            <Title order={3}>Channels</Title>
-          </Center>
-        </Grid.Col>
-      </Grid>
-    </Center>
-  );
-}
-
-function UserCard({ user }: { user: any }) {
-  return (
-    <Box
-      maw={300}
-      mx="auto"
-      style={{
-        backgroundColor: 'var(--white-color)',
-        borderRadius: '10px',
-        border: '2px solid var(--secondary-color)',
-        padding: '10px',
-        margin: '15px auto',
-      }}
-    >
-      <User
-        src={user.roomIcon}
-        name={user.roomName}
-        description={"lorm ipsum"}
-        size="xl"
-      />
-    </Box>
-  );
-}
-
-function ChannelsList({ users }: { users: User[] }) {
-  return <></>;
-}
-
 function ChatList({ width }: Props) {
+  const matches = useMediaQuery('(min-width: 1200px)');
   let selectedState = useState(1);
   const [selected, setSelected] = selectedState;
   const [rooms, setRooms] = useState([]);
@@ -109,32 +42,49 @@ function ChatList({ width }: Props) {
     request
       .get('http://localhost:4400/api/chat')
       .set('Authorization', `Bearer ${jwtToken}`)
-      .send({id:1})
       .then((res) => setRooms(res.body))
       .catch((err) => {
         return err;
       });
   }, []);
+  const [opened, { toggle }] = useDisclosure(false);
+  const getWidth = (): number => {
+    return opened ? 350 : 60;
+  };
 
   return (
-    <UserContext.Provider value={user}>
-    <Container
-      style={{
-        backgroundColor: '#C1C1C1',
-        width: width,
-        maxWidth: width,
-      }}
-    >
-      <SwitchButton selectedState={selectedState} />
-      <CreateRoom context={user}></CreateRoom>
-  
-      {selected === 1 ? (
-        rooms.map((data: any) => <UserCard user={data} />)
-      ) : (
-        <>test</>
-      )}
-    </Container>
-    </UserContext.Provider>
+    <>
+        <Burger opened={opened} onClick={toggle} aria-label={'burger'} />
+      <Transition
+        mounted={opened}
+        transition={'scale-x'}
+        duration={600}
+        timingFunction="ease"
+      >
+        {(styles) => (
+          <Navbar
+          height={'calc(100vh - 77px)'}
+          p="xs"
+          w={opened ? 350 : 60}
+          style={{ ...styles, top: 0, left: 0, right: 0, height: 400 }}
+          >
+            <Navbar.Section>
+            </Navbar.Section>
+            <Navbar.Section mt="xs">
+              <Group noWrap>
+                <CreateChannel context={user} />
+                <SearchUser />
+              </Group>
+            </Navbar.Section>
+            <Navbar.Section grow component={ScrollArea} mx="-xs" px="xs">
+              <RoomsList rooms={rooms}></RoomsList>
+            </Navbar.Section>
+
+            {/* <Navbar.Section >no footer for now</Navbar.Section > */}
+          </Navbar>
+        )}
+      </Transition>
+    </>
   );
 }
 

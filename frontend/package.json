@@ -35,7 +35,7 @@
     "react-particles": "^2.9.3",
     "react-swipeable": "^7.0.1",
     "react-tsparticles": "^2.9.3",
-    "socket.io-client": "^4.7.0",
+    "socket.io-client": "^4.7.1",
     "superagent": "^8.0.9",
     "tsparticles": "^2.9.3",
     "typeface-baumans": "^1.1.13",
