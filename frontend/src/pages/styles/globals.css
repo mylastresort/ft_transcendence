@@ -375,8 +375,8 @@ body.dark .home .text {
 
 /* chat styles */
 .close-nav{
-  width: 60px;
-  position: relative;
+  width: 55px;
+  /* position: relative; */
   transition: var(--tran-05);
 }
 .close-nav .nav-child{

@@ -13,29 +13,35 @@ import {
   Transition,
 } from '@mantine/core';
 import { User } from '@nextui-org/react';
-import { useHover, useMediaQuery, useDisclosure } from '@mantine/hooks';
+import {
+  useHover,
+  useMediaQuery,
+  useDisclosure,
+  useClickOutside,
+} from '@mantine/hooks';
 import { useContext, useEffect, useState } from 'react';
 import request from 'superagent';
 import { UserContext } from '@/context/user';
 import { CreateChannel } from './CreateChannel';
 import { RoomsList } from './RoomsList';
 import { SearchUser } from './SearchUser';
-interface Props {
-  width: string | number | undefined;
-}
 
-interface User {
-  name: string;
-  img: string;
-  lastmsg: string;
-}
-
-function ChatNav({ width, isVisible }: any) {
+function ChatNav({setCardSelected ,cardSelected} : any) {
   const matches = useMediaQuery('(min-width: 1200px)');
   let selectedState = useState(1);
   const [selected, setSelected] = selectedState;
   const [rooms, setRooms] = useState([]);
   const user = useContext(UserContext);
+  const [opened, { toggle }] = useDisclosure(true);
+  const ref = useClickOutside(() => {
+    opened ? toogleNav() : false;
+  });
+
+  function toogleNav() {
+    document.querySelector('#chat-nav')?.classList.toggle('close-nav');
+    toggle();
+    console.log(opened);
+  }
 
   useEffect(() => {
     const jwtToken = localStorage.getItem('jwtToken');
@@ -46,36 +52,45 @@ function ChatNav({ width, isVisible }: any) {
       .catch((err) => {
         return err;
       });
-  }, []);
-  const [opened, { toggle }] = useDisclosure(false);
+  }, [cardSelected]);
 
   return (
     <>
-      <Navbar zIndex={1} id='chat-nav' height={'calc(100vh - 77px)'} p="xs" w={350} pos={'relative'}>
+      <Navbar
+        ref={ref}
+        zIndex={1}
+        id="chat-nav"
+        height={'calc(100vh - 77px)'}
+        p="xs"
+        w={350}
+        pos={'absolute'}
+      >
         <Navbar.Section>
           <Burger
-          id='nav-burger'
-          pos={'absolute'}
-          right={10}
+            id="nav-burger"
+            pos={'absolute'}
+            right={10}
             opened={opened}
-            onClick={() => {
-              document.querySelector('#chat-nav')?.classList.toggle('close-nav')
-              toggle()
-            }}
+            onClick={toogleNav}
             aria-label={'burger'}
           />
-        </Navbar.Section >
-        <Navbar.Section className='nav-child' mt="xs" pt={60}>
+        </Navbar.Section>
+        <Navbar.Section className="nav-child" mt="xs" pt={60}>
           <Group noWrap>
             <CreateChannel context={user} />
-            <SearchUser />
+            <SearchUser setCardSelected={setCardSelected}/>
           </Group>
         </Navbar.Section>
-        <Navbar.Section className='nav-child' grow component={ScrollArea} mx="-xs" px="xs">
-          <RoomsList rooms={rooms}></RoomsList>
+        <Navbar.Section
+          className="nav-child"
+          grow
+          component={ScrollArea}
+          mx="-xs"
+          px="xs"
+        >
+          <RoomsList rooms={rooms} setCardSelected={setCardSelected}></RoomsList>
         </Navbar.Section>
 
-        {/* <Navbar.Section >no footer for now</Navbar.Section > */}
       </Navbar>
     </>
   );

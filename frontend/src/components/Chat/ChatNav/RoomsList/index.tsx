@@ -1,3 +1,4 @@
+import { ChatContext } from '@/context/chat';
 import {
   Avatar,
   Box,
@@ -8,21 +9,37 @@ import {
   ThemeIcon,
 } from '@mantine/core';
 import { User } from '@nextui-org/react';
+import { useContext, useState } from 'react';
 
-function UserCard({ user }: { user: any }) {
+function UserCard({ user, setCardSelected }) {
+  const [bgColor, setBgColor] = useState('var(--white-color)')
+  const chatContext = useContext(ChatContext);
   console.log('usercard=>', user.members[0].imgProfile);
   return (
     <Box
       maw={300}
       mx="auto"
+      onMouseOver={()=>{setBgColor('var(--secondary-color)')}}
+      onMouseLeave={()=>{setBgColor('var(--white-color)')}}
       style={{
-        backgroundColor: 'var(--white-color)',
+        cursor: 'pointer',
+        backgroundColor: bgColor,
         borderRadius: '10px',
         border: '2px solid',
         borderColor: 'var(--secondary-color)',
         padding: '10px',
         margin: '15px auto',
         marginTop: '0px',
+      }}
+      onClick={() => {
+        setCardSelected(true)
+        chatContext.data = {
+          id: user.id,
+          name: user.name,
+          img: user.members[0].imgProfile,
+          createdAt: 'idk',
+          isChannel: false,
+        };
       }}
     >
       <Group h={60} miw={234}>
@@ -38,12 +55,16 @@ function UserCard({ user }: { user: any }) {
   );
 }
 function ChannelCard({ user }: { user: any }) {
+  const [bgColor, setBgColor] = useState('var(--white-color)')
   return (
     <Box
       maw={300}
       mx="auto"
+      onMouseOver={()=>{setBgColor('red')}}
+      onMouseLeave={()=>{setBgColor('var(--white-color)')}}
       style={{
-        backgroundColor: 'var(--white-color)',
+        cursor: 'pointer',
+        backgroundColor: bgColor,
         borderRadius: '10px',
         border: '2px solid',
         borderColor: 'red',
@@ -69,15 +90,15 @@ function ChannelCard({ user }: { user: any }) {
   );
 }
 
-export function RoomsList({ rooms }: any) {
+export function RoomsList({ rooms, setCardSelected}: any) {
   return (
     <ScrollArea h={'calc(100% - 200px)'} mt={20}>
       {rooms.map((room: any) => (
         <>
           {room.isChannel ? (
-            <ChannelCard user={room}></ChannelCard>
+            <ChannelCard user={room}/>
           ) : (
-            <UserCard user={room}></UserCard>
+            <UserCard user={room} setCardSelected={setCardSelected}/>
           )}
         </>
       ))}

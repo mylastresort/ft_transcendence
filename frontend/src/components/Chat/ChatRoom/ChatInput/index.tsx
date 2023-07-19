@@ -37,7 +37,6 @@ import {
   
   
   export default function MsgInput() {
-    // const socket = useContext(socketContext);
   
     const inputStyles = useInputStyle();
     let [inputValue, setInputValue] = useState('');
@@ -53,7 +52,7 @@ import {
         >
         <Input
           size="lg"
-          w="50%"
+          w="70%"
           h="50px"
           placeholder="Send message here..."
           radius={50}

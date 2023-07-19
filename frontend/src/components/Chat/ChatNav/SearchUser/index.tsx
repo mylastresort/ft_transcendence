@@ -10,12 +10,13 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { createStyles, rem } from '@mantine/core';
-import { forwardRef, useState } from 'react';
+import { forwardRef, useState, useContext} from 'react';
 import request from 'superagent';
+import { ChatContext } from '@/context/chat';
 
 const AutoCompleteItem = forwardRef<HTMLDivElement>(
   ({ value, image, ...others }: any, ref) => (
-    <div ref={ref} {...others} onClick={e => console.log(e)}>
+    <div ref={ref} {...others}>
       <Group noWrap>
         <Avatar src={image} />
         <div>
@@ -29,11 +30,12 @@ const AutoCompleteItem = forwardRef<HTMLDivElement>(
   )
 );
 
-export function SearchUser() {
+export function SearchUser({setCardSelected} : any) {
   const [opened, { open, close }] = useDisclosure(false);
   const theme = useMantineTheme();
   const [search, setSearch] = useState<{ value: string; image: string }[]>([]);
   const [value, setValue] = useState('');
+  const chatContext = useContext(ChatContext);
 
   function requestUsers() {
     const jwtToken = localStorage.getItem('jwtToken');
@@ -63,11 +65,21 @@ export function SearchUser() {
     };
     const jwtToken = localStorage.getItem('jwtToken');
     request
-      .post('http://localhost:4400/api/chat')
-      .set('Authorization', `Bearer ${jwtToken}`)
-      .send(roomData)
-      .catch((err) => {
-        return err;
+    .post('http://localhost:4400/api/chat')
+    .set('Authorization', `Bearer ${jwtToken}`)
+    .send(roomData)
+    .then((res)=>{
+      setCardSelected(true)
+      chatContext.data = {
+        id: res.body.id,
+        name: res.body.name,
+        img: event.image,
+        createdAt: 'idk',
+        isChannel: false,
+      };
+    })
+    .catch((err) => {
+      return err;
       });
   }
 

@@ -2,8 +2,6 @@ import { useContext, useEffect, useState } from 'react';
 import { Button, Container, Flex, Grid } from '@mantine/core';
 import { useElementSize, useMediaQuery } from '@mantine/hooks';
 import ChatNav from '@/components/Chat/ChatNav';
-// import MainChat from '@/components/Chat/ChatMassages';
-// import UserInfo from '@/components/Chat/ChatInfo';
 import ChatRoom from '@/components/Chat/ChatRoom';
 import { UserContext } from '@/context/user';
 import Styles from './Chat.module.css';
@@ -21,20 +19,20 @@ import { io } from 'socket.io-client';
 // ));
 
 function Chat() {
+  const [cardSelected, setCardSelected] = useState(false);
   // const socket = useContext(socketContext);
   // useEffect(()=>{
-  //   socket.connect();
-  //   return ()=>{
-  //     socket.disconnect();
-  //   }
-  // }, []);
-
-
+    //   socket.connect();
+    //   return ()=>{
+      //     socket.disconnect();
+      //   }
+      // }, []);
+      
+      
   return (
-    <Flex className={Styles.chat} gap={0} align="stretch">
-      <ChatNav/>
-      <ChatRoom />
-      {/* <UserInfo width="25%" /> */}
+    <Flex className={Styles.chat} gap={0} align="stretch" pos={'relative'}>
+      <ChatNav cardSelected={cardSelected} setCardSelected={setCardSelected}/>
+      <ChatRoom cardSelected={cardSelected} setCardSelected={setCardSelected}/>
     </Flex>
   );
 }

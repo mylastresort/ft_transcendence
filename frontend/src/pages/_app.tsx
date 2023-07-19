@@ -12,7 +12,7 @@ import { User_Sidebar } from '../components/Sidebar/Sidebar';
 import { UserContext } from '@/context/user';
 import { WsProvider, UserSocket } from '@/context/WsContext';
 import { MantineProvider } from '@mantine/core';
-import Theme from './styles/theme';
+import Theme from './styles/theme.json';
 import { Notifications, notifications } from '@mantine/notifications';
 import { BiSolidUserPlus } from 'react-icons/bi';
 
