@@ -372,3 +372,14 @@ body.dark .home .text {
   background-color: var(--sidebar-color);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
+
+/* chat styles */
+.close-nav{
+  width: 60px;
+  position: relative;
+  transition: var(--tran-05);
+}
+.close-nav .nav-child{
+  display: none;
+  transition: var(--tran-05);
+}

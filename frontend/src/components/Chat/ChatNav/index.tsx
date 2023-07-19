@@ -30,7 +30,7 @@ interface User {
   lastmsg: string;
 }
 
-function ChatList({ width }: Props) {
+function ChatNav({ width, isVisible }: any) {
   const matches = useMediaQuery('(min-width: 1200px)');
   let selectedState = useState(1);
   const [selected, setSelected] = selectedState;
@@ -48,44 +48,37 @@ function ChatList({ width }: Props) {
       });
   }, []);
   const [opened, { toggle }] = useDisclosure(false);
-  const getWidth = (): number => {
-    return opened ? 350 : 60;
-  };
 
   return (
     <>
-        <Burger opened={opened} onClick={toggle} aria-label={'burger'} />
-      <Transition
-        mounted={opened}
-        transition={'scale-x'}
-        duration={600}
-        timingFunction="ease"
-      >
-        {(styles) => (
-          <Navbar
-          height={'calc(100vh - 77px)'}
-          p="xs"
-          w={opened ? 350 : 60}
-          style={{ ...styles, top: 0, left: 0, right: 0, height: 400 }}
-          >
-            <Navbar.Section>
-            </Navbar.Section>
-            <Navbar.Section mt="xs">
-              <Group noWrap>
-                <CreateChannel context={user} />
-                <SearchUser />
-              </Group>
-            </Navbar.Section>
-            <Navbar.Section grow component={ScrollArea} mx="-xs" px="xs">
-              <RoomsList rooms={rooms}></RoomsList>
-            </Navbar.Section>
+      <Navbar zIndex={1} id='chat-nav' height={'calc(100vh - 77px)'} p="xs" w={350} pos={'relative'}>
+        <Navbar.Section>
+          <Burger
+          id='nav-burger'
+          pos={'absolute'}
+          right={10}
+            opened={opened}
+            onClick={() => {
+              document.querySelector('#chat-nav')?.classList.toggle('close-nav')
+              toggle()
+            }}
+            aria-label={'burger'}
+          />
+        </Navbar.Section >
+        <Navbar.Section className='nav-child' mt="xs" pt={60}>
+          <Group noWrap>
+            <CreateChannel context={user} />
+            <SearchUser />
+          </Group>
+        </Navbar.Section>
+        <Navbar.Section className='nav-child' grow component={ScrollArea} mx="-xs" px="xs">
+          <RoomsList rooms={rooms}></RoomsList>
+        </Navbar.Section>
 
-            {/* <Navbar.Section >no footer for now</Navbar.Section > */}
-          </Navbar>
-        )}
-      </Transition>
+        {/* <Navbar.Section >no footer for now</Navbar.Section > */}
+      </Navbar>
     </>
   );
 }
 
-export default ChatList;
+export default ChatNav;

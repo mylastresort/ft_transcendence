@@ -25,13 +25,13 @@ function ListMessages() {
   );
 }
 
-function MainChat({ width }: Props) {
+function ChatRoom() {
   return (
-    <Box bg={'#EAEAEA'} w={'calc(100% - 660px)'} p={0}>
+    <Box bg={'#EAEAEA'} w={'calc(100%)'} p={0}>
       <ListMessages />
       <MsgInput />
     </Box>
   );
 }
 
-export default MainChat;
+export default ChatRoom;
