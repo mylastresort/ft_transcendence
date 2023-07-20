@@ -88,7 +88,7 @@ function ChatNav({setCardSelected ,cardSelected} : any) {
           mx="-xs"
           px="xs"
         >
-          <RoomsList rooms={rooms} setCardSelected={setCardSelected}></RoomsList>
+          <RoomsList rooms={rooms} setCardSelected={setCardSelected} closeNav={toogleNav}></RoomsList>
         </Navbar.Section>
 
       </Navbar>

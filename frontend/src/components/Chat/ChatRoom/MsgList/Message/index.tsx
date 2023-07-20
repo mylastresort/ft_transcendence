@@ -1,0 +1,46 @@
+import { UserContext } from '@/context/user';
+import { Avatar, Group, Text } from '@mantine/core';
+import { useContext } from 'react';
+
+export default function Message({content, img, sendBy}) {
+  const userContext = useContext(UserContext);
+  return (
+    sendBy.username != userContext.data.username ?
+    <Group pt={15} >
+      <Avatar radius={50} size={40} />
+      <Text
+        size="sm"
+        color="black"
+        p={10}
+        maw={400}
+        style={{
+          border: '2px solid var(--secondary-color)',
+          borderRadius: 20,
+        }}
+      >
+        {content}
+      </Text>
+      {/* <Text color='rd'>{sendBy.username}</Text> */}
+    </Group> :
+        <Group pt={15}w={'100%'}
+        style={{
+          display: 'flex',
+          justifyContent: 'end'
+        }} >
+        {/* <Text color='rd'>{sendBy.username}</Text> */}
+        <Text
+          size="sm"
+          color="black"
+          p={10}
+          maw={400}
+          style={{
+            border: '2px solid var(--secondary-color)',
+            borderRadius: 20,
+          }}
+        >
+          {content}
+        </Text>
+          <Avatar radius={50} size={40} src={userContext.data.imgProfile} />
+      </Group> 
+  );
+}

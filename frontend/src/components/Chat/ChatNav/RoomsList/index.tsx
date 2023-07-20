@@ -11,7 +11,7 @@ import {
 import { User } from '@nextui-org/react';
 import { useContext, useState } from 'react';
 
-function UserCard({ user, setCardSelected }) {
+function UserCard({ user, setCardSelected, closeNav }) {
   const [bgColor, setBgColor] = useState('var(--white-color)')
   const chatContext = useContext(ChatContext);
   console.log('usercard=>', user.members[0].imgProfile);
@@ -40,6 +40,7 @@ function UserCard({ user, setCardSelected }) {
           createdAt: 'idk',
           isChannel: false,
         };
+        closeNav();
       }}
     >
       <Group h={60} miw={234}>
@@ -54,7 +55,7 @@ function UserCard({ user, setCardSelected }) {
     </Box>
   );
 }
-function ChannelCard({ user }: { user: any }) {
+function ChannelCard({ user, closeNav }: any) {
   const [bgColor, setBgColor] = useState('var(--white-color)')
   return (
     <Box
@@ -90,15 +91,15 @@ function ChannelCard({ user }: { user: any }) {
   );
 }
 
-export function RoomsList({ rooms, setCardSelected}: any) {
+export function RoomsList({ rooms, setCardSelected, closeNav}: any) {
   return (
     <ScrollArea h={'calc(100% - 200px)'} mt={20}>
       {rooms.map((room: any) => (
         <>
           {room.isChannel ? (
-            <ChannelCard user={room}/>
+            <ChannelCard user={room} closeNav={closeNav}/>
           ) : (
-            <UserCard user={room} setCardSelected={setCardSelected}/>
+            <UserCard user={room} setCardSelected={setCardSelected} closeNav={closeNav}/>
           )}
         </>
       ))}

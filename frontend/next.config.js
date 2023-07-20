@@ -9,6 +9,9 @@ const nextConfig = {
       // },
     ];
   },
+  env: {
+    // BACKEND_URL:http://localhost:4400/api/chat
+  }
 };
 
 module.exports = nextConfig;

@@ -124,7 +124,7 @@ model Message{
   sendBy User[]
   sendAt DateTime @default(now())
   content String
-  chat   Chat @relation(fields: [chatId], references: [id])
+  chat   Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
   chatId Int
 }
 
@@ -137,4 +137,14 @@ model Chat{
   isChannel Boolean @default(false)
   members User[]
   Messages Message[]
+}
+
+model Channel{
+  id Int @id @default(autoincrement())
+  name String
+  img String
+  createdAt DateTime @default(now())
+  updateAt DateTime @default(now())
+  // members User[]
+  // Messages Message[]
 }

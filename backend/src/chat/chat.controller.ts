@@ -57,23 +57,22 @@ export class ChatController {
   // messages
   //get msgs
   @Get('msgs')
-  @UseGuards(AuthGuard('jwt'))
-  @HttpCode(HttpStatus.OK)
-  @ApiBearerAuth()
+  // @UseGuards(AuthGuard('jwt'))
+  // @HttpCode(HttpStatus.OK)
+  // @ApiBearerAuth()
   async getMessages(
     @Req() req: any,
-    @Query('username') username: any,
   ): Promise<any> {
-    console.log('get messages:', req.user);
-    return await this.chatService.getUsers(username, req.user);
+    console.log('get messages req:', req.body);
+    return await this.chatService.getMessages(req.body);
   }
   //Post msgs
   @Post('msgs')
-  @UseGuards(AuthGuard('jwt'))
-  @HttpCode(HttpStatus.OK)
-  @ApiBearerAuth()
-  async postMessages(@Req() req: any): Promise<any> {
-    console.log('post messages:', req.user, req.body);
-    return this.chatService.createRoom(req.user, req.body);
+  // @UseGuards(AuthGuard('jwt'))
+  // @HttpCode(HttpStatus.OK)
+  // @ApiBearerAuth()
+  async createMessage(@Req() req: any): Promise<any> {
+    console.log('post messages:', req.body);
+    return this.chatService.createMessage(req.body);
   }
 }

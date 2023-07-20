@@ -104,12 +104,14 @@ export class ChatService {
 
   async deleteRoom(room: any) {
     try {
+      console.log("id: ", room.id);
       return await this.prisma.chat.delete({
-        where: {
+        where:{
           id: room.id,
-        },
+        }
       });
     } catch (error) {
+      console.log(error)
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
@@ -122,7 +124,29 @@ export class ChatService {
 
   // Chat messages
 
-  async createMessage(user: any, room: any) {
+  async getMessages(room: any) {
+    try {
+      const messages = await this.prisma.message.findMany({
+        where: {
+          chatId: room.id
+        },
+        include: {
+          sendBy: true
+        }
+      });
+      console.log("getMessages res: ", messages);
+      return messages;
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'room not created',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+  async createMessage(room: any) {
     interface Room{
       msg: {
         content: string
@@ -138,12 +162,16 @@ export class ChatService {
             create: {
               content: room.msg.content,
               sendBy: {
-                connect: room.sender.id
+                connect: {
+                  username: room.msg.sendBy
+                }
               }
             }
           }
         }
       });
+      console.log("createdMessage res: ", createdMessage);
+      return createdMessage;
     } catch (error) {
       throw new HttpException(
         {
