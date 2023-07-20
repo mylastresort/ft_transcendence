@@ -40,7 +40,7 @@ model User {
   notifications Notification[]
   player        Player?
 
-  chats Chat[]
+  chats    Chat[]
   messages Message[]
 }
 
@@ -119,32 +119,59 @@ model Room {
   status     String
 }
 
-model Message{
-  id Int @id @default(autoincrement())
-  sendBy User[]
-  sendAt DateTime @default(now())
+model Message {
+  id      Int      @id @default(autoincrement())
+  sendBy  User[]
+  sendAt  DateTime @default(now())
   content String
-  chat   Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  chatId Int
+  chat    Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId  Int
 }
 
-model Chat{
-  id Int @id @default(autoincrement())
-  name String
-  img String
-  createdAt DateTime @default(now())
-  updateAt DateTime @default(now())
-  isChannel Boolean @default(false)
-  members User[]
-  Messages Message[]
+model Chat {
+  id        Int       @id @default(autoincrement())
+  name      String?
+  img       String?
+  createdAt DateTime  @default(now())
+  updateAt  DateTime  @default(now())
+  isChannel Boolean   @default(false)
+  members   User[]
+  Messages  Message[]
 }
 
-model Channel{
-  id Int @id @default(autoincrement())
-  name String
-  img String
-  createdAt DateTime @default(now())
-  updateAt DateTime @default(now())
-  // members User[]
-  // Messages Message[]
+// channel
+
+model ChannelMessage {
+  id       Int      @id @default(autoincrement())
+  sendAt   DateTime @default(now())
+  content  String
+  sender   Member   @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  senderId Int
+  Channel     Channel  @relation(fields: [ChannelId], references: [id], onDelete: Cascade)
+  ChannelId   Int
+}
+
+model Member {
+  id        Int              @id @default(autoincrement())
+  joinedAt  DateTime         @default(now())
+  isBanned  Boolean          @default(false)
+  isKiked   Boolean          @default(false)
+  kikedAt   DateTime         @default(now())
+  isMuted   Boolean          @default(false)
+  mutedAt   DateTime         @default(now())
+  channel   Channel          @relation(fields: [channleId], references: [id])
+  channleId Int              @unique
+  Messages  ChannelMessage[]
+}
+
+model Channel {
+  id              Int              @id @default(autoincrement())
+  createdAt       DateTime         @default(now())
+  updateAt        DateTime         @default(now())
+  channelName     String
+  image           String
+  description     String
+  ChannelPassword String?
+  members         Member[]
+  Messages        ChannelMessage[]
 }
