@@ -42,6 +42,7 @@ model User {
 
   chats    PrivateChat[]
   messages PrivateMessage[]
+  Member   Member[]
 }
 
 model FriendRequest {
@@ -119,46 +120,49 @@ model Room {
   status     String
 }
 
-
 // Private messages
 model PrivateMessage {
-  id      Int      @id @default(autoincrement())
+  id      Int         @id @default(autoincrement())
   sendBy  User[]
-  sendAt  DateTime @default(now())
+  sendAt  DateTime    @default(now())
   content String
-  chat    PrivateChat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chat    PrivateChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
   chatId  Int
 }
 
 model PrivateChat {
-  id        Int       @id @default(autoincrement())
-  createdAt DateTime  @default(now())
-  updateAt  DateTime  @default(now())
+  id        Int              @id @default(autoincrement())
+  createdAt DateTime         @default(now())
+  updateAt  DateTime         @default(now())
   members   User[]
   Messages  PrivateMessage[]
 }
 
 // channels
 model ChannelMessage {
-  id       Int      @id @default(autoincrement())
-  sendAt   DateTime @default(now())
-  content  String
-  sender   Member   @relation(fields: [senderId], references: [id], onDelete: Cascade)
-  senderId Int
-  Channel     Channel  @relation(fields: [ChannelId], references: [id], onDelete: Cascade)
-  ChannelId   Int
+  id        Int      @id @default(autoincrement())
+  sendAt    DateTime @default(now())
+  content   String
+  sender    Member   @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  senderId  Int
+  Channel   Channel  @relation(fields: [ChannelId], references: [id], onDelete: Cascade)
+  ChannelId Int
 }
 
 model Member {
-  id        Int              @id @default(autoincrement())
+  id       Int    @id @default(autoincrement())
+  nickname String
   joinedAt  DateTime         @default(now())
   isBanned  Boolean          @default(false)
   isKiked   Boolean          @default(false)
   kikedAt   DateTime         @default(now())
   isMuted   Boolean          @default(false)
   mutedAt   DateTime         @default(now())
-  channel   Channel          @relation(fields: [channleId], references: [id])
+  user      User             @relation(fields: [userId], references: [id])
+  userId    Int
+  channel   Channel?         @relation(fields: [channleId], references: [id])
   channleId Int              @unique
+  owner     Channel?         @relation("owner")
   Messages  ChannelMessage[]
 }
 
@@ -170,6 +174,8 @@ model Channel {
   image           String
   description     String
   ChannelPassword String?
+  owner           Member           @relation("owner", fields: [ownerId], references: [id])
+  ownerId         Int              @unique
   members         Member[]
   Messages        ChannelMessage[]
 }
