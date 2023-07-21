@@ -40,8 +40,8 @@ model User {
   notifications Notification[]
   player        Player?
 
-  chats    Chat[]
-  messages Message[]
+  chats    PrivateChat[]
+  messages PrivateMessage[]
 }
 
 model FriendRequest {
@@ -119,28 +119,26 @@ model Room {
   status     String
 }
 
-model Message {
+
+// Private messages
+model PrivateMessage {
   id      Int      @id @default(autoincrement())
   sendBy  User[]
   sendAt  DateTime @default(now())
   content String
-  chat    Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chat    PrivateChat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
   chatId  Int
 }
 
-model Chat {
+model PrivateChat {
   id        Int       @id @default(autoincrement())
-  name      String?
-  img       String?
   createdAt DateTime  @default(now())
   updateAt  DateTime  @default(now())
-  isChannel Boolean   @default(false)
   members   User[]
-  Messages  Message[]
+  Messages  PrivateMessage[]
 }
 
-// channel
-
+// channels
 model ChannelMessage {
   id       Int      @id @default(autoincrement())
   sendAt   DateTime @default(now())

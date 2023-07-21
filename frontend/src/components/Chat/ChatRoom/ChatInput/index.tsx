@@ -17,7 +17,6 @@ import request from 'superagent';
 import { ChatContext } from '@/context/chat';
 import { UserContext } from '@/context/user';
 import { useForm } from '@mantine/form';
-// import { socketContext } from '../../pages/Chat/index'
 
 const useInputStyle = createStyles((theme: MantineTheme) => ({
   input: {
@@ -51,7 +50,7 @@ export default function ChatInput() {
       },
     };
     request
-      .post('http://localhost:4400/api/chat/msgs')
+      .post('http://localhost:4400/api/chat/private/msgs')
       .send(req)
       .then((res) => {
         console.log('messages: ', res.body);
@@ -59,7 +58,6 @@ export default function ChatInput() {
       .catch((err) => {
         console.log(err);
       });
-    console.log(req);
   }
   const form = useForm({
     initialValues: {

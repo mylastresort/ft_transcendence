@@ -10,10 +10,9 @@ interface Props {
 }
 
 
-function ChatRoom( {cardSelected, setCardSelected} : any) {
-  console.log("is it:", cardSelected)
+function ChatRoom() {
   const chatContext = useContext(ChatContext);
-  return cardSelected ? (
+  return(
     <>
       <MediaQuery smallerThan={1000} styles={{ width: 'calc(100% - 77px)' }}>
         <Box bg={'#EAEAEA'} w={'calc(70% - 55px)'}pl={55}>
@@ -23,14 +22,11 @@ function ChatRoom( {cardSelected, setCardSelected} : any) {
       </MediaQuery>
       <MediaQuery smallerThan={1000} styles={{ display: 'none' }}>
         <Box bg={'#EAEAEA'} w={'calc(30% - 33px)'}>
-          <UserInfo setCardSelected={setCardSelected} />
+          <UserInfo />
         </Box>
-        
       </MediaQuery>
     </>
-  ) : (
-    <Box bg={'#EAEAEA'} w={'calc(100% - 55px)'}></Box>
-  );
+  )
 }
 
 export default ChatRoom;

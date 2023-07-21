@@ -26,11 +26,11 @@ import { CreateChannel } from './CreateChannel';
 import { RoomsList } from './RoomsList';
 import { SearchUser } from './SearchUser';
 
-function ChatNav({setCardSelected ,cardSelected} : any) {
+function ChatNav() {
   const matches = useMediaQuery('(min-width: 1200px)');
   let selectedState = useState(1);
   const [selected, setSelected] = selectedState;
-  const [rooms, setRooms] = useState([]);
+  const [PrivateChats, setPrivateChats] = useState([]);
   const user = useContext(UserContext);
   const [opened, { toggle }] = useDisclosure(true);
   const ref = useClickOutside(() => {
@@ -40,19 +40,18 @@ function ChatNav({setCardSelected ,cardSelected} : any) {
   function toogleNav() {
     document.querySelector('#chat-nav')?.classList.toggle('close-nav');
     toggle();
-    console.log(opened);
   }
 
   useEffect(() => {
     const jwtToken = localStorage.getItem('jwtToken');
     request
-      .get('http://localhost:4400/api/chat')
+      .get('http://localhost:4400/api/chat/private')
       .set('Authorization', `Bearer ${jwtToken}`)
-      .then((res) => setRooms(res.body))
+      .then((res) => setPrivateChats(res.body))
       .catch((err) => {
         return err;
       });
-  }, [cardSelected]);
+  }, [opened]);
 
   return (
     <>
@@ -78,7 +77,7 @@ function ChatNav({setCardSelected ,cardSelected} : any) {
         <Navbar.Section className="nav-child" mt="xs" pt={60}>
           <Group noWrap>
             <CreateChannel context={user} />
-            <SearchUser setCardSelected={setCardSelected}/>
+            <SearchUser/>
           </Group>
         </Navbar.Section>
         <Navbar.Section
@@ -88,7 +87,7 @@ function ChatNav({setCardSelected ,cardSelected} : any) {
           mx="-xs"
           px="xs"
         >
-          <RoomsList rooms={rooms} setCardSelected={setCardSelected} closeNav={toogleNav}></RoomsList>
+          <RoomsList rooms={PrivateChats} closeNav={toogleNav}></RoomsList>
         </Navbar.Section>
 
       </Navbar>

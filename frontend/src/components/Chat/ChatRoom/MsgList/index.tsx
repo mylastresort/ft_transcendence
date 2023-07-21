@@ -18,7 +18,7 @@ export default function MsgList() {
 
   useEffect(() => {
     request
-      .get('http://localhost:4400/api/chat/msgs')
+      .get('http://localhost:4400/api/chat/private/msgs')
       .send({ id: chatContext.data.id })
       .then((res) => {
         setMessages(res.body);
