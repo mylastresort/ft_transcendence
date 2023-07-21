@@ -7,7 +7,7 @@ export function UserCard({ user, setCardSelected, closeNav }) {
   const [bgColor, setBgColor] = useState('var(--white-color)');
   const chatContext = useContext(ChatContext);
   console.log(user.Messages[0])
-  const content =   user.Messages[0].content.slice(0, 30) + " ..."
+  const content = () => (user.Messages[0].content.slice(0, 30) + " ...")
   return (
     <Link href={'/chat/private'}>
       <Box
@@ -45,7 +45,7 @@ export function UserCard({ user, setCardSelected, closeNav }) {
           <div>
             <Text size="lg">{user.members[0].username}</Text>
             <Text size="xs" color="dimmed">
-              {user.Messages[0] ? content : "..."}
+              {user.Messages[0] ? content() : "..."}
             </Text>
           </div>
         </Group>

@@ -80,7 +80,7 @@ export default function ChatInput() {
     >
       <form
         onSubmit={form.onSubmit((value) => {
-          value.message && sendMessage(value.message);
+          value.message.trim() && sendMessage(value.message.trim());
           value.message = '';
         })}
         style={{
