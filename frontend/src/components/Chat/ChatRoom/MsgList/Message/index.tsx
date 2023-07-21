@@ -2,12 +2,12 @@ import { UserContext } from '@/context/user';
 import { Avatar, Group, Text } from '@mantine/core';
 import { useContext } from 'react';
 
-export default function Message({content, img, sendBy}) {
+export default function Message({content, sendBy}) {
   const userContext = useContext(UserContext);
   return (
     sendBy.username != userContext.data.username ?
     <Group pt={15} >
-      <Avatar radius={50} size={40} />
+      <Avatar radius={50} size={40} src={sendBy.imgProfile} />
       <Text
         size="sm"
         color="black"
@@ -20,14 +20,12 @@ export default function Message({content, img, sendBy}) {
       >
         {content}
       </Text>
-      {/* <Text color='rd'>{sendBy.username}</Text> */}
     </Group> :
         <Group pt={15}w={'100%'}
         style={{
           display: 'flex',
           justifyContent: 'end'
         }} >
-        {/* <Text color='rd'>{sendBy.username}</Text> */}
         <Text
           size="sm"
           color="black"

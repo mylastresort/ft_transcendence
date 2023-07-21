@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@mantine/spotlight": "^6.0.17"
+  }
+}

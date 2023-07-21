@@ -14,23 +14,24 @@ import { forwardRef, useState, useContext } from 'react';
 import request from 'superagent';
 import { ChatContext } from '@/context/chat';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 const AutoCompleteItem = forwardRef<HTMLDivElement>(
-  ({ user, image, ...others }: any, ref) => (
-    <Link href={'/chat/private'} >
-          <div ref={ref} {...others}>
-        <Group noWrap>
-          <Avatar src={image} />
-          <div>
-            <Text>{user}</Text>
-            <Text size="xs" color="dimmed">
-              this is discription
-            </Text>
-          </div>
-        </Group>
-      </div>
-    </Link>
-  )
+  ({ value, image, ...others }: any, ref) => {
+    return (
+        <div ref={ref} {...others}>
+          <Group noWrap>
+            <Avatar src={image} />
+            <div>
+              <Text>{value}</Text>
+              <Text size="xs" color="dimmed">
+                this is discription
+              </Text>
+            </div>
+          </Group>
+        </div>
+    );
+  }
 );
 
 export function SearchUser() {
@@ -58,24 +59,27 @@ export function SearchUser() {
         return err;
       });
   }
+
+  const router = useRouter()
   function createNewPrivateChat(event) {
-    close()
+    close();
     const jwtToken = localStorage.getItem('jwtToken');
     request
-    .post('http://localhost:4400/api/chat/private')
-    .set('Authorization', `Bearer ${jwtToken}`)
-    .send({username: event.value})
-    .then((res)=>{
-      chatContext.data = {
-        id: res.body.id,
-        name: event.value,
-        img: event.image,
-        createdAt: 'idk',
-        isChannel: false,
-      };
-    })
-    .catch((err) => {
-      return err;
+      .post('http://localhost:4400/api/chat/private')
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .send({ username: event.value })
+      .then((res) => {
+        chatContext.data = {
+          id: res.body.id,
+          name: event.value,
+          img: event.image,
+          createdAt: 'idk',
+          isChannel: false,
+        };
+        router.push("/chat/private")
+      })
+      .catch((err) => {
+        return err;
       });
   }
 
@@ -112,9 +116,7 @@ export function SearchUser() {
       </Modal>
 
       <Group position="center">
-        <Button onClick={open}>
-          Search for user
-        </Button>
+        <Button onClick={open}>Search for user</Button>
       </Group>
     </>
   );

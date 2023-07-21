@@ -89,7 +89,6 @@ function ChatNav() {
         >
           <RoomsList rooms={PrivateChats} closeNav={toogleNav}></RoomsList>
         </Navbar.Section>
-
       </Navbar>
     </>
   );

@@ -39,7 +39,6 @@ export default function MsgList() {
       {messages.map((message) => (
         <Message
           content={message.content}
-          img={'test'}
           sendBy={message.sendBy[0]}
         />
       ))}

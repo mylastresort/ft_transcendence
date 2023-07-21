@@ -73,6 +73,12 @@ export class PrivateChatService {
               },
             },
           },
+          Messages: {
+            orderBy: {
+              sendAt: 'desc'
+            },
+            take: 1
+          }
         },
       });
     } catch (error) {

@@ -11,57 +11,11 @@ import {
 import { User } from '@nextui-org/react';
 import Link from 'next/link';
 import { useContext, useState } from 'react';
+import { UserCard } from './UserCard';
 
-function UserCard({ user, setCardSelected, closeNav }) {
-  const [bgColor, setBgColor] = useState('var(--white-color)');
-  const chatContext = useContext(ChatContext);
-  console.log('usercard=>', user.members[0].imgProfile);
-  return (
-    <Link href={'/chat/private'}>
-      <Box
-        maw={300}
-        mx="auto"
-        onMouseOver={() => {
-          setBgColor('var(--secondary-color)');
-        }}
-        onMouseLeave={() => {
-          setBgColor('var(--white-color)');
-        }}
-        style={{
-          cursor: 'pointer',
-          backgroundColor: bgColor,
-          borderRadius: '10px',
-          border: '2px solid',
-          borderColor: 'var(--secondary-color)',
-          padding: '10px',
-          margin: '15px auto',
-          marginTop: '0px',
-        }}
-        onClick={() => {
-          // setCardSelected(true);
-          chatContext.data = {
-            id: user.id,
-            name: user.members[0].username,
-            img: user.members[0].imgProfile,
-            createdAt: 'idk',
-            isChannel: false,
-          };
-          closeNav();
-        }}
-      >
-        <Group h={60} miw={234}>
-          <Avatar radius={50} size={60} src={user.members[0].imgProfile} />
-          <div>
-            <Text size="lg">{user.name}</Text>
-            <Text size="xs" color="dimmed">
-              this is discription
-            </Text>
-          </div>
-        </Group>
-      </Box>
-    </Link>
-  );
-}
+
+
+
 function ChannelCard({ user, closeNav }: any) {
   const [bgColor, setBgColor] = useState('var(--white-color)');
   return (
@@ -95,7 +49,7 @@ function ChannelCard({ user, closeNav }: any) {
           <div>
             <Text size="lg">{user.name}</Text>
             <Text size="xs" color="dimmed">
-              this is discription
+              user.Messages[0].content
             </Text>
           </div>
         </Group>
@@ -109,11 +63,11 @@ export function RoomsList({ rooms, setCardSelected, closeNav }: any) {
     <ScrollArea h={'calc(100% - 200px)'} mt={20}>
       {rooms.map((room: any) => (
         <>
-            <UserCard
-              user={room}
-              setCardSelected={setCardSelected}
-              closeNav={closeNav}
-            />
+          <UserCard
+            user={room}
+            setCardSelected={setCardSelected}
+            closeNav={closeNav}
+          />
         </>
       ))}
     </ScrollArea>

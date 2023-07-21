@@ -13,6 +13,7 @@ interface Props {
 function ChatRoom() {
   const chatContext = useContext(ChatContext);
   return(
+    chatContext.data ?
     <>
       <MediaQuery smallerThan={1000} styles={{ width: 'calc(100% - 77px)' }}>
         <Box bg={'#EAEAEA'} w={'calc(70% - 55px)'}pl={55}>
@@ -26,6 +27,7 @@ function ChatRoom() {
         </Box>
       </MediaQuery>
     </>
+      : <></>
   )
 }
 
