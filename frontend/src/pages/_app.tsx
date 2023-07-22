@@ -27,6 +27,7 @@ export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
     const token = localStorage.getItem('jwtToken');
     setToken(token);
+    console.log('token', token);
     if (token) {
       setShow(false);
       GetMe()
@@ -44,118 +45,121 @@ export default function App({ Component, pageProps }: AppProps) {
     }
   }, []);
 
-  useEffect(() => {
-    const handleRouteChange = (url) => {
-      const token = localStorage.getItem('jwtToken');
-      setToken(token);
+  // useEffect(() => {
+  //   const handleRouteChange = (url) => {
+  //     const token = localStorage.getItem('jwtToken');
+  //     // setToken(token);
 
-      if (token) {
-        setShow(false);
-        GetMe()
-          .then((res) => {
-            user = res.body;
-            if (res.status !== 200) {
-              UserSocket.disconnect();
-              localStorage.removeItem('jwtToken');
-              router.push('/');
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      } else {
-        setShow(true);
-        setIsTwoFactorAuth(false);
-      }
-    };
+  //     if (token) {
+  //       setShow(false);
+  //       GetMe()
+  //         .then((res) => {
+  //           user = res.body;
+  //           if (res.status !== 200) {
+  //             UserSocket.disconnect();
+  //             localStorage.removeItem('jwtToken');
+  //             router.push('/');
+  //           }
+  //         })
+  //         .catch((err) => {
+  //           console.log(err);
+  //         });
+  //     } else {
+  //       setShow(true);
+  //       setIsTwoFactorAuth(false);
+  //     }
+  //   };
 
-    router.events.on('routeChangeComplete', handleRouteChange);
+  //   router.events.on('routeChangeComplete', handleRouteChange);
 
-    return () => {
-      router.events.off('routeChangeComplete', handleRouteChange);
-    };
-  }, []);
+  //   return () => {
+  //     router.events.off('routeChangeComplete', handleRouteChange);
+  //   };
+  // }, []);
 
-  useEffect(() => {
-    UserSocket.on('NewRequestNotification', (name) => {
-      notifications.show({
-        id: 'NewRequestNotification',
-        title: 'New Request',
-        message: 'You have a new request from ' + name,
-        color: 'green',
-        bg: 'gray',
-        radius: 'md',
-        // icon: <BiSolidUserPlus />,
-        autoClose: 5000,
-      });
-    });
+  // useEffect(() => {
+  //   UserSocket.on('NewRequestNotification', (name) => {
+  //     notifications.show({
+  //       id: 'NewRequestNotification',
+  //       title: 'New Request',
+  //       message: 'You have a new request from ' + name,
+  //       color: 'green',
+  //       bg: 'gray',
+  //       radius: 'md',
+  //       // icon: <BiSolidUserPlus />,
+  //       autoClose: 5000,
+  //     });
+  //   });
 
-    UserSocket.on('CandelFriendReq', (name) => {
-      if (name !== 'CanceledfrmSender') {
-        notifications.show({
-          id: 'CandelFriendReq',
-          title: 'Friend Request Canceled',
-          message: name + ' canceled your friend request',
-          color: 'red',
-          radius: 'md',
-          bg: 'gray',
+  //   UserSocket.on('CandelFriendReq', (name) => {
+  //     if (name !== 'CanceledfrmSender') {
+  //       notifications.show({
+  //         id: 'CandelFriendReq',
+  //         title: 'Friend Request Canceled',
+  //         message: name + ' canceled your friend request',
+  //         color: 'red',
+  //         radius: 'md',
+  //         bg: 'gray',
 
-          // icon: <BiSolidUserPlus />,
-          autoClose: 5000,
-        });
-      }
-    });
+  //         // icon: <BiSolidUserPlus />,
+  //         autoClose: 5000,
+  //       });
+  //     }
+  //   });
 
-    UserSocket.on('AcceptFriendReq', (name) => {
-      notifications.show({
-        id: 'AcceptFriendReq',
-        title: 'Friend Request Accepted',
-        message: name + ' accepted your friend request',
-        color: 'green',
-        radius: 'md',
-        bg: 'gray',
+  //   UserSocket.on('AcceptFriendReq', (name) => {
+  //     notifications.show({
+  //       id: 'AcceptFriendReq',
+  //       title: 'Friend Request Accepted',
+  //       message: name + ' accepted your friend request',
+  //       color: 'green',
+  //       radius: 'md',
+  //       bg: 'gray',
 
-        // icon: <BiSolidUserPlus />,
-        autoClose: 5000,
-      });
-    });
+  //       // icon: <BiSolidUserPlus />,
+  //       autoClose: 5000,
+  //     });
+  //   });
 
-    UserSocket.on('GameInviteNotification', (data) => {
-      notifications.show({
-        id: 'GameInviteNotification',
-        title: 'Game Invite',
-        message: (
-          <Stack>
-            <Text c="#fff">You have a game invite from {data.senderId}</Text>
-            <Group>
-              <Button
-                color="cyan"
-                onClick={() => {
-                  router.push(data.gameid);
-                }}
-              >
-                Accept
-              </Button>
-              <Button variant="light" color="red">
-                Cancel
-              </Button>
-            </Group>
-          </Stack>
-        ),
-        color: 'green',
-        radius: 'md',
-        bg: 'gray',
+  //   UserSocket.on('GameInviteNotification', (data) => {
+  //     console.log(data);
+  //     notifications.show({
+  //       id: 'GameInviteNotification',
+  //       title: 'Game Invite', 
+  //       message: (
+  //         <Stack>
+  //           <Text c="#fff">You have a game invite from {data.senderId}</Text>
+  //           <Group>
+  //             <Button
+  //               color="cyan"
+  //               onClick={() => {
+  //                 router.push(data.gameid);
+  //               }}
+  //             >
+  //               Accept
+  //             </Button>
+  //             <Button variant="light" color="red">
+  //               Cancel
+  //             </Button>
+  //           </Group>
+  //         </Stack>
+  //       ),
+  //       color: 'green',
+  //       radius: 'md',
+  //       bg: 'gray',
 
-        autoClose: 100000,
-        withCloseButton: false,
-      });
-    });
+  //       autoClose: 5000,
+  //     });
+  //   });
 
-    return () => {
-      UserSocket.off('NewRequestNotification');
-      UserSocket.off('CandelFriendReq');
-    };
-  }, []);
+  //   return () => {
+  //     UserSocket.off('NewRequestNotification');
+  //     UserSocket.off('CandelFriendReq');
+  //     UserSocket.off('AcceptFriendReq');
+  //     UserSocket.off('GameInviteNotification');
+  //     UserSocket.off('connect');
+  //   };
+  // }, []);
 
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS theme={Theme}>

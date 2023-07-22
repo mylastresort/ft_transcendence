@@ -37,6 +37,7 @@ export class NotificationsGateway {
     client.use(SocketAuthMiddleware() as any);
     try {
       client.on('connection', async (socket: Socket) => {
+        console.log('connected', socket.data.id);
         if (this.connectedSockets.has(socket.data.id)) {
           this.connectedSockets.get(socket.data.id).push(socket);
         } else {
@@ -72,6 +73,7 @@ export class NotificationsGateway {
         }
 
         socket.on('disconnect', async () => {
+          console.log('disconnected', socket.data.id);
           try {
             await this.prisma.user.update({
               where: {
@@ -364,6 +366,7 @@ export class NotificationsGateway {
       });
       if (sockets) {
         for (const socket of sockets) {
+          console.log('sending game invite');
           socket.emit('GameInviteNotification', {
             senderId: data.senderId,
             gameurl: data.gameid,

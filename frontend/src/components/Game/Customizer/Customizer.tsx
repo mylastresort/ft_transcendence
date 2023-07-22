@@ -9,7 +9,7 @@ import {
   Box,
   Input,
 } from '@mantine/core';
-import { MapsContext } from '../../../context/game';
+import { MapsContext, PlayerContext } from '../../../context/game';
 import { motion } from 'framer-motion';
 import { useForm } from '@mantine/form';
 import { useSwipeable } from 'react-swipeable';
@@ -18,6 +18,7 @@ import styles from './Customizer.module.css';
 import Link from 'next/link';
 import { GameContext } from '@/context/game';
 import { useRouter } from 'next/router';
+import { UserSocket } from '@/context/WsContext';
 
 export default function Customizer({ type = 'create', userId }) {
   const game = useContext(GameContext);
@@ -42,6 +43,7 @@ export default function Customizer({ type = 'create', userId }) {
     trackMouse: true,
   });
   const router = useRouter();
+  const player = useContext(PlayerContext);
 
   return (
     <Flex align="center" h="100%" maw="1500px" m="0 auto">
@@ -74,8 +76,12 @@ export default function Customizer({ type = 'create', userId }) {
                   userId,
                 },
                 (gameId) => {
-                  game.role = 'guest';
-                  router.push(`/game/${gameId}`);
+                  UserSocket.emit('SendGameInvite', {
+                    gameid: gameId,
+                    receiverId: Number(userId),
+                    senderId: player?.userId,
+                  });
+                  router.push('/game');
                 }
               )
         )}
