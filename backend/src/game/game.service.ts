@@ -555,10 +555,16 @@ export class GameService {
           where: { userId: winnerId },
           data: {
             level,
-            lastPlayed: new Date(),
             ...data,
           },
         });
+        await this.prisma.player.updateMany({
+          where: { userId: { in: [room.host.userId, room.guest.userId] } },
+          data: { lastPlayed: new Date() },
+        });
+        socket.data.userLastPlayed = new Date();
+        const opponent = await this.getPlayer(room.host.userId, false);
+        if (opponent) opponent.userLastPlayed = new Date();
         await this.prisma.room.update({
           where: { id: room.id },
           data: {

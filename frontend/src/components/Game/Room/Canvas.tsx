@@ -60,7 +60,7 @@ export default function Canvas() {
         role === 'host' ? setHostScore(score) : setGuestScore(score)
       )
       .on('gameover', (value) => {
-        game.winner = value === game.role ? 'self' : 'opponent';
+        winner = value === game.role ? 'self' : 'opponent';
         router.push('/game/results');
       })
       .on('games:counter', (count) => {

@@ -8,30 +8,26 @@
     max-width: 28rem;
     opacity: 0.8;
     overflow: hidden;
+    position: relative;
 }
 
 .goldcup_winner_profile {
     border-radius: 50%;
     position: absolute;
-    scale: 0.7;
-    width: 20%;
+    scale: 0.4;
     z-index: 1;
-    left: 28%;
-    bottom: 50%;
 }
 
 .goldcup_loser {
     max-width: 18rem;
     opacity: 0.8;
     margin-top: 1.5rem;
+    position: relative;
 }
 
 .goldcup_loser_profile {
     border-radius: 50%;
-    right: 21%;
     position: absolute;
     scale: 0.4;
-    width: 20%;
     z-index: 1;
-    bottom: 53%;
 }
