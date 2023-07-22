@@ -282,7 +282,7 @@ export class GameService {
     );
     if (socket.data.currentGameId) {
       const room = this.rooms.get(socket.data.currentGameId);
-      if (room && !room.isInvite) {
+      if (room) {
         const winnerId =
           socket.data.userId === room.host.userId
             ? room.guest.userId
