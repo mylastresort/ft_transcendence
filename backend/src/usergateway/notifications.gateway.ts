@@ -43,6 +43,17 @@ export class NotificationsGateway {
           this.connectedSockets.set(socket.data.id, [socket]);
         }
 
+        const user = await this.prisma.user.findUnique({
+          where: {
+            id: socket.data.id,
+          },
+        });
+
+        if (!user) {
+          socket.disconnect();
+          return;
+        }
+
         try {
           await this.prisma.user.update({
             where: {
@@ -321,6 +332,89 @@ export class NotificationsGateway {
         },
       });
       await this.SendNotification(client.data.id);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  @SubscribeMessage('SendGameInvite')
+  async SendGameInvite(
+    @MessageBody()
+    data: {
+      senderId: number;
+      receiverId: number;
+      gameid: string;
+    },
+  ) {
+    try {
+      const sockets = this.connectedSockets.get(data.receiverId);
+      await this.prisma.user.update({
+        where: {
+          id: data.receiverId,
+        },
+        data: {
+          notifications: {
+            create: {
+              message: 'You have a game invite from ' + data.senderId,
+              gameid: data.gameid,
+              read: false,
+            },
+          },
+        },
+      });
+      if (sockets) {
+        for (const socket of sockets) {
+          socket.emit('GameInviteNotification', {
+            senderId: data.senderId,
+            gameurl: data.gameid,
+          });
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  @SubscribeMessage('InGame')
+  async InGame(
+    @MessageBody()
+    data: {
+      user1Id: number;
+      user2Id: number;
+    },
+  ) {
+    try {
+      const sockets = this.connectedSockets.get(data.user1Id);
+      const sockets2 = this.connectedSockets.get(data.user2Id);
+
+      await this.prisma.user.update({
+        where: {
+          id: data.user1Id,
+        },
+        data: {
+          status: 'In Game',
+        },
+      });
+
+      await this.prisma.user.update({
+        where: {
+          id: data.user2Id,
+        },
+        data: {
+          status: 'In Game',
+        },
+      });
+
+      if (sockets) {
+        for (const socket of sockets) {
+          socket.emit('InGame', 'InGame');
+        }
+      }
+      if (sockets2) {
+        for (const socket2 of sockets2) {
+          socket2.emit('InGame', 'InGame');
+        }
+      }
     } catch (err) {
       console.log(err);
     }
