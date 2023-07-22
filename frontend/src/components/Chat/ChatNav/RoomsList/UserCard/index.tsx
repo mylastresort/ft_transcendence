@@ -3,7 +3,7 @@ import { Box, Group, Avatar, Text } from '@mantine/core';
 import Link from 'next/link';
 import { useContext, useState } from 'react';
 
-export function UserCard({ user, setCardSelected, closeNav }) {
+export function UserCard({ user, closeNav }) {
   const [bgColor, setBgColor] = useState('var(--white-color)');
   const chatContext = useContext(ChatContext);
   console.log(user.Messages[0])

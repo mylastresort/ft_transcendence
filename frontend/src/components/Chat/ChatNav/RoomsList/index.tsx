@@ -10,8 +10,9 @@ import {
 } from '@mantine/core';
 import { User } from '@nextui-org/react';
 import Link from 'next/link';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { UserCard } from './UserCard';
+import request from 'superagent';
 
 
 
@@ -58,14 +59,25 @@ function ChannelCard({ user, closeNav }: any) {
   );
 }
 
-export function RoomsList({ rooms, setCardSelected, closeNav }: any) {
+export function RoomsList({ closeNav }: any) {
+  const [PrivateChats, setPrivateChats] = useState([]);
+  useEffect(() => {
+    const jwtToken = localStorage.getItem('jwtToken');
+    request
+      .get('http://localhost:4400/api/chat/private')
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .then((res) => setPrivateChats(res.body))
+      .catch((err) => {
+        return err;
+      });
+  }, []);
+
   return (
     <ScrollArea h={'calc(100% - 200px)'} mt={20}>
-      {rooms.map((room: any) => (
+      {PrivateChats.map((room: any) => (
         <>
           <UserCard
             user={room}
-            setCardSelected={setCardSelected}
             closeNav={closeNav}
           />
         </>

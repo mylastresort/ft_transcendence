@@ -27,10 +27,6 @@ import { RoomsList } from './RoomsList';
 import { SearchUser } from './SearchUser';
 
 function ChatNav() {
-  const matches = useMediaQuery('(min-width: 1200px)');
-  let selectedState = useState(1);
-  const [selected, setSelected] = selectedState;
-  const [PrivateChats, setPrivateChats] = useState([]);
   const user = useContext(UserContext);
   const [opened, { toggle }] = useDisclosure(true);
   const ref = useClickOutside(() => {
@@ -41,17 +37,6 @@ function ChatNav() {
     document.querySelector('#chat-nav')?.classList.toggle('close-nav');
     toggle();
   }
-
-  useEffect(() => {
-    const jwtToken = localStorage.getItem('jwtToken');
-    request
-      .get('http://localhost:4400/api/chat/private')
-      .set('Authorization', `Bearer ${jwtToken}`)
-      .then((res) => setPrivateChats(res.body))
-      .catch((err) => {
-        return err;
-      });
-  }, [opened]);
 
   return (
     <>
@@ -87,7 +72,7 @@ function ChatNav() {
           mx="-xs"
           px="xs"
         >
-          <RoomsList rooms={PrivateChats} closeNav={toogleNav}></RoomsList>
+          <RoomsList closeNav={toogleNav}></RoomsList>
         </Navbar.Section>
       </Navbar>
     </>
