@@ -82,6 +82,7 @@ model Notification {
   user   User @relation(fields: [userId], references: [id])
 
   message String
+  gameid String?
   read    Boolean @default(false)
 }
 

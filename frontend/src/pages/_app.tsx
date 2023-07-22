@@ -11,7 +11,7 @@ import { useRouter } from 'next/router';
 import { User_Sidebar } from '../components/Sidebar/Sidebar';
 import { UserContext } from '@/context/user';
 import { WsProvider, UserSocket } from '@/context/WsContext';
-import { MantineProvider } from '@mantine/core';
+import { Button, Group, MantineProvider, Stack, Text } from '@mantine/core';
 import Theme from './styles/theme';
 import { Notifications, notifications } from '@mantine/notifications';
 import { BiSolidUserPlus } from 'react-icons/bi';
@@ -117,6 +117,37 @@ export default function App({ Component, pageProps }: AppProps) {
 
         // icon: <BiSolidUserPlus />,
         autoClose: 5000,
+      });
+    });
+
+    UserSocket.on('GameInviteNotification', (data) => {
+      notifications.show({
+        id: 'GameInviteNotification',
+        title: 'Game Invite',
+        message: (
+          <Stack>
+            <Text c="#fff">You have a game invite from {data.senderId}</Text>
+            <Group>
+              <Button
+                color="cyan"
+                onClick={() => {
+                  router.push(data.gameid);
+                }}
+              >
+                Accept
+              </Button>
+              <Button variant="light" color="red">
+                Cancel
+              </Button>
+            </Group>
+          </Stack>
+        ),
+        color: 'green',
+        radius: 'md',
+        bg: 'gray',
+
+        autoClose: 100000,
+        withCloseButton: false,
       });
     });
 
