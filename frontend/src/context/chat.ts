@@ -5,8 +5,7 @@ export interface Chat {
     id: number;
     name: string;
     img: string;
-    createdAt: string;
-    isChannel: boolean;
+    lastMsg: string;
   };
 }
 

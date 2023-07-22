@@ -5,6 +5,7 @@ interface CreateChannel {
   channelName: string;
   image: string;
   description: string;
+  isProtected: boolean;
   // ChannelPassword: string;
 }
 interface Me {
@@ -12,6 +13,13 @@ interface Me {
   imgProfile: string;
   level: number;
   username: string;
+}
+interface CreateMember {
+  id: number;
+  newMember: {
+    id: number;
+    nickname: string;
+  }
 }
 
 @Injectable()
@@ -26,6 +34,7 @@ export class ChannelService {
           channelName: channel.channelName,
           image: channel.image,
           description: channel.description,
+          isprotected: channel.isProtected,
           owner: {
             create: {
               nickname: me.username,
@@ -49,6 +58,7 @@ export class ChannelService {
         },
       });
     } catch (error) {
+      console.log(error);
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
@@ -101,64 +111,97 @@ export class ChannelService {
       );
     }
   }
+
+  //update
+  async createMember(channel: CreateMember) {
+    try {
+      return await this.prisma.member.create({
+        data: {
+          nickname: channel.newMember.nickname,
+          channel: {
+            connect: {
+              id: channel.id,
+            }
+          },
+          user: {
+            connect: {
+              id: channel.newMember.id
+            }
+          }
+        }
+      })
+    }catch (error) {
+      console.log("err:", error);
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'createMember error',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  // messages
+  // read
+  async getMessages(channelId: any) {
+    try {
+      const messages = await this.prisma.channelMessage.findMany({
+        where: {
+          channelId: channelId,
+        },
+        include: {
+          sender:{
+            include:{
+              user: true,
+            }
+          }
+        },
+      });
+      return messages;
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'getMessages error',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+  // create
+  async createMessage(me: Me, channel: any) {
+    try {
+      const sender = await this.prisma.member.findFirst({
+        where: {
+          userId: me.id,
+        }
+      })
+      const createdMessage = await this.prisma.channelMessage.create({
+        data: {
+          content: channel.message.content,
+          sender: {
+            connect: {
+              id: sender.id,
+            }
+          },
+          channel: {
+            connect:{
+              id: channel.id,
+            }
+          }
+        },
+      });
+      console.log('createdMessage res: ', createdMessage);
+      return createdMessage;
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'room not created',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
 }
-
-// messages
-
-// read
-// async getMessages(pChat: any) {
-//   try {
-//     const messages = await this.prisma.privateMessage.findMany({
-//       where: {
-//         chatId: pChat.id,
-//       },
-//       include: {
-//         sendBy: true,
-//       },
-//     });
-//     console.log('getMessages res: ', messages);
-//     return messages;
-//   } catch (error) {
-//     throw new HttpException(
-//       {
-//         status: HttpStatus.BAD_REQUEST,
-//         error: 'getMessages error',
-//       },
-//       HttpStatus.BAD_REQUEST,
-//     );
-//   }
-// }
-
-// create
-//   async createMessage(pChat: any) {
-//     try {
-//       const createdMessage = await this.prisma.privateChat.update({
-//         where: {
-//           id: pChat.id,
-//         },
-//         data: {
-//           Messages: {
-//             create: {
-//               content: pChat.msg.content,
-//               sendBy: {
-//                 connect: {
-//                   username: pChat.msg.sendBy,
-//                 },
-//               },
-//             },
-//           },
-//         },
-//       });
-//       console.log('createdMessage res: ', createdMessage);
-//       return createdMessage;
-//     } catch (error) {
-//       throw new HttpException(
-//         {
-//           status: HttpStatus.BAD_REQUEST,
-//           error: 'room not created',
-//         },
-//         HttpStatus.BAD_REQUEST,
-//       );
-//     }
-//   }
-// }

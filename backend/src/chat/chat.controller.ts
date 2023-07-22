@@ -23,7 +23,7 @@ export class ChatController {
     @Req() req: any,
     @Query('username') username: any,
   ): Promise<any> {
-    console.log('req get Users=>', req.user);
+    console.log('findAll Users=>', req.user);
     return await this.chatService.getUsers(username, req.user);
   }
 

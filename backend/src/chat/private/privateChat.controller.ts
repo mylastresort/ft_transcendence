@@ -35,7 +35,7 @@ export class PriavteChatController {
     console.log('getPrivateChat=>', req.user);
     return this.privateChatService.getPrivateChat(req.user);
   }
-  
+
   //delete
   @Post('delete')
   @UseGuards(AuthGuard('jwt'))
@@ -46,29 +46,25 @@ export class PriavteChatController {
     return this.privateChatService.deletePrivateChat(req.body);
   }
 
-
-
   // messages
 
   //read
   @Get('msgs')
-  // @UseGuards(AuthGuard('jwt'))
-  // @HttpCode(HttpStatus.OK)
-  // @ApiBearerAuth()
-  async getMessages(
-    @Req() req: any,
-  ): Promise<any> {
-    console.log('getMessages req:', req.body);
-    return await this.privateChatService.getMessages(req.body);
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async getMessages(@Query('id') id: string) {
+    console.log('getMessages req:', +id);
+    return await this.privateChatService.getMessages(+id);
   }
 
   //create
   @Post('msgs')
-  // @UseGuards(AuthGuard('jwt'))
-  // @HttpCode(HttpStatus.OK)
-  // @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
   async createMessage(@Req() req: any): Promise<any> {
     console.log('createMessage:', req.body);
-    return this.privateChatService.createMessage(req.body);
+    return this.privateChatService.createMessage(req.user, req.body);
   }
 }

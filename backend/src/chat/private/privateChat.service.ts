@@ -6,8 +6,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class PrivateChatService {
   constructor(private prisma: PrismaService) {}
 
-
-
   //create
   async createPrivateChat(me: any, chatUser: any) {
     try {
@@ -18,17 +16,17 @@ export class PrivateChatService {
               members: {
                 some: {
                   id: me.id,
-                }
-              }
+                },
+              },
             },
             {
               members: {
                 some: {
                   username: chatUser.username,
-                }
-              }
-            }
-          ]
+                },
+              },
+            },
+          ],
         },
       });
       if (createdChat) {
@@ -75,10 +73,10 @@ export class PrivateChatService {
           },
           Messages: {
             orderBy: {
-              sendAt: 'desc'
+              sendAt: 'desc',
             },
-            take: 1
-          }
+            take: 1,
+          },
         },
       });
     } catch (error) {
@@ -115,19 +113,23 @@ export class PrivateChatService {
   // messages
 
   // read
-  async getMessages(pChat: any) {
+  async getMessages(chatId: number) {
     try {
-      const messages = await this.prisma.privateMessage.findMany({
+      const messages = await this.prisma.privateChat.findFirst({
         where: {
-          chatId: pChat.id,
+          id: chatId,
         },
-        include: {
-          sendBy: true,
+        select: {
+          Messages:{
+            include: {
+              sendBy: true,
+            }
+          }
         },
       });
-      console.log('getMessages res: ', messages);
       return messages;
     } catch (error) {
+      console.log(error);
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
@@ -139,26 +141,23 @@ export class PrivateChatService {
   }
 
   // create
-  async createMessage(pChat: any) {
+  async createMessage(me: any, chat: any) {
     try {
-      const createdMessage = await this.prisma.privateChat.update({
-        where: {
-          id: pChat.id,
-        },
+      const createdMessage = await this.prisma.privateMessage.create({
         data: {
-          Messages: {
-            create: {
-              content: pChat.msg.content,
-              sendBy: {
-                connect: {
-                  username: pChat.msg.sendBy,
-                },
-              },
+          content: chat.message.content,
+          sendBy: {
+            connect: {
+              id: me.id,
+            },
+          },
+          chat: {
+            connect: {
+              id: chat.id,
             },
           },
         },
       });
-      console.log('createdMessage res: ', createdMessage);
       return createdMessage;
     } catch (error) {
       throw new HttpException(

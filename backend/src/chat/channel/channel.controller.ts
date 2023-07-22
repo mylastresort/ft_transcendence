@@ -35,7 +35,7 @@ export class ChannelController {
     console.log('getChannel=>', req.user);
     return this.channelService.getChannel(req.user);
   }
-  
+
   //delete
   @Post('delete')
   @UseGuards(AuthGuard('jwt'))
@@ -46,29 +46,36 @@ export class ChannelController {
     return this.channelService.deleteChannel(req.body);
   }
 
+  //update
 
+  @Post('create-member')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async createMember(@Req() req: any): Promise<any> {
+    console.log('createMember=>', req.body);
+    return this.channelService.createMember(req.body);
+  }
 
   // messages
 
   //read
-  // @Get('msgs')
-  // // @UseGuards(AuthGuard('jwt'))
-  // // @HttpCode(HttpStatus.OK)
-  // // @ApiBearerAuth()
-  // async getMessages(
-  //   @Req() req: any,
-  // ): Promise<any> {
-  //   console.log('getMessages req:', req.body);
-  //   return await this.channelService.getMessages(req.body);
-  // }
+  @Get('msgs')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async getMessages(@Query('id') id: any) {
+    console.log('getMessages req:', id);
+    return await this.channelService.getMessages(id);
+  }
 
-  // //create
-  // @Post('msgs')
-  // // @UseGuards(AuthGuard('jwt'))
-  // // @HttpCode(HttpStatus.OK)
-  // // @ApiBearerAuth()
-  // async createMessage(@Req() req: any): Promise<any> {
-  //   console.log('createMessage:', req.body);
-  //   return this.channelService.createMessage(req.body);
-  // }
+  //create
+  @Post('msgs')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async createMessage(@Req() req: any): Promise<any> {
+    console.log('createMessage:', req.body);
+    return this.channelService.createMessage(req.user, req.body);
+  }
 }

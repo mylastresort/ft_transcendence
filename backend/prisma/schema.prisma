@@ -145,13 +145,13 @@ model ChannelMessage {
   content   String
   sender    Member   @relation(fields: [senderId], references: [id], onDelete: Cascade)
   senderId  Int
-  Channel   Channel  @relation(fields: [ChannelId], references: [id], onDelete: Cascade)
-  ChannelId Int
+  channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channelId Int
 }
 
 model Member {
-  id       Int    @id @default(autoincrement())
-  nickname String
+  id        Int              @id @default(autoincrement())
+  nickname  String
   joinedAt  DateTime         @default(now())
   isBanned  Boolean          @default(false)
   isKiked   Boolean          @default(false)
@@ -163,19 +163,20 @@ model Member {
   channel   Channel?         @relation(fields: [channleId], references: [id])
   channleId Int?
   owner     Channel?         @relation("owner")
-  Messages  ChannelMessage[]
+  messages  ChannelMessage[]
 }
 
 model Channel {
-  id              Int              @id @default(autoincrement())
-  createdAt       DateTime         @default(now())
-  updateAt        DateTime         @default(now())
-  channelName     String
-  image           String
-  description     String
-  ChannelPassword String?
-  owner           Member           @relation("owner", fields: [ownerId], references: [id])
-  ownerId         Int              @unique
-  members         Member[]
-  Messages        ChannelMessage[]
+  id          Int              @id @default(autoincrement())
+  createdAt   DateTime         @default(now())
+  updateAt    DateTime         @default(now())
+  channelName String
+  image       String            @default("https://static.vecteezy.com/system/resources/thumbnails/000/426/510/small/Sports__28154_29.jpg")
+  description String?
+  password    String?
+  isprotected Boolean
+  owner       Member           @relation("owner", fields: [ownerId], references: [id])
+  ownerId     Int              @unique
+  members     Member[]
+  messages    ChannelMessage[]
 }

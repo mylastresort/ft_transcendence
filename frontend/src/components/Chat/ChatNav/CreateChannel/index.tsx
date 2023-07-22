@@ -1,61 +1,150 @@
+import {
+  Button,
+  Group,
+  Modal,
+  useMantineTheme,
+  Box,
+  TextInput,
+  SegmentedControl,
+  FileInput,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { Modal, Button, Group, TextInput, MultiSelect } from '@mantine/core';
-import { useContext, useEffect, useState } from 'react';
+import { useState, useContext } from 'react';
 import request from 'superagent';
-import { User, UserContext } from '@/context/user';
+import { ChatContext } from '@/context/chat';
+import { useRouter } from 'next/router';
+import { useForm } from '@mantine/form';
 
-
-export function CreateChannel({ context }: any) {
+export function CreateChannel() {
+  const [bgColor, setBgColor] = useState('var(--white-color)');
+  const [controleValue, setControleValue] = useState('public');
   const [opened, { open, close }] = useDisclosure(false);
-  const [roomName, setRoomName] = useState('');
-  const [roomMember, setRoomMember] = useState('');
+  const chatContext = useContext(ChatContext);
+  const theme = useMantineTheme();
+  const form = useForm({
+    initialValues: {
+      name: '',
+      password: '',
+    },
+    validate: {
+      name: (value) => (value.trim() ? null : 'Invalid channel name'),
+      password: (value) => (controleValue == 'protected' && (value.trim().length > 8 ? null : 'Invalid password'))
+    },
+  });
 
-  function createNewRoom(event) {
-    const roomData = {
-      name: roomName,
-      icon: 'test',
-      users: roomMember,
-      isChannel: true,
-    };
+  const router = useRouter();
+  function createNewChannel(value) {
+    close();
+    const data = {
+      channelName: value.name,
+      image: value.image,
+      description: value.description,
+      password: value.password,
+      isProtected: controleValue == 'protected',
+    }
+    console.log(data)
     const jwtToken = localStorage.getItem('jwtToken');
     request
-      .post('http://localhost:4400/api/chat')
+      .post('http://localhost:4400/api/chat/channel')
       .set('Authorization', `Bearer ${jwtToken}`)
-      .send(roomData)
-      // .then((res) => setRooms(res.body))
+      .send(data)
+      .then((res) => {
+        chatContext.data = {
+          id: res.body.id,
+          name: value.value,
+          img: value.image,
+          lastMsg: '',
+        };
+        console.log("created channel:", res.body);
+        router.push('/chat/channels');
+      })
       .catch((err) => {
         return err;
       });
-    setRoomName('');
-    setRoomMember('');
   }
-
   return (
     <>
-      <Modal opened={opened} onClose={close} centered title="Create New Room">
-        <TextInput
-          label="Room name:"
-          placeholder="Room name ..."
-          data-autofocus
-          withAsterisk
-          onChange={(event) => setRoomName(event.target.value)}
-        />
-        <TextInput
-          label="Select user:"
-          placeholder="Select user ..."
-          mt="md"
-          onChange={(event) => setRoomMember(event.target.value)}
-        />
-        <Button mt={20} w={'100%'} onClick={createNewRoom}>
-          Create New Room
-        </Button>
+      <Modal
+        opened={opened}
+        onClose={close}
+        withCloseButton={false}
+        centered
+        radius="sm"
+        overlayProps={{
+          color: theme.colorScheme === 'dark' ? 'black' : 'white',
+          opacity: 0.55,
+          blur: 3,
+        }}
+      >
+        <Box maw={300} mx="auto">
+          <form onSubmit={form.onSubmit(createNewChannel)}>
+            <SegmentedControl
+              value={controleValue}
+              onChange={setControleValue}
+              data={[
+                { label: 'Public', value: 'public' },
+                { label: 'Private', value: 'private' },
+                { label: 'Protected', value: 'protected' },
+              ]}
+            />
+            <TextInput
+              withAsterisk
+              label="Channel name:"
+              placeholder="Channel Name"
+              {...form.getInputProps('name')}
+            />
+            <TextInput
+              label="description"
+              placeholder="Description (optional)"
+              {...form.getInputProps('description')}
+              />
+            <FileInput
+              label="channel image"
+              placeholder="Pick file"
+              accept="image/png,image/jpeg"
+              {...form.getInputProps('image')}
+            />
+            {controleValue == 'protected' && <TextInput
+              // display={controleValue == 'protected' ? 'block' : 'none'}
+              withAsterisk
+              label="password"
+              placeholder="Password"
+              {...form.getInputProps('password')}
+            />}
+            <Group position="right" mt="md">
+              <Button type="submit">Submit</Button>
+            </Group>
+          </form>
+        </Box>
       </Modal>
-
-      <Group position="center">
-        <Button onClick={open} >
-          Create New Room
-        </Button>
-      </Group>
+      <Button
+        h={70}
+        w={300}
+        onMouseOver={() => {
+          setBgColor('var(--chat-red-color)');
+        }}
+        onMouseLeave={() => {
+          setBgColor('var(--white-color)');
+        }}
+        style={{
+          cursor: 'pointer',
+          backgroundColor: bgColor,
+          borderRadius: '10px',
+          border: '2px solid',
+          borderColor: 'var(--chat-red-color)',
+          padding: '10px',
+          margin: '0px 14px',
+          marginTop: '0px',
+          color:
+            bgColor == 'var(--chat-red-color)'
+              ? 'var(--white-color)'
+              : 'var(--chat-red-color)',
+          fontSize: 40,
+        }}
+        onClick={open}
+      >
+        +
+      </Button>
     </>
   );
 }

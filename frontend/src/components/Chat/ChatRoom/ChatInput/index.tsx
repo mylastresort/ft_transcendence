@@ -23,8 +23,7 @@ const useInputStyle = createStyles((theme: MantineTheme) => ({
     border: '2px solid #87d1db',
     background: '#EAEAEA',
     color: 'grey',
-    ":focus":{
-    }
+    ':focus': {},
   },
   box: {
     display: 'flex',
@@ -37,20 +36,21 @@ const useInputStyle = createStyles((theme: MantineTheme) => ({
   },
 }));
 
-
-export default function ChatInput() {
+export default function ChatInput({ isChannel = false }) {
+  const route = isChannel ? 'channel' : 'private';
   const chatContext = useContext(ChatContext);
   const userContext = useContext(UserContext);
+  const jwtToken = localStorage.getItem('jwtToken');
   function sendMessage(value: String) {
     const req = {
       id: chatContext.data.id,
-      msg: {
+      message: {
         content: value,
-        sendBy: userContext.data.username,
       },
     };
     request
-      .post('http://localhost:4400/api/chat/private/msgs')
+      .post(`http://localhost:4400/api/chat/${route}/msgs`)
+      .set('Authorization', `Bearer ${jwtToken}`)
       .send(req)
       .then((res) => {
         console.log('messages: ', res.body);
@@ -91,18 +91,18 @@ export default function ChatInput() {
         }}
       >
         <TextInput
-        h={50}
-        radius={50}
-        size={'lg'}
-        classNames={inputStyles.classes}
-        w={'calc(90% - 20px)'}
+          h={50}
+          radius={50}
+          size={'lg'}
+          classNames={inputStyles.classes}
+          w={'calc(90% - 20px)'}
           withAsterisk
           placeholder="Send Message ..."
           {...form.getInputProps('message')}
         />
-          <Button type="submit" radius={50} h={50} w={50} p={4}>
-              <img src="/images/SendIcon.svg"  />
-          </Button>
+        <Button type="submit" radius={50} h={50} w={50} p={4}>
+          <img src="/images/SendIcon.svg" />
+        </Button>
       </form>
     </Box>
   );

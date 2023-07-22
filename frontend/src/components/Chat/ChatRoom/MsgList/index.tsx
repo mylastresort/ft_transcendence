@@ -4,25 +4,28 @@ import { useContext, useEffect, useState } from 'react';
 import { ChatContext } from '@/context/chat';
 import request from 'superagent';
 
-export default function MsgList() {
+export default function MsgList({ isChannel = false }) {
+  const route = isChannel ? 'channel' : 'private';
   interface MessageI {
     id: number;
     sendAt: string;
     content: string;
     chatId: number;
-    sendBy: any[];
+    sendBy: any;
   }
   const chatContext = useContext(ChatContext);
-  const [messages, setMessages]: [MessageI[], any] = useState([]);
+  const [messages, setMessages] = useState([]);
   const [load, setLoad] = useState(false);
+  const jwtToken = localStorage.getItem('jwtToken');
 
   useEffect(() => {
     request
-      .get('http://localhost:4400/api/chat/private/msgs')
-      .send({ id: chatContext.data.id })
+      .get(`http://localhost:4400/api/chat/${route}/msgs`)
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .query({id: chatContext.data.id})
       .then((res) => {
-        setMessages(res.body);
-        console.log('messages: ', res.body);
+        console.log(res.body);
+        isChannel ?setMessages(res.body): setMessages(res.body.Messages)
       })
       .catch((err) => {
         console.log(err);
@@ -30,19 +33,22 @@ export default function MsgList() {
   }, [load]);
   return (
     <Container
-    w={'95%'}
-    maw={2000}
+      w={'95%'}
+      maw={2000}
       style={{
         height: 'calc(100% - 77px)',
       }}
     >
       {messages.map((message) => (
         <Message
+          key={message.id}
           content={message.content}
-          sendBy={message.sendBy[0]}
+          sendBy={isChannel ? message.sender.user : message.sendBy[0]}
         />
       ))}
-      <Button ml={55} onClick={() => setLoad(load ? false : true)}>load messages</Button>
+      <Button ml={55} onClick={() => setLoad(load ? false : true)}>
+        load messages
+      </Button>
     </Container>
   );
 }

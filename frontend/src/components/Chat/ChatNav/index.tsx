@@ -1,30 +1,72 @@
-import {
-  Grid,
-  Center,
-  Title,
-  Avatar,
-  Box,
-  Text,
-  Container,
-  Navbar,
-  ScrollArea,
-  Group,
-  Burger,
-  Transition,
-} from '@mantine/core';
-import { User } from '@nextui-org/react';
-import {
-  useHover,
-  useMediaQuery,
-  useDisclosure,
-  useClickOutside,
-} from '@mantine/hooks';
+import { Navbar, ScrollArea, Burger, Tabs } from '@mantine/core';
+import { useDisclosure, useClickOutside } from '@mantine/hooks';
 import { useContext, useEffect, useState } from 'react';
 import request from 'superagent';
 import { UserContext } from '@/context/user';
 import { CreateChannel } from './CreateChannel';
-import { RoomsList } from './RoomsList';
 import { SearchUser } from './SearchUser';
+import { ChannelCard, UserCard } from './Card';
+
+export function RoomsList({ closeNav }: any) {
+  const jwtToken = localStorage.getItem('jwtToken');
+  const [channelsList, setChannelsList] = useState([]);
+  const [privateChatList, setPrivateChatList] = useState([]);
+  useEffect(() => {
+    request
+      .get('http://localhost:4400/api/chat/channel')
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .then((res) => {
+        setChannelsList(res.body);
+      })
+      .catch((err) => {
+        return err;
+      });
+    request
+      .get('http://localhost:4400/api/chat/private')
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .then((res) => {
+        setPrivateChatList(res.body);
+      })
+      .catch((err) => {
+        return err;
+      });
+  }, []);
+
+  return (
+    <Tabs defaultValue="channels">
+      <Tabs.List>
+        <Tabs.Tab value="channels">Channels</Tabs.Tab>
+        <Tabs.Tab value="messages">Messages</Tabs.Tab>
+      </Tabs.List>
+
+      <Tabs.Panel value="channels" pt="xs">
+        <ScrollArea h={'calc(100% - 200px)'} mt={20}>
+          <CreateChannel />
+          {channelsList.map((channel: any) => (
+            <div key={channel.id}>
+              <ChannelCard
+                key={channel.id}
+                channel={channel}
+                closeNav={closeNav}
+              />
+            </div>
+          ))}
+        </ScrollArea>
+      </Tabs.Panel>
+
+      <Tabs.Panel value="messages" pt="xs">
+        <ScrollArea h={'calc(100% - 200px)'} mt={20}>
+          <SearchUser />
+          {privateChatList.map((chat: any) => (
+            <div key={chat.id}>
+              <UserCard user={chat} closeNav={closeNav} />
+            </div>
+          ))}
+        </ScrollArea>
+      </Tabs.Panel>
+    </Tabs>
+  );
+}
 
 function ChatNav() {
   const user = useContext(UserContext);
@@ -59,19 +101,7 @@ function ChatNav() {
             aria-label={'burger'}
           />
         </Navbar.Section>
-        <Navbar.Section className="nav-child" mt="xs" pt={60}>
-          <Group noWrap>
-            <CreateChannel context={user} />
-            <SearchUser/>
-          </Group>
-        </Navbar.Section>
-        <Navbar.Section
-          className="nav-child"
-          grow
-          component={ScrollArea}
-          mx="-xs"
-          px="xs"
-        >
+        <Navbar.Section className="nav-child">
           <RoomsList closeNav={toogleNav}></RoomsList>
         </Navbar.Section>
       </Navbar>

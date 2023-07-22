@@ -4,8 +4,9 @@ import { useContext } from 'react';
 
 export default function Message({content, sendBy}) {
   const userContext = useContext(UserContext);
+  if (!userContext.data){return (<></>)}
   return (
-    sendBy.username != userContext.data.username ?
+     sendBy.username != userContext.data.username ?
     <Group pt={15} >
       <Avatar radius={50} size={40} src={sendBy.imgProfile} />
       <Text

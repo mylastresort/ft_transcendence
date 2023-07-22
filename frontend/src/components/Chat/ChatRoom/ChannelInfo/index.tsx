@@ -11,15 +11,16 @@ import {
 import Link from 'next/link';
 import { useContext } from 'react';
 import request from 'superagent';
+import { AddMemeber } from './AddMember';
 
-function UserInfo() {
+function ChannelInfo() {
   const chatContext = useContext(ChatContext);
   const theme = useMantineTheme();
   console.log(chatContext.data);
   function deleteUser() {
     const jwtToken = localStorage.getItem('jwtToken');
     request
-      .post('http://localhost:4400/api/chat/private/delete')
+      .post('http://localhost:4400/api/chat/channel/delete')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send({ id: chatContext.data.id })
       .catch((err) => {
@@ -42,22 +43,25 @@ function UserInfo() {
         <Text fw={500} size={'xl'} m={'auto'}>
           {chatContext.data.name}
         </Text>
-        <Link href={'/chat'} style={{
-          margin:'auto'
-        }}>
+        <Link
+          href={'/chat'}
+          style={{
+            margin: 'auto',
+          }}
+        >
           <Button
             color="red"
-            
             w={300}
             onClick={() => {
               deleteUser();
             }}
-            >
+          >
             delete conversation
           </Button>
-          </Link>
+        </Link>
+        <AddMemeber/>
       </Flex>
     </Box>
   );
 }
-export default UserInfo;
+export default ChannelInfo;
