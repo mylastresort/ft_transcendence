@@ -251,7 +251,9 @@ function Pofile() {
                     ? 'green'
                     : userProfile?.status === 'offline'
                     ? 'red'
-                    : 'yellow'
+                    : userProfile?.status === 'In Game'
+                    ? 'cyan'
+                    : 'red'
                 }
                 withBorder
               >
@@ -543,6 +545,10 @@ function Pofile() {
               {userProfile?.status === 'online' ? (
                 <Text size="1.3rem" weight={300} color="green">
                   Currently Online
+                </Text>
+              ) : userProfile?.status === 'In Game' ? (
+                <Text size="1.3rem" weight={300} color="blue">
+                  Currently in Game
                 </Text>
               ) : (
                 <Text size="1.3rem" weight={300}>
