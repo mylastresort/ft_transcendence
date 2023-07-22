@@ -1,0 +1,14 @@
+.game {
+    height: calc(100% - 76px);
+    left: 88px;
+    position: absolute;
+    top: 76px;
+    width: calc(100% - 88px);
+}
+
+.alert {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 1;
+}

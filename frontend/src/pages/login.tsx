@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { PostLogin, PostTokens, PostVerify2faTmp } from './api/auth/auth';
 import { Grid, Text, Spacer } from '@nextui-org/react';
 import { Input } from '@mantine/core';
 import withAuth from '@/pages/lib/withAuth';
 import { Loading } from '@nextui-org/react';
+import { io } from 'socket.io-client';
 
 const Styles = {
   body: {
@@ -17,15 +17,9 @@ const Styles = {
   },
 };
 
-function login({ setIsTwoFactorAuth }) {
-  setIsTwoFactorAuth(true);
-function login({ setIsTwoFactorAuth }) {
+function login({ setIsTwoFactorAuth }: any) {
   setIsTwoFactorAuth(true);
   const router = useRouter();
-  const [Is2fa, setIs2fa] = useState(false);
-  const [Code, setCode] = useState('');
-  const [isError, setIsError] = useState(false);
-
   const [Is2fa, setIs2fa] = useState(false);
   const [Code, setCode] = useState('');
   const [isError, setIsError] = useState(false);
@@ -33,7 +27,6 @@ function login({ setIsTwoFactorAuth }) {
   useEffect(() => {
     const QueryCode = window.location.search.split('code=')[1];
     if (QueryCode) {
-      const url = `/api/auth/callback?access_code=${QueryCode}`;
       const url = `/api/auth/callback?access_code=${QueryCode}`;
       PostTokens(url)
         .then((res) => {
@@ -47,7 +40,7 @@ function login({ setIsTwoFactorAuth }) {
                 } else {
                   localStorage.setItem('jwtToken', res.body.token);
                   if (res.status === 201) {
-                    router.push('/home/dashboard');
+                    router.push('/game');
                   }
                 }
               })
@@ -62,7 +55,7 @@ function login({ setIsTwoFactorAuth }) {
     }
   }, []);
 
-  const HandleCode = (e) => {
+  const HandleCode = (e: any) => {
     if (e.target.value.length === 6 && e.target.value.match(/^[0-9]+$/)) {
       setCode(e.target.value);
       const data = {
@@ -72,7 +65,7 @@ function login({ setIsTwoFactorAuth }) {
         .then((res) => {
           if (res.status === 200) {
             localStorage.setItem('jwtToken', res.body.token);
-            router.push('/home/dashboard');
+            router.push('/game');
           } else {
             setIsError(true);
           }
@@ -115,5 +108,4 @@ function login({ setIsTwoFactorAuth }) {
   );
 }
 
-export default withAuth(login);
 export default withAuth(login);

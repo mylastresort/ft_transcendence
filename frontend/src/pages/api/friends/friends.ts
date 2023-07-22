@@ -150,3 +150,16 @@ export const PostUnblock = (body: any) => {
       return err;
     });
 };
+
+export const GetGameMatches = () => {
+  const jwtToken = localStorage.getItem('jwtToken');
+  return request
+    .get('http://localhost:4400/api/v1/game/games')
+    .set('Authorization', `Bearer ${jwtToken}`)
+    .then((res) => {
+      return res;
+    })
+    .catch((err) => {
+      return err;
+    });
+};

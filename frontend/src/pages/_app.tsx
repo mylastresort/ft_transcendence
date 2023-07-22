@@ -11,9 +11,8 @@ import { useRouter } from 'next/router';
 import { User_Sidebar } from '../components/Sidebar/Sidebar';
 import { UserContext } from '@/context/user';
 import { WsProvider, UserSocket } from '@/context/WsContext';
-import { MantineProvider } from '@mantine/core';
+import { Button, Group, MantineProvider, Stack, Text } from '@mantine/core';
 import Theme from './styles/theme';
-import { WsContext } from '@/context/WsContext';
 import { Notifications, notifications } from '@mantine/notifications';
 import { BiSolidUserPlus } from 'react-icons/bi';
 
@@ -21,17 +20,20 @@ export default function App({ Component, pageProps }: AppProps) {
   let user = useContext(UserContext);
   const [show, setShow] = useState(true);
   const [isTwoFactorAuth, setIsTwoFactorAuth] = useState(false);
+  const [Token, setToken] = useState<string | null>(null);
   const router = useRouter();
+  // const UserSocket = useContext(WsContext);
 
   useEffect(() => {
     const token = localStorage.getItem('jwtToken');
-    console.log(token);
+    setToken(token);
     if (token) {
       setShow(false);
       GetMe()
         .then((res) => {
-          user = res.body;
+          user.data = res.body;
           if (res.status !== 200) {
+            UserSocket.disconnect();
             localStorage.removeItem('jwtToken');
             router.push('/');
           }
@@ -45,12 +47,15 @@ export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
     const handleRouteChange = (url) => {
       const token = localStorage.getItem('jwtToken');
+      setToken(token);
+
       if (token) {
         setShow(false);
         GetMe()
           .then((res) => {
             user = res.body;
             if (res.status !== 200) {
+              UserSocket.disconnect();
               localStorage.removeItem('jwtToken');
               router.push('/');
             }
@@ -70,8 +75,6 @@ export default function App({ Component, pageProps }: AppProps) {
       router.events.off('routeChangeComplete', handleRouteChange);
     };
   }, []);
-
-  const UserSocket = useContext(WsContext);
 
   useEffect(() => {
     UserSocket.on('NewRequestNotification', (name) => {
@@ -117,6 +120,37 @@ export default function App({ Component, pageProps }: AppProps) {
       });
     });
 
+    UserSocket.on('GameInviteNotification', (data) => {
+      notifications.show({
+        id: 'GameInviteNotification',
+        title: 'Game Invite',
+        message: (
+          <Stack>
+            <Text c="#fff">You have a game invite from {data.senderId}</Text>
+            <Group>
+              <Button
+                color="cyan"
+                onClick={() => {
+                  router.push(data.gameid);
+                }}
+              >
+                Accept
+              </Button>
+              <Button variant="light" color="red">
+                Cancel
+              </Button>
+            </Group>
+          </Stack>
+        ),
+        color: 'green',
+        radius: 'md',
+        bg: 'gray',
+
+        autoClose: 100000,
+        withCloseButton: false,
+      });
+    });
+
     return () => {
       UserSocket.off('NewRequestNotification');
       UserSocket.off('CandelFriendReq');
@@ -126,7 +160,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS theme={Theme}>
       <Notifications position="top-right" />
-      <WsProvider value={UserSocket}>
+      <WsProvider token={Token}>
         <NextUIProvider>
           <UserContext.Provider value={user}>
             <MainNavbar Show={show} isTwoFactorAuth={isTwoFactorAuth} />

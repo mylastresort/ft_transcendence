@@ -39,7 +39,7 @@ import {
   GetBLockedFriends,
   PostUnblock,
 } from '@/pages/api/friends/friends';
-import { WsContext } from '@/context/WsContext';
+import { UserSocket } from '@/context/WsContext';
 import { BlockedPanel, ProfileNotFound } from '@/components/Pageutils/NotFound';
 
 function Pofile() {
@@ -56,7 +56,7 @@ function Pofile() {
   const [isLoaded, setIsLoaded] = useState<boolean>(true);
   const [isNotFound, setIsNotFound] = useState<boolean>(false);
 
-  const UserSocket = useContext(WsContext);
+  // const UserSocket = useContext(WsContext);
 
   const router = useRouter();
   // const { username } = router.query;
@@ -99,7 +99,6 @@ function Pofile() {
 
         const blockedFriendsResponse = await GetBLockedFriends();
         const blockedFriends = blockedFriendsResponse.body;
-        console.log(blockedFriends);
         const BlockedUsers = blockedFriends.find(
           (item: any) => item.username === Username
         );
@@ -252,7 +251,9 @@ function Pofile() {
                     ? 'green'
                     : userProfile?.status === 'offline'
                     ? 'red'
-                    : 'yellow'
+                    : userProfile?.status === 'In Game'
+                    ? 'cyan'
+                    : 'red'
                 }
                 withBorder
               >
@@ -544,6 +545,10 @@ function Pofile() {
               {userProfile?.status === 'online' ? (
                 <Text size="1.3rem" weight={300} color="green">
                   Currently Online
+                </Text>
+              ) : userProfile?.status === 'In Game' ? (
+                <Text size="1.3rem" weight={300} color="blue">
+                  Currently in Game
                 </Text>
               ) : (
                 <Text size="1.3rem" weight={300}>

@@ -1,0 +1,40 @@
+.home {
+    align-items: center;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 2000" fill="%2319202E"><path d="M1912 1209c27-319-72-699-318-882-187-139-462-224-785-204S85 468 84 880c0 455 481 345 636 484s139 514 477 516c386 3 693-420 715-671Z"></path></svg>');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    display: flex;
+    height: calc(100% - 76px);
+    justify-content: center;
+    left: 88px;
+    position: absolute;
+    top: 76px;
+    width: calc(100% - 88px);
+}
+
+.home:first-child {
+    gap: 3em;
+}
+
+.home .headline {
+    font-size: 4rem;
+    text-transform: capitalize;
+}
+
+.home .description {
+    font-size: 1rem;
+    font-weight: 550;
+    line-height: 1.75em;
+    width: min(35rem, 100%);
+}
+
+.home .actions {
+    gap: 2em;
+    margin-top: 2rem;
+    max-width: 27rem;
+}
+
+.home .actions>* {
+    min-width: 9rem;
+}

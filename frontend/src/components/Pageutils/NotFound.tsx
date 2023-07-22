@@ -35,7 +35,6 @@ export function BlockedPanel({ isBlocked, isBlockedBy }: any) {
 }
 
 export function ProfileNotFound({ isNotFound }: any) {
-  console.log(isNotFound);
   return (
     <Flex
       mih="55em"

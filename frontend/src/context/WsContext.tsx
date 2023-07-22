@@ -2,17 +2,24 @@ import { createContext } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 let socketOptions = {};
-if (typeof window !== 'undefined') {
-  // Running on the client-side
-  const token = localStorage.getItem('jwtToken');
-  socketOptions = {
-    extraHeaders: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-}
-
-export const UserSocket = io('http://localhost:4400/userws', socketOptions);
+export let UserSocket = io('http://localhost:4400/userws', socketOptions);
 export const WsContext = createContext<Socket>(UserSocket);
 
-export const WsProvider = WsContext.Provider;
+export const WsProvider = ({ children, token }) => {
+  const retrySocketConnection = (socket: Socket) => {
+    socketOptions = {
+      extraHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    UserSocket = io('http://localhost:4400/userws', socketOptions);
+    UserSocket.on('connect', () => {
+      console.log('Socket connection successful');
+      return;
+    });
+  };
+
+  retrySocketConnection(UserSocket);
+
+  return <WsContext.Provider value={UserSocket}>{children}</WsContext.Provider>;
+};

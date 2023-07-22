@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useContext, use } from 'react';
+import React, { useEffect, useState } from 'react';
 // import './styles.css';
 import 'boxicons/css/boxicons.min.css';
 import Link from 'next/link';
 import {
   Text,
   Grid,
-  Input,
   Spacer,
   Image,
   Navbar,
@@ -13,17 +12,15 @@ import {
   Avatar,
   Badge,
 } from '@nextui-org/react';
-import { FiSearch } from 'react-icons/fi';
-import { MdDashboard } from 'react-icons/md';
+import { GiPingPongBat } from 'react-icons/gi';
 import { HiOutlineChatAlt2 } from 'react-icons/hi';
 import { FiUsers } from 'react-icons/fi';
-import { BiBarChartAlt2 } from 'react-icons/bi';
 import { FaUserAlt } from 'react-icons/fa';
 import { useRouter } from 'next/router';
 import { GetUserData } from '@/pages/api/user';
-import { Burger, Group, ActionIcon, Menu, Divider } from '@mantine/core';
+import { Burger, Group, Menu, Divider, Stack, Button } from '@mantine/core';
 import { IoNotifications } from 'react-icons/io5';
-import { WsContext } from '@/context/WsContext';
+import { UserSocket } from '@/context/WsContext';
 import { MdLabelImportantOutline } from 'react-icons/md';
 
 export const User_Sidebar = (Show: any) => {
@@ -31,14 +28,14 @@ export const User_Sidebar = (Show: any) => {
     return null;
   }
 
-  const UserSocket = useContext(WsContext);
+  // const UserSocket = useContext(WsContext);
 
   const router = useRouter();
 
   const [FirstName, setFirstName] = useState('');
   const [LastName, setLastName] = useState('');
   const [Username, setUsername] = useState('');
-  const [Clickedon, setClickedon] = useState(0);
+  const [Clickedon, setClickedon] = useState(1);
   const [PhotoUrl, setPhotoUrl] = useState('');
   const [UserData, setUserData] = useState<any>(null);
   const [Opened, setOpened] = useState(false);
@@ -47,6 +44,7 @@ export const User_Sidebar = (Show: any) => {
 
   useEffect(() => {
     UserSocket.on('GetNotifications', (data) => {
+      console.log(data);
       setNotifications(data);
     });
 
@@ -58,13 +56,13 @@ export const User_Sidebar = (Show: any) => {
   useEffect(() => {
     const urlPath = window.location.pathname;
 
-    if (urlPath === '/home/dashboard') {
+    if (urlPath === '/game') {
       setClickedon(1);
     } else if (urlPath === '/chat') {
       setClickedon(2);
     } else if (urlPath === '/home/friends') {
       setClickedon(3);
-    } else if (urlPath === '/profile' || urlPath === '/edit/info') {
+    } else if (urlPath.includes('/profile') || urlPath === '/edit/info') {
       setClickedon(5);
     }
 
@@ -111,6 +109,7 @@ export const User_Sidebar = (Show: any) => {
   }, []);
 
   const HandleLogout = () => {
+    UserSocket.disconnect();
     localStorage.removeItem('jwtToken');
     router.push('/');
   };
@@ -178,14 +177,14 @@ export const User_Sidebar = (Show: any) => {
                   HandleSelected(1);
                 }}
               >
-                <Link href="/home/dashboard">
+                <Link href="/game">
                   <i
                     className=" icon"
                     style={{
                       color: Clickedon === 1 ? 'var(--secondary-color)' : '',
                     }}
                   >
-                    <MdDashboard />
+                    <GiPingPongBat />
                   </i>
                   <span
                     className="text nav-text"
@@ -334,11 +333,13 @@ export const User_Sidebar = (Show: any) => {
                 >
                   <Badge
                     color={
-                      Notifications.filter((item) => !item.read).length > 0
+                      Notifications.filter((item: any) => !item.read).length > 0
                         ? 'error'
                         : 'default'
                     }
-                    content={Notifications.filter((item) => !item.read).length}
+                    content={
+                      Notifications.filter((item: any) => !item.read).length
+                    }
                     // isInvisible={isInvisible}
                     shape="circle"
                     size="xs"
@@ -353,7 +354,7 @@ export const User_Sidebar = (Show: any) => {
               </Menu.Target>
 
               <Menu.Dropdown>
-                {Notifications.map((item, index) => (
+                {Notifications.map((item: any, index: number) => (
                   <div>
                     <Menu.Item
                       icon={
@@ -367,7 +368,37 @@ export const User_Sidebar = (Show: any) => {
                         )
                       }
                     >
-                      {item.message}
+                      {item.gameid ? (
+                        <Stack>
+                          <Text
+                            size="$sm"
+                            css={{
+                              fontFamily: 'poppins',
+                              color: 'var(--text-color)',
+                              fontWeight: '500',
+                            }}
+                          >
+                            {item.message}
+                          </Text>
+                          <Group>
+                            <Button
+                              color="cyan"
+                              size="sm"
+                              variant="light"
+                              onClick={() => {
+                                router.push(`/game/${item.gameid}`);
+                              }}
+                            >
+                              Accept
+                            </Button>
+                            <Button size="sm" variant="light" color="red">
+                              Cancel
+                            </Button>
+                          </Group>
+                        </Stack>
+                      ) : (
+                        <div>{item.message}</div>
+                      )}
                     </Menu.Item>
                     <Divider
                       style={{
@@ -392,7 +423,7 @@ export const User_Sidebar = (Show: any) => {
               <Dropdown.Menu
                 aria-label="User menu actions"
                 color="secondary"
-                onAction={(actionKey) => handleActions(actionKey)}
+                onAction={(actionKey: any) => handleActions(actionKey)}
               >
                 <Dropdown.Item key="profile" css={{ height: '$18' }}>
                   <Text b color="inherit" css={{ d: 'flex' }}>
