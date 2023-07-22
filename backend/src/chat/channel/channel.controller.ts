@@ -22,7 +22,7 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async createChannel(@Req() req: any): Promise<any> {
-    console.log('createPrivateChat=>', req.user, req.body);
+    console.log('createChannel=>', req.user, req.body);
     return this.channelService.createChannel(req.user, req.body);
   }
 
@@ -32,7 +32,7 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async getChannel(@Req() req: any): Promise<any> {
-    console.log('getPrivateChat=>', req.user);
+    console.log('getChannel=>', req.user);
     return this.channelService.getChannel(req.user);
   }
   
@@ -42,7 +42,7 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async deleteChannel(@Req() req: any): Promise<any> {
-    console.log('deletePrivateChat=>', req.body);
+    console.log('deleteChannel=>', req.body);
     return this.channelService.deleteChannel(req.body);
   }
 

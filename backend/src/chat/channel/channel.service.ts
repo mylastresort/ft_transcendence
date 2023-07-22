@@ -21,30 +21,34 @@ export class ChannelService {
   //create
   async createChannel(me: Me, channel: CreateChannel) {
     try {
-      const createdOwner = await this.prisma.member.create({
-        data: {
-          nickname: me.username,
-          user: {
-            connect: {
-              id: me.id,
-            },
-          },
-        },
-      });
       return await this.prisma.channel.create({
         data: {
           channelName: channel.channelName,
           image: channel.image,
           description: channel.description,
           owner: {
-            connect: {
-              id: createdOwner.id,
+            create: {
+              nickname: me.username,
+              user: {
+                connect: {
+                  id: me.id,
+                },
+              },
+            },
+          },
+          members: {
+            create: {
+              nickname: me.username,
+              user: {
+                connect: {
+                  id: me.id,
+                },
+              },
             },
           },
         },
       });
     } catch (error) {
-      console.log(error);
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,

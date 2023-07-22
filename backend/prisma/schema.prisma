@@ -161,7 +161,7 @@ model Member {
   user      User             @relation(fields: [userId], references: [id])
   userId    Int
   channel   Channel?         @relation(fields: [channleId], references: [id])
-  channleId Int              @unique
+  channleId Int?
   owner     Channel?         @relation("owner")
   Messages  ChannelMessage[]
 }
