@@ -19,7 +19,7 @@ interface CreateMember {
   newMember: {
     id: number;
     nickname: string;
-  }
+  };
 }
 
 @Injectable()
@@ -113,25 +113,70 @@ export class ChannelService {
   }
 
   //update
+
+  // *members
+  //read
+  async getMembers(channelId: number) {
+    try {
+      return await this.prisma.channel.findFirst({
+        where: {
+          id: channelId,
+        },
+        select: {
+          members: {
+            include: {
+              user: true,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      console.log('err:', error);
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'getMembers error',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  //create
   async createMember(channel: CreateMember) {
     try {
-      return await this.prisma.member.create({
-        data: {
-          nickname: channel.newMember.nickname,
-          channel: {
-            connect: {
-              id: channel.id,
-            }
-          },
+      const member = await this.prisma.member.findFirst({
+        where: {
           user: {
-            connect: {
-              id: channel.newMember.id
-            }
-          }
-        }
-      })
-    }catch (error) {
-      console.log("err:", error);
+            id: channel.newMember.id,
+          },
+          AND: {
+            channel: {
+              id: channel.id,
+            },
+          },
+        },
+      });
+      if (!member) {
+        return await this.prisma.member.create({
+          data: {
+            nickname: channel.newMember.nickname,
+            channel: {
+              connect: {
+                id: channel.id,
+              },
+            },
+            user: {
+              connect: {
+                id: channel.newMember.id,
+              },
+            },
+          },
+        });
+      }
+      throw "member exist";
+    } catch (error) {
+      console.log('err:', error);
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
@@ -151,15 +196,15 @@ export class ChannelService {
           id: channelId,
         },
         select: {
-          messages:{
+          messages: {
             include: {
-               sender:{
+              sender: {
                 include: {
                   user: true,
-                }
-               }
-            }
-          }
+                },
+              },
+            },
+          },
         },
       });
       return messages;
@@ -179,21 +224,21 @@ export class ChannelService {
       const sender = await this.prisma.member.findFirst({
         where: {
           userId: me.id,
-        }
-      })
+        },
+      });
       const createdMessage = await this.prisma.channelMessage.create({
         data: {
           content: channel.message.content,
           sender: {
             connect: {
               id: sender.id,
-            }
+            },
           },
           channel: {
-            connect:{
+            connect: {
               id: channel.id,
-            }
-          }
+            },
+          },
         },
       });
       console.log('createdMessage res: ', createdMessage);

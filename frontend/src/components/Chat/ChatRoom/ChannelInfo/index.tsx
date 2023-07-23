@@ -11,7 +11,8 @@ import {
 import Link from 'next/link';
 import { useContext } from 'react';
 import request from 'superagent';
-import { AddMemeber } from './AddMember';
+import { AddMember } from './AddMember';
+import { ListMembers } from './ListMembers';
 
 function ChannelInfo() {
   const chatContext = useContext(ChatContext);
@@ -59,7 +60,8 @@ function ChannelInfo() {
             delete conversation
           </Button>
         </Link>
-        <AddMemeber/>
+        <AddMember />
+        <ListMembers />
       </Flex>
     </Box>
   );

@@ -171,7 +171,7 @@ model Channel {
   id          Int              @id @default(autoincrement())
   createdAt   DateTime         @default(now())
   updateAt    DateTime         @default(now())
-  channelName String
+  channelName String            @unique
   image       String            @default("https://static.vecteezy.com/system/resources/thumbnails/000/426/510/small/Sports__28154_29.jpg")
   description String?
   password    String?

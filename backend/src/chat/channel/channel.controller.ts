@@ -48,6 +48,18 @@ export class ChannelController {
 
   //update
 
+  // *members
+  //read
+  @Get('members')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async getMembers(@Query('id') id: any) {
+    console.log('getMembers req:', id);
+    return await this.channelService.getMembers(+id);
+  }
+
+  //create
   @Post('create-member')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
@@ -57,8 +69,7 @@ export class ChannelController {
     return this.channelService.createMember(req.body);
   }
 
-  // messages
-
+  // *messages
   //read
   @Get('msgs')
   @UseGuards(AuthGuard('jwt'))

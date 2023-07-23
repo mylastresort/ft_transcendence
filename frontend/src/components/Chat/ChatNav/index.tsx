@@ -1,4 +1,4 @@
-import { Navbar, ScrollArea, Burger, Tabs } from '@mantine/core';
+import { Navbar, ScrollArea, Burger, Tabs, Button } from '@mantine/core';
 import { useDisclosure, useClickOutside } from '@mantine/hooks';
 import { useContext, useEffect, useState } from 'react';
 import request from 'superagent';
@@ -7,7 +7,7 @@ import { CreateChannel } from './CreateChannel';
 import { SearchUser } from './SearchUser';
 import { ChannelCard, UserCard } from './Card';
 
-export function RoomsList({ closeNav }: any) {
+export function RoomsList({ closeNav, load }: any) {
   const jwtToken = localStorage.getItem('jwtToken');
   const [channelsList, setChannelsList] = useState([]);
   const [privateChatList, setPrivateChatList] = useState([]);
@@ -30,7 +30,7 @@ export function RoomsList({ closeNav }: any) {
       .catch((err) => {
         return err;
       });
-  }, []);
+  }, [load]);
 
   return (
     <Tabs defaultValue="channels">
@@ -71,6 +71,7 @@ export function RoomsList({ closeNav }: any) {
 function ChatNav() {
   const user = useContext(UserContext);
   const [opened, { toggle }] = useDisclosure(true);
+  const [load, setLoad] = useState(true);
   const ref = useClickOutside(() => {
     opened ? toogleNav() : false;
   });
@@ -102,7 +103,10 @@ function ChatNav() {
           />
         </Navbar.Section>
         <Navbar.Section className="nav-child">
-          <RoomsList closeNav={toogleNav}></RoomsList>
+          <RoomsList closeNav={toogleNav} load={load}></RoomsList>
+        </Navbar.Section>
+        <Navbar.Section className="nav-child">
+          <Button onClick={()=>setLoad(!load)} >load channels</Button>
         </Navbar.Section>
       </Navbar>
     </>
