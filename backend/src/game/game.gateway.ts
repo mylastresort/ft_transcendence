@@ -28,8 +28,8 @@ export type Player = Socket<
   DefaultEventsMap,
   {
     currentGameId?: UUID;
-    currentUserRole?: string;
-    currentUserSocketId?: string;
+    currentUserRole?: 'host' | 'guest';
+    currentUserSocketId?: Socket['id'];
     hostSettableGames?: number;
     hostWishedGameMap?: string;
     hostWishedGameName?: string;
@@ -37,7 +37,7 @@ export type Player = Socket<
     ready?: boolean;
     userAchievements: { name: string; description: string }[];
     userCurrentStreak: number;
-    userId: number;
+    userId: User['id'];
     userImgProfile: string;
     userLastPlayed: Date;
     userLevel: number;

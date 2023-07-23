@@ -64,19 +64,19 @@ export default function Canvas() {
       .on('gameover', (value) => {
         finished.current = true;
         winner = value === game.role ? 'self' : 'opponent';
-        router.push('/game/results');
+        // router.push('/game/results');
       })
       .on('games:counter', (count) => {
-        setGamesCounter(count);
-        requestAnimationFrame(() => {
-          host.current?.style.setProperty('--ball-y', '0px');
-          guest.current?.style.setProperty('--ball-y', '0px');
-        });
+        // setGamesCounter(count);
+        // requestAnimationFrame(() => {
+        //   host.current?.style.setProperty('--ball-y', '0px');
+        //   guest.current?.style.setProperty('--ball-y', '0px');
+        // });
       })
       .on('left', () => {
         game.winner = 'self';
         winner = game.winner;
-        router.push('/game/results');
+        // router.push('/game/results');
       });
     return () => {
       game.winner = winner;
@@ -84,8 +84,8 @@ export default function Canvas() {
         ?.off('scored')
         .off('gameover')
         .off('games:counter')
-        .off('left')
-        .emit('leave', () => router.push('/game/results'));
+        .off('left');
+      // .emit('leave', () => router.push('/game/results'));
     };
   }, []);
 
@@ -105,13 +105,13 @@ export default function Canvas() {
       width: '100%',
       '&:before': {
         backgroundImage: `url(${mapobj.url})`,
-        backgroundRepeat: 'no-repeat',
         backgroundSize: 'cover',
+        backgroundRepeat: 'repeat',
         content: "' '",
         height: '100%',
-        opacity: mapobj.backgroundOpacity,
         position: 'absolute',
         width: '100%',
+        backgroundPosition: mapobj.backgroundPosition,
       },
     },
     canvas: {
@@ -124,6 +124,7 @@ export default function Canvas() {
       borderTop: '1px solid',
       boxSizing: 'content-box',
       position: 'relative',
+      zIndex: 3,
     },
     divider: {
       borderImage: mapobj.color + ' 1',
@@ -144,15 +145,17 @@ export default function Canvas() {
       '--player-y': '0px',
       borderRadius: mapobj.playerRadius,
       transform: 'translateY(calc(var(--player-y)))',
-      width: '0.5%',
       backgroundImage: mapobj.guestColor,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      width: '0.5%',
     },
     host: {
       '--player-y': '0px',
       borderRadius: mapobj.playerRadius,
       transform: 'translateY(calc(var(--player-y)))',
-      width: '0.5%',
       backgroundImage: mapobj.hostColor,
+      width: '0.5%',
     },
     hostScore: {
       background: mapobj.color,
@@ -193,10 +196,21 @@ export default function Canvas() {
       WebkitTextFillColor: 'transparent',
       zIndex: 1,
     },
+    overlay: {
+      width: '100%',
+      height: '100%',
+      position: 'absolute',
+      left: '0',
+      right: '0',
+      backgroundColor: '#141b26',
+      opacity: '0.4',
+      zIndex: 2,
+    },
   };
 
   return (
     <>
+      <Box sx={classes.overlay}></Box>
       <Box
         display="flex"
         component={motion.div}
@@ -210,6 +224,7 @@ export default function Canvas() {
           align="center"
           w="70%"
           h="2%"
+          sx={{ zIndex: 3 }}
         >
           <Box sx={{ zIndex: 1, order: game.role === 'host' ? 1 : 3 }}>
             <Avatar

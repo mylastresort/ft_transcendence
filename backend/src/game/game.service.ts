@@ -283,66 +283,83 @@ export class GameService {
     if (socket.data.currentGameId) {
       const room = this.rooms.get(socket.data.currentGameId);
       if (room) {
-        const winnerId =
-          socket.data.userId === room.host.userId
-            ? room.guest.userId
-            : room.host.userId;
-        const player =
+        const endedAt = new Date();
+        const loser = socket.data;
+        const winner =
           socket.data.userId === room.host.userId ? room.guest : room.host;
         const currentStreak = {
           increment:
-            Date.now() - new Date(player.userLastPlayed).valueOf() >= 86400000
+            endedAt.valueOf() - winner.userLastPlayed.valueOf() >= 86400000
               ? 1
               : 0,
         };
         const level = {
-          increment:
-            0.2 *
-            room.players[
-              socket.data.currentUserRole === 'host' ? 'guest' : 'host'
-            ][2],
+          increment: 0.2 * room.players[winner.currentUserRole][2],
         };
+        const longestStreak = Math.max(
+          winner.userLongestStreak,
+          currentStreak.increment + winner.userCurrentStreak,
+        );
         const data = {
           achievements:
-            player.userLevel < 1 && level.increment + player.userLevel >= 1
+            winner.userLevel < 1 && level.increment + winner.userLevel >= 1
               ? { connect: { name: 'Level 1' } }
               : {},
           currentStreak,
-          longestStreak:
-            currentStreak.increment + player.userCurrentStreak >
-            player.userLongestStreak
-              ? currentStreak.increment + player.userCurrentStreak
-              : player.userLongestStreak,
+          lastPlayed: endedAt,
+          level,
+          longestStreak,
         };
-        await this.prisma.player.update({
-          where: { userId: winnerId },
-          data: {
-            level,
-            lastPlayed: new Date(),
-            ...data,
-          },
-        });
         if (room.status === 'waiting') socket.to(room.id).emit('cancelled');
         else {
+          socket.to(room.id).emit('left', socket.data.username);
           await this.prisma.room.update({
             where: { id: room.id },
             data: {
               status: 'finished',
               games: room.games,
-              endedAt: new Date(),
-              winner: { connect: { userId: winnerId } },
-              loser: {
-                connect: {
-                  userId:
-                    room.host.userId === winnerId
-                      ? room.guest.userId
-                      : room.host.userId,
-                },
-              },
-              winnerPostLevel: level.increment + player.userLevel,
+              endedAt,
+              winner: { connect: { userId: winner.userId } },
+              loser: { connect: { userId: loser.userId } },
+              winnerPostLevel: level.increment + winner.userLevel,
             },
           });
-          socket.to(room.id).emit('left', socket.data.username);
+          const winnerUpdates = await this.prisma.player.update({
+            where: { userId: winner.userId },
+            data,
+            select: {
+              achievements: { select: { name: true, description: true } },
+              currentStreak: true,
+              level: true,
+              longestStreak: true,
+              _count: { select: { wins: true, losses: true } },
+            },
+          });
+          winner.userAchievements = winnerUpdates.achievements;
+          winner.userCurrentStreak = winnerUpdates.currentStreak;
+          winner.userLevel = winnerUpdates.level;
+          winner.userLongestStreak = winnerUpdates.longestStreak;
+          winner.userLastPlayed = endedAt;
+          winner.userWins = winnerUpdates._count.wins;
+          winner.userLosses = winnerUpdates._count.losses;
+          const loserUpdates = await this.prisma.player.update({
+            where: { userId: loser.userId },
+            data: { lastPlayed: endedAt },
+            select: {
+              achievements: { select: { name: true, description: true } },
+              currentStreak: true,
+              level: true,
+              longestStreak: true,
+              _count: { select: { wins: true, losses: true } },
+            },
+          });
+          loser.userAchievements = loserUpdates.achievements;
+          loser.userCurrentStreak = loserUpdates.currentStreak;
+          loser.userLevel = loserUpdates.level;
+          loser.userLongestStreak = loserUpdates.longestStreak;
+          loser.userLastPlayed = endedAt;
+          loser.userWins = loserUpdates._count.wins;
+          loser.userLosses = loserUpdates._count.losses;
         }
         this.gate.wss
           .in([room.guest.currentUserSocketId, room.host.currentUserSocketId])
@@ -539,17 +556,18 @@ export class GameService {
               : 0,
         };
         const level = { increment: 0.2 * room.players[isOut[0]][2] };
+        const longestStreak =
+          currentStreak.increment + player.userCurrentStreak >
+          player.userLongestStreak
+            ? currentStreak.increment + player.userCurrentStreak
+            : player.userLongestStreak;
         const data = {
           achievements:
             player.userLevel < 1 && level.increment + player.userLevel >= 1
               ? { connect: { name: 'Level 1' } }
               : {},
           currentStreak,
-          longestStreak:
-            currentStreak.increment + player.userCurrentStreak >
-            player.userLongestStreak
-              ? currentStreak.increment + player.userCurrentStreak
-              : player.userLongestStreak,
+          longestStreak,
         };
         await this.prisma.player.update({
           where: { userId: winnerId },
@@ -558,19 +576,13 @@ export class GameService {
             ...data,
           },
         });
-        await this.prisma.player.updateMany({
-          where: { userId: { in: [room.host.userId, room.guest.userId] } },
-          data: { lastPlayed: new Date() },
-        });
-        socket.data.userLastPlayed = new Date();
-        const opponent = await this.getPlayer(room.host.userId, false);
-        if (opponent) opponent.userLastPlayed = new Date();
+        const endedAt = new Date();
         await this.prisma.room.update({
           where: { id: room.id },
           data: {
             status: room.status,
             games: room.games,
-            endedAt: new Date(),
+            endedAt,
             winner:
               room.status === 'finished'
                 ? { connect: { userId: winnerId } }
@@ -589,6 +601,18 @@ export class GameService {
             winnerPostLevel: level.increment + player.userLevel,
           },
         });
+        await this.prisma.player.updateMany({
+          where: { userId: { in: [room.host.userId, room.guest.userId] } },
+          data: { lastPlayed: endedAt },
+        });
+        socket.data.userLastPlayed = endedAt;
+        const opponent = await this.getPlayer(room.host.userId, false);
+        if (opponent) opponent.userLastPlayed = endedAt;
+        const winner = socket.data.userId === winnerId ? socket.data : opponent;
+        winner.userLevel += level.increment;
+        winner.userCurrentStreak += currentStreak.increment;
+        winner.userLongestStreak = longestStreak;
+        winner.userWins++;
         if (room.status === 'finished')
           this.rooms.delete(socket.data.currentGameId);
       } else {
