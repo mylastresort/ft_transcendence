@@ -27,13 +27,15 @@ export default function Canvas() {
   const game = useContext(GameContext);
   const height = game.config.limit[1] * 2;
   const width = game.config.limit[0] * 2;
+  const finished = useRef(false);
   const { handleMouseMove } = usePlayers(
     host,
     guest,
     game.config.paddle,
     game.role,
     canvas,
-    height
+    height,
+    finished
   );
   useBall(
     ball,
@@ -60,6 +62,7 @@ export default function Canvas() {
         role === 'host' ? setHostScore(score) : setGuestScore(score)
       )
       .on('gameover', (value) => {
+        finished.current = true;
         winner = value === game.role ? 'self' : 'opponent';
         router.push('/game/results');
       })

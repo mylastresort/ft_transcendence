@@ -36,7 +36,7 @@ export default function Customizer({ type = 'create', userId }) {
         value < 3 || value > 10 ? 'Invalid number of games' : null,
     },
   });
-  const [selected, setSelected] = useState(0);
+  const [selected, setSelected] = useState(Math.floor(maps.length / 2));
   const handlers = useSwipeable({
     onSwipedLeft: () => setSelected(Math.min(maps.length - 1, selected + 1)),
     onSwipedRight: () => setSelected(Math.max(0, selected - 1)),

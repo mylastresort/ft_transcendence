@@ -603,11 +603,11 @@ export class GameService {
   move(socket: Player, crd: number) {
     const room = this.rooms.get(socket.data.currentGameId);
     try {
-      room.move(socket.data, crd);
+      if (room) room.move(socket.data, crd);
     } catch (err) {
       throw new WsException(err.message);
     }
-    socket.to(room.id).emit('moved', crd);
+    if (room) socket.to(room.id).emit('moved', crd);
     return true;
   }
 
