@@ -16,14 +16,25 @@ import { ListMembers } from './ListMembers';
 
 function ChannelInfo() {
   const chatContext = useContext(ChatContext);
+  const userContext = useContext(UserContext);
   const theme = useMantineTheme();
-  console.log(chatContext.data);
   function deleteUser() {
     const jwtToken = localStorage.getItem('jwtToken');
     request
       .post('http://localhost:4400/api/chat/channel/delete')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send({ id: chatContext.data.id })
+      .catch((err) => {
+        return err;
+      });
+  }
+  function leaveChannel() {
+    const jwtToken = localStorage.getItem('jwtToken');
+    console.log("leave");
+    request
+      .post('http://localhost:4400/api/chat/channel/leave')
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .send({ id: userContext.data.id, chId: chatContext.data.id })
       .catch((err) => {
         return err;
       });
@@ -50,14 +61,33 @@ function ChannelInfo() {
             margin: 'auto',
           }}
         >
+          {chatContext.data.ownerId == userContext.data.id && (
+            <Button
+              color="red"
+              w={300}
+              onClick={() => {
+                deleteUser();
+              }}
+            >
+              delete conversation
+            </Button>
+          )}
+        </Link>
+        <Link
+          href={'/chat'}
+          style={{
+            margin: 'auto',
+          }}
+        >
           <Button
-            color="red"
+            m={'auto'}
             w={300}
             onClick={() => {
-              deleteUser();
+              leaveChannel();
             }}
+            color='red'
           >
-            delete conversation
+            Leave Channel
           </Button>
         </Link>
         <AddMember />

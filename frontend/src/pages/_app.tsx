@@ -32,6 +32,8 @@ export default function App({ Component, pageProps }: AppProps) {
       GetMe()
         .then((res) => {
           user.data = res.body;
+          console.log("New User Data:", res.body);
+          // ya wald l9ahba wach zmal lik damir katsetti type dyal user.data lwa7d body li ma3arft ach fiha (had lblan dar liya error khlani wa7l fih 2h)
           if (res.status !== 200) {
             UserSocket.disconnect();
             localStorage.removeItem('jwtToken');

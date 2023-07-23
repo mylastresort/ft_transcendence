@@ -31,9 +31,17 @@ export class ChannelController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  async getChannel(@Req() req: any): Promise<any> {
+  async getPublicChannel(@Req() req: any): Promise<any> {
     console.log('getChannel=>', req.user);
-    return this.channelService.getChannel(req.user);
+    return this.channelService.getPublicChannel(req.user);
+  }
+  @Get('me')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async getMyChannel(@Req() req: any): Promise<any> {
+    console.log('getChannel=>', req.user);
+    return this.channelService.getMyChannel(req.user);
   }
 
   //delete
@@ -46,8 +54,10 @@ export class ChannelController {
     return this.channelService.deleteChannel(req.body);
   }
 
+  
+  
   //update
-
+  
   // *members
   //read
   @Get('members')
@@ -58,6 +68,15 @@ export class ChannelController {
     console.log('getMembers req:', id);
     return await this.channelService.getMembers(+id);
   }
+  //leave
+  @Post('leave')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async leaveChannel(@Req() req: any): Promise<any> {
+    console.log('leaveChannel=>', req.body);
+    return this.channelService.leaveChannel(req.body);
+  }
 
   //create
   @Post('create-member')
@@ -67,6 +86,14 @@ export class ChannelController {
   async createMember(@Req() req: any): Promise<any> {
     console.log('createMember=>', req.body);
     return this.channelService.createMember(req.body);
+  }
+  @Post('join')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async joinChanned(@Req() req: any): Promise<any> {
+    console.log('joinChanned=>', req.body);
+    return this.channelService.joinChanned(req.user, req.body);
   }
 
   // *messages

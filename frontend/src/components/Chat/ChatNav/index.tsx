@@ -1,4 +1,11 @@
-import { Navbar, ScrollArea, Burger, Tabs, Button } from '@mantine/core';
+import {
+  Navbar,
+  ScrollArea,
+  Burger,
+  Tabs,
+  Button,
+  ActionIcon,
+} from '@mantine/core';
 import { useDisclosure, useClickOutside } from '@mantine/hooks';
 import { useContext, useEffect, useState } from 'react';
 import request from 'superagent';
@@ -6,6 +13,10 @@ import { UserContext } from '@/context/user';
 import { CreateChannel } from './CreateChannel';
 import { SearchUser } from './SearchUser';
 import { ChannelCard, UserCard } from './Card';
+import { Search } from 'tabler-icons-react';
+import { ChatContext } from '@/context/chat';
+import { redirect } from 'next/dist/server/api-utils';
+import Link from 'next/link';
 
 export function RoomsList({ closeNav, load }: any) {
   const jwtToken = localStorage.getItem('jwtToken');
@@ -13,7 +24,7 @@ export function RoomsList({ closeNav, load }: any) {
   const [privateChatList, setPrivateChatList] = useState([]);
   useEffect(() => {
     request
-      .get('http://localhost:4400/api/chat/channel')
+      .get('http://localhost:4400/api/chat/channel/me')
       .set('Authorization', `Bearer ${jwtToken}`)
       .then((res) => {
         setChannelsList(res.body);
@@ -48,6 +59,7 @@ export function RoomsList({ closeNav, load }: any) {
                 key={channel.id}
                 channel={channel}
                 closeNav={closeNav}
+                ownerId={channel.owner.userId}
               />
             </div>
           ))}
@@ -70,6 +82,7 @@ export function RoomsList({ closeNav, load }: any) {
 
 function ChatNav() {
   const user = useContext(UserContext);
+  const chatContext = useContext(ChatContext);
   const [opened, { toggle }] = useDisclosure(true);
   const [load, setLoad] = useState(true);
   const ref = useClickOutside(() => {
@@ -105,8 +118,24 @@ function ChatNav() {
         <Navbar.Section className="nav-child">
           <RoomsList closeNav={toogleNav} load={load}></RoomsList>
         </Navbar.Section>
+        <Navbar.Section grow className="nav-child">
+          <Button onClick={() => setLoad(!load)}>load channels</Button>
+        </Navbar.Section>
         <Navbar.Section className="nav-child">
-          <Button onClick={()=>setLoad(!load)} >load channels</Button>
+          <Link href={'/chat/channels'}>
+            <Button
+              variant="gradient"
+              h={45}
+              w={45}
+              p={0}
+              radius={50}
+              onClick={() => {
+                chatContext.data = undefined;
+              }}
+            >
+              <Search size="30px" />
+            </Button>
+          </Link>
         </Navbar.Section>
       </Navbar>
     </>

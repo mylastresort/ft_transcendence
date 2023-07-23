@@ -38,6 +38,7 @@
     "react-tsparticles": "^2.9.3",
     "socket.io-client": "^4.7.1",
     "superagent": "^8.0.9",
+    "tabler-icons-react": "^1.56.0",
     "tsparticles": "^2.9.3",
     "typeface-baumans": "^1.1.13",
     "typescript": "5.0.4"

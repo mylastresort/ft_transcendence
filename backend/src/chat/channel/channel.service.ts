@@ -6,7 +6,8 @@ interface CreateChannel {
   image: string;
   description: string;
   isProtected: boolean;
-  // ChannelPassword: string;
+  isPrivate: boolean;
+  ChannelPassword?: string;
 }
 interface Me {
   id: number;
@@ -34,7 +35,8 @@ export class ChannelService {
           channelName: channel.channelName,
           image: channel.image,
           description: channel.description,
-          isprotected: channel.isProtected,
+          isProtected: channel.isProtected,
+          isPrivate: channel.isPrivate,
           owner: {
             create: {
               nickname: me.username,
@@ -56,6 +58,13 @@ export class ChannelService {
             },
           },
         },
+        select: {
+          owner:{
+            select: {
+              userId: true,
+            }
+          }
+        }
       });
     } catch (error) {
       console.log(error);
@@ -70,7 +79,31 @@ export class ChannelService {
   }
 
   //read
-  async getChannel(me: Me) {
+  async getPublicChannel(me: Me) {
+    try {
+      return await this.prisma.channel.findMany({
+        where: {
+          isPrivate: false,
+        },
+        include: {
+          owner:{
+            select:{
+              userId: true
+            }
+          },
+        }
+      });
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'channel not found',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+  async getMyChannel(me: Me) {
     try {
       return await this.prisma.channel.findMany({
         where: {
@@ -80,6 +113,13 @@ export class ChannelService {
             },
           },
         },
+        include: {
+          owner:{
+            select:{
+              userId: true
+            }
+          },
+        }
       });
     } catch (error) {
       throw new HttpException(
@@ -112,6 +152,29 @@ export class ChannelService {
     }
   }
 
+  //leave
+  async leaveChannel(member: any) {
+    try {
+      return await this.prisma.member.deleteMany({
+        where: {
+            userId: member.id,
+            AND: {
+              channleId: member.chId,
+            }
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'cannot leave channel',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
   //update
 
   // *members
@@ -131,7 +194,6 @@ export class ChannelService {
         },
       });
     } catch (error) {
-      console.log('err:', error);
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
@@ -174,15 +236,58 @@ export class ChannelService {
           },
         });
       }
-      throw "member exist";
+      throw "Member already exists";
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_ACCEPTABLE,
+          error: error,
+        },
+        HttpStatus.NOT_ACCEPTABLE,
+      );
+    }
+  }
+
+  async joinChanned(me: Me, channel){
+    try {
+      const member = await this.prisma.member.findFirst({
+        where: {
+          user: {
+            id: me.id,
+          },
+          AND: {
+            channel: {
+              id: channel.id,
+            },
+          },
+        },
+      });
+      if (!member) {
+        return await this.prisma.member.create({
+          data: {
+            nickname: me.username,
+            channel: {
+              connect: {
+                id: channel.id,
+              },
+            },
+            user: {
+              connect: {
+                id: me.id,
+              },
+            },
+          },
+        });
+      }
+      throw "you\'are an existing member of the channel";
     } catch (error) {
       console.log('err:', error);
       throw new HttpException(
         {
-          status: HttpStatus.BAD_REQUEST,
-          error: 'createMember error',
+          status: HttpStatus.NOT_ACCEPTABLE,
+          error: error,
         },
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.NOT_ACCEPTABLE,
       );
     }
   }
@@ -241,13 +346,12 @@ export class ChannelService {
           },
         },
       });
-      console.log('createdMessage res: ', createdMessage);
       return createdMessage;
     } catch (error) {
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
-          error: 'room not created',
+          error: 'message not created',
         },
         HttpStatus.BAD_REQUEST,
       );

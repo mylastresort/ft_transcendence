@@ -74,9 +74,11 @@ export function UserCard({ user, closeNav }) {
 export function ChannelCard({
   channel,
   closeNav,
+  ownerId,
 }: {
   channel: ChannelData;
   closeNav: any;
+  ownerId: number,
 }) {
   const [bgColor, setBgColor] = useState('var(--white-color)');
   const chatContext = useContext(ChatContext);
@@ -108,6 +110,7 @@ export function ChannelCard({
             name: channel.channelName,
             img: channel.image,
             lastMsg: '',
+            ownerId: ownerId
           };
         }}
       >

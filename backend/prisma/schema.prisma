@@ -175,7 +175,8 @@ model Channel {
   image       String            @default("https://static.vecteezy.com/system/resources/thumbnails/000/426/510/small/Sports__28154_29.jpg")
   description String?
   password    String?
-  isprotected Boolean
+  isProtected Boolean
+  isPrivate   Boolean
   owner       Member           @relation("owner", fields: [ownerId], references: [id])
   ownerId     Int              @unique
   members     Member[]

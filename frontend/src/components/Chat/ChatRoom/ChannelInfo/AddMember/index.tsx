@@ -1,5 +1,6 @@
 import { ChatContext } from '@/context/chat';
 import { Avatar, Button, Group, Text } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import { SpotlightProvider, spotlight } from '@mantine/spotlight';
 import type { SpotlightAction, SpotlightActionProps } from '@mantine/spotlight';
 import { style } from '@mui/system';
@@ -28,9 +29,21 @@ export function AddMember() {
       .post('http://localhost:4400/api/chat/channel/create-member')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send(newMember)
-      .then((res) => console.log(res.body))
+      .then((res) => {
+        notifications.show({
+          title: 'New Member ha been Added',
+          message: '',
+          color: 'green',
+        });
+        return;
+      })
       .catch((err) => {
-        return err;
+        notifications.show({
+          title: 'Member not Added',
+          message: err.response.body.error,
+          color: 'red',
+        });
+        return;
       });
   }
   const [search, setSearch] = useState([]);

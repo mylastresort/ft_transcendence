@@ -6,6 +6,7 @@ export interface Chat {
     name: string;
     img: string;
     lastMsg: string;
+    ownerId?: number;
   };
 }
 

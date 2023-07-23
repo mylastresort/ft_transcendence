@@ -5,6 +5,7 @@ import { useContext } from 'react';
 import { ChatContext } from '@/context/chat';
 import ChatInput from './ChatInput';
 import ChannelInfo from './ChannelInfo';
+import { ListPublicChannels } from './ListPublicChannels';
 
 interface Props {
   width: string | number | undefined;
@@ -28,7 +29,7 @@ function ChatRoom({ isChannel = false }) {
       </MediaQuery>
     </>
   ) : (
-    <>please select a chat</>
+    <ListPublicChannels/>
   );
 }
 

@@ -41,6 +41,7 @@ export function CreateChannel() {
       description: value.description,
       password: value.password,
       isProtected: controleValue == 'protected',
+      isPrivate: controleValue == 'private',
     }
     console.log(data)
     const jwtToken = localStorage.getItem('jwtToken');
@@ -49,11 +50,13 @@ export function CreateChannel() {
       .set('Authorization', `Bearer ${jwtToken}`)
       .send(data)
       .then((res) => {
+        console.log("res:", res.body)
         chatContext.data = {
           id: res.body.id,
           name: value.value,
           img: value.image,
           lastMsg: '',
+          ownerId: res.body.owner.userId
         };
         console.log("created channel:", res.body);
         router.push('/chat/channels');
