@@ -122,7 +122,7 @@ export class PrivateChatService {
         select: {
           Messages:{
             include: {
-              sendBy: true,
+              sender: true,
             }
           }
         },
@@ -146,7 +146,7 @@ export class PrivateChatService {
       const createdMessage = await this.prisma.privateMessage.create({
         data: {
           content: chat.message.content,
-          sendBy: {
+          sender: {
             connect: {
               id: me.id,
             },

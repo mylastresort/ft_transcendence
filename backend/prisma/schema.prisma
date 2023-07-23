@@ -123,7 +123,8 @@ model Room {
 // Private messages
 model PrivateMessage {
   id      Int         @id @default(autoincrement())
-  sendBy  User[]
+  sender  User        @relation(fields: [senderId], references: [id])
+  senderId Int
   sendAt  DateTime    @default(now())
   content String
   chat    PrivateChat @relation(fields: [chatId], references: [id], onDelete: Cascade)

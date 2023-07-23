@@ -1,17 +1,10 @@
 import {
   Box,
   Button,
-  Flex,
-  Group,
-  Input,
   MantineTheme,
   TextInput,
-  ThemeIcon,
   createStyles,
 } from '@mantine/core';
-import Styles from './Chat.module.css';
-import { positions } from '@mui/system';
-import { theme } from '@nextui-org/react';
 import { useContext, useState } from 'react';
 import request from 'superagent';
 import { ChatContext } from '@/context/chat';
@@ -53,7 +46,7 @@ export default function ChatInput({ isChannel = false }) {
       .set('Authorization', `Bearer ${jwtToken}`)
       .send(req)
       .then((res) => {
-        console.log('messages: ', res.body);
+        console.log('create message: ', res.body);
       })
       .catch((err) => {
         console.log(err);

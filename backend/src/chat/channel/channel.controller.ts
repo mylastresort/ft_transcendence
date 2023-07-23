@@ -66,7 +66,7 @@ export class ChannelController {
   @ApiBearerAuth()
   async getMessages(@Query('id') id: any) {
     console.log('getMessages req:', id);
-    return await this.channelService.getMessages(id);
+    return await this.channelService.getMessages(+id);
   }
 
   //create

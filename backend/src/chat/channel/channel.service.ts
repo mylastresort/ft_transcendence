@@ -146,14 +146,18 @@ export class ChannelService {
   // read
   async getMessages(channelId: any) {
     try {
-      const messages = await this.prisma.channelMessage.findMany({
+      const messages = await this.prisma.channel.findFirst({
         where: {
-          channelId: channelId,
+          id: channelId,
         },
-        include: {
-          sender:{
-            include:{
-              user: true,
+        select: {
+          messages:{
+            include: {
+               sender:{
+                include: {
+                  user: true,
+                }
+               }
             }
           }
         },

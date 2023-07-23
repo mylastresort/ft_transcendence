@@ -25,12 +25,12 @@ export default function MsgList({ isChannel = false }) {
       .query({id: chatContext.data.id})
       .then((res) => {
         console.log(res.body);
-        isChannel ?setMessages(res.body): setMessages(res.body.Messages)
+        isChannel ?setMessages(res.body.messages): setMessages(res.body.Messages)
       })
       .catch((err) => {
         console.log(err);
       });
-  }, [load]);
+  }, [load, chatContext.data.id]);
   return (
     <Container
       w={'95%'}
@@ -43,7 +43,7 @@ export default function MsgList({ isChannel = false }) {
         <Message
           key={message.id}
           content={message.content}
-          sendBy={isChannel ? message.sender.user : message.sendBy[0]}
+          sendBy={isChannel ? message.sender.user : message.sender}
         />
       ))}
       <Button ml={55} onClick={() => setLoad(load ? false : true)}>
