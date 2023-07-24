@@ -90,11 +90,12 @@ export default function Customizer({ type = 'create', userId }) {
         w="100%"
       >
         <Flex
-          justify="space-evenly"
+          justify={{ base: 'center', md: 'space-around' }}
           align="center"
+          gap="6rem"
           w="100%"
           h="100%"
-          direction={{ base: 'column', lg: 'row' }}
+          direction={{ base: 'column', md: 'row' }}
         >
           <Flex justify="space-between" align="center">
             <Button
@@ -105,13 +106,7 @@ export default function Customizer({ type = 'create', userId }) {
               onClick={() => setSelected(Math.max(0, selected - 1))}
               variant="filled"
             />
-            <Flex
-              w={{ base: '20rem', md: '30rem', lg: '40rem' }}
-              direction="column"
-              align="center"
-              px="4rem"
-              gap="3rem"
-            >
+            <Flex w="20rem" mx="3rem" direction="column" align="center">
               <Box className={styles.map_container} {...handlers}>
                 {maps.map((item, idx) => (
                   <Box
@@ -148,7 +143,7 @@ export default function Customizer({ type = 'create', userId }) {
               variant="filled"
             />
           </Flex>
-          <Stack sx={{ opacity: '1', width: '16%' }} spacing="3rem">
+          <Stack sx={{}} spacing="3rem" w={{ base: '20rem', md: '26rem' }}>
             <Input.Wrapper label="Speed" pb="1rem">
               <Slider
                 {...form.getInputProps('speed')}
