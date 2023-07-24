@@ -1,4 +1,4 @@
-import { Avatar, Sx } from '@mantine/core';
+import { Avatar, Input, Sx } from '@mantine/core';
 import { Box, Flex, Text } from '@mantine/core';
 import { motion } from 'framer-motion';
 import React, { useContext, useEffect, useRef, useState } from 'react';
@@ -15,9 +15,9 @@ import '@fontsource/creepster';
 import '@fontsource/bebas-neue';
 import '@fontsource/audiowide';
 import { useRouter } from 'next/router';
-import { BiCircle } from 'react-icons/bi';
-import { BsCircle, BsCircleFill, BsCircleHalf } from 'react-icons/bs';
 import { FaCircle, FaRegCircle } from 'react-icons/fa';
+import { ScrollArea } from '@mantine/core';
+import { TextInput } from '@mantine/core';
 
 export default function Canvas() {
   const rAFball = useRef(0);
@@ -98,7 +98,6 @@ export default function Canvas() {
   const classes: Record<string, Sx> = {
     canvas_container: {
       flexDirection: 'column',
-      fontSize: '1.5em',
       fontWeight: 'bold',
       gap: '1em',
       height: '100%',
@@ -234,7 +233,28 @@ export default function Canvas() {
       backdropFilter: 'blur(10px)',
       borderRadius: '1rem',
     },
+    chat_input: {
+      backgroundColor: '',
+      '& input': {
+        backgroundColor: 'transparent',
+        border: '0',
+      },
+      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+      backdropFilter: 'blur(10px)',
+      zIndex: 2,
+    },
+    chat_content: {
+      zIndex: 2,
+    },
+    chat: {
+      position: 'absolute',
+      bottom: '2%',
+      margin: '0 auto',
+      marginBottom: '1em',
+    },
   };
+  const chat = useRef<HTMLDivElement>(null);
+  const input = useRef<HTMLInputElement>(null);
 
   return (
     <>
@@ -281,13 +301,15 @@ export default function Canvas() {
                     <FaCircle
                       size="1.5rem"
                       style={{ marginInline: '.1rem' }}
-                      fill={mapobj.color}
+                      fill={'#ff5151'}
                     />
                   ) : (
                     <FaRegCircle
                       size="1.5rem"
                       style={{ marginInline: '.1rem' }}
-                      fill={i === 1 ? mapobj.color : mapobj.color + '75'}
+                      fill={
+                        i === 1 ? mapobj.fillColor : mapobj.fillColor + '75'
+                      }
                     />
                   )
                 )}
@@ -322,13 +344,15 @@ export default function Canvas() {
                     <FaCircle
                       size="1.5rem"
                       style={{ marginInline: '.1rem' }}
-                      fill={mapobj.color}
+                      fill={'#1dfc34'}
                     />
                   ) : (
                     <FaRegCircle
                       size="1.5rem"
                       style={{ marginInline: '.1rem' }}
-                      fill={i === 1 ? mapobj.color : mapobj.color + '75'}
+                      fill={
+                        i === 1 ? mapobj.fillColor : mapobj.fillColor + '75'
+                      }
                     />
                   )
                 )}
@@ -372,6 +396,22 @@ export default function Canvas() {
             style={{ height: (game.config.paddle * 100) / height + '%' }}
           />
         </Flex>
+        <Box sx={classes.chat} w="25rem" maw="1000px">
+          <ScrollArea h="10rem" sx={classes.chat_content} ref={chat}>
+            {[
+              <Text>lorem ipsum dolor sit amet</Text>,
+              <Text>lorem ipsum dolor sit amet</Text>,
+              <Text>lorem ipsum dolor sit amet</Text>,
+              <Text>lorem ipsum dolor sit amet</Text>,
+              <Text>lorem ipsum dolor sit amet</Text>,
+              <Text>lorem ipsum dolor sit amet</Text>,
+              <Text>lorem ipsum dolor sit amet</Text>,
+              <Text>lorem ipsum dolor sit amet</Text>,
+              <Text>lorem ipsum dolor sit amet</Text>,
+            ]}
+          </ScrollArea>
+          <Input sx={classes.chat_input} ref={input} />
+        </Box>
       </Box>
     </>
   );
