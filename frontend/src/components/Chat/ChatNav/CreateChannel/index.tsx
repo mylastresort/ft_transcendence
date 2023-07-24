@@ -14,6 +14,7 @@ import request from 'superagent';
 import { ChatContext } from '@/context/chat';
 import { useRouter } from 'next/router';
 import { useForm } from '@mantine/form';
+import { notifications } from '@mantine/notifications';
 
 export function CreateChannel() {
   const [bgColor, setBgColor] = useState('var(--white-color)');
@@ -39,9 +40,9 @@ export function CreateChannel() {
       channelName: value.name,
       image: value.image,
       description: value.description,
-      password: value.password,
       isProtected: controleValue == 'protected',
       isPrivate: controleValue == 'private',
+      password: value.password,
     }
     console.log(data)
     const jwtToken = localStorage.getItem('jwtToken');
@@ -50,20 +51,25 @@ export function CreateChannel() {
       .set('Authorization', `Bearer ${jwtToken}`)
       .send(data)
       .then((res) => {
-        console.log("res:", res.body)
         chatContext.data = {
           id: res.body.id,
-          name: value.value,
-          img: value.image,
-          lastMsg: '',
-          ownerId: res.body.owner.userId
+          name: data.channelName,
+          img: res.body.image,
         };
-        console.log("created channel:", res.body);
-        router.push('/chat/channels');
+        notifications.show({
+          title: `Channel ${data.channelName} has been created`,
+          message: 'New Channel Lesgooo..',
+          color: 'green'
+        })
       })
       .catch((err) => {
-        return err;
+        notifications.show({
+          title: `Channel ${data.channelName} not created`,
+          message: '',
+          color: 'red'
+        })
       });
+      router.push('/chat/channels');
   }
   return (
     <>
@@ -108,7 +114,6 @@ export function CreateChannel() {
               {...form.getInputProps('image')}
             />
             {controleValue == 'protected' && <TextInput
-              // display={controleValue == 'protected' ? 'block' : 'none'}
               withAsterisk
               label="password"
               placeholder="Password"

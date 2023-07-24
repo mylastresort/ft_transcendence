@@ -51,7 +51,7 @@ export class ChannelController {
   @ApiBearerAuth()
   async deleteChannel(@Req() req: any): Promise<any> {
     console.log('deleteChannel=>', req.body);
-    return this.channelService.deleteChannel(req.body);
+    return this.channelService.deleteChannel(req.user, req.body);
   }
 
   
@@ -65,7 +65,7 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async getMembers(@Query('id') id: any) {
-    console.log('getMembers req:', id);
+    console.log('getMembers req:', +id);
     return await this.channelService.getMembers(+id);
   }
   //leave
@@ -74,8 +74,8 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async leaveChannel(@Req() req: any): Promise<any> {
-    console.log('leaveChannel=>', req.body);
-    return this.channelService.leaveChannel(req.body);
+    console.log('leaveChannel=>', req.user);
+    return this.channelService.leaveChannel(req.user, req.body);
   }
 
   //create

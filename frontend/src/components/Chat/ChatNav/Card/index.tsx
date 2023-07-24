@@ -1,30 +1,25 @@
 import { ChatContext } from '@/context/chat';
-import {
-  Avatar,
-  Box,
-  Group,
-  Text,
-} from '@mantine/core';
+import { Avatar, Box, Group, Text } from '@mantine/core';
 import Link from 'next/link';
 import { useContext, useEffect, useState } from 'react';
 import request from 'superagent';
 
 interface ChannelData {
-  ChannelPassword: string;
-  channelName: string;
-  createdAt: string;
-  description: string;
   id: number;
-  image: string;
-  ownerId: number;
+  channelName: string;
+  password: string;
+  createdAt: string;
   updateAt: string;
+  description: string;
+  image: string;
+  isProtected: Boolean;
+  isPrivate: Boolean;
 }
-
 
 export function UserCard({ user, closeNav }) {
   const chatContext = useContext(ChatContext);
   const [bgColor, setBgColor] = useState('var(--white-color)');
-  const content = () => (user.Messages[0].content.slice(0, 30) + " ...")
+  const content = () => user.Messages[0].content.slice(0, 30) + ' ...';
   return (
     <Link href={'/chat/private'}>
       <Box
@@ -44,14 +39,16 @@ export function UserCard({ user, closeNav }) {
           padding: '10px',
           margin: 'auto',
           marginTop: '15px',
-          color: bgColor == 'var(--secondary-color)' ? 'var(--white-color)' : 'var(--secondary-color)'
+          color:
+            bgColor == 'var(--secondary-color)'
+              ? 'var(--white-color)'
+              : 'var(--secondary-color)',
         }}
         onClick={() => {
           chatContext.data = {
             id: user.id,
             name: user.members[0].username,
             img: user.members[0].imgProfile,
-            lastMsg: user.Messages[0],
           };
           closeNav();
         }}
@@ -61,7 +58,7 @@ export function UserCard({ user, closeNav }) {
           <div>
             <Text size="lg">{user.members[0].username}</Text>
             <Text size="xs" color="dimmed">
-              {user.Messages[0] ? content() : "..."}
+              {user.Messages[0] ? content() : '...'}
             </Text>
           </div>
         </Group>
@@ -70,15 +67,11 @@ export function UserCard({ user, closeNav }) {
   );
 }
 
-
 export function ChannelCard({
-  channel,
-  closeNav,
-  ownerId,
+  channel
 }: {
   channel: ChannelData;
   closeNav: any;
-  ownerId: number,
 }) {
   const [bgColor, setBgColor] = useState('var(--white-color)');
   const chatContext = useContext(ChatContext);
@@ -102,15 +95,16 @@ export function ChannelCard({
           padding: '10px',
           margin: 'auto',
           marginTop: '10px',
-          color: bgColor == 'var(--chat-red-color)' ? 'var(--white-color)' : 'var(--chat-red-color)'
+          color:
+            bgColor == 'var(--chat-red-color)'
+              ? 'var(--white-color)'
+              : 'var(--chat-red-color)',
         }}
-        onClick={()=>{
+        onClick={() => {
           chatContext.data = {
             id: channel.id,
             name: channel.channelName,
             img: channel.image,
-            lastMsg: '',
-            ownerId: ownerId
           };
         }}
       >

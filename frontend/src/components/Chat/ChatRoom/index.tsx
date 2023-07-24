@@ -12,7 +12,6 @@ interface Props {
 }
 
 function ChatRoom({ isChannel = false }) {
-  console.log("-----------",isChannel, "-----------")
   const chatContext = useContext(ChatContext);
   return chatContext.data ? (
     <>

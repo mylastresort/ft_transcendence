@@ -1,13 +1,15 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 // import { Socket } from 'socket.io';
+import * as argon2 from 'argon2';
+
 interface CreateChannel {
   channelName: string;
   image: string;
   description: string;
   isProtected: boolean;
   isPrivate: boolean;
-  ChannelPassword?: string;
+  password?: string;
 }
 interface Me {
   id: number;
@@ -29,7 +31,12 @@ export class ChannelService {
 
   //create
   async createChannel(me: Me, channel: CreateChannel) {
+    console.log('channel: ', channel);
+    let hashedPass = '';
     try {
+      if (channel.isProtected) {
+        hashedPass = await argon2.hash(channel.password);
+      }
       return await this.prisma.channel.create({
         data: {
           channelName: channel.channelName,
@@ -37,19 +44,12 @@ export class ChannelService {
           description: channel.description,
           isProtected: channel.isProtected,
           isPrivate: channel.isPrivate,
-          owner: {
-            create: {
-              nickname: me.username,
-              user: {
-                connect: {
-                  id: me.id,
-                },
-              },
-            },
-          },
+          password: hashedPass,
           members: {
             create: {
               nickname: me.username,
+              isOwner: true,
+              isAdministator: true,
               user: {
                 connect: {
                   id: me.id,
@@ -58,16 +58,9 @@ export class ChannelService {
             },
           },
         },
-        select: {
-          owner:{
-            select: {
-              userId: true,
-            }
-          }
-        }
       });
     } catch (error) {
-      console.log(error);
+      console.log('channel err: ', error);
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
@@ -85,13 +78,6 @@ export class ChannelService {
         where: {
           isPrivate: false,
         },
-        include: {
-          owner:{
-            select:{
-              userId: true
-            }
-          },
-        }
       });
     } catch (error) {
       throw new HttpException(
@@ -110,16 +96,10 @@ export class ChannelService {
           members: {
             some: {
               userId: me.id,
+              isMember: true,
             },
           },
         },
-        include: {
-          owner:{
-            select:{
-              userId: true
-            }
-          },
-        }
       });
     } catch (error) {
       throw new HttpException(
@@ -133,8 +113,18 @@ export class ChannelService {
   }
 
   //delete
-  async deleteChannel(channel: any) {
+  async deleteChannel(me: Me, channel: any) {
     try {
+      if (
+        await this.prisma.member.findFirst({
+          where: {
+            userId: me.id,
+            isOwner: true,
+          },
+        })
+      ) {
+        throw "you're not an owner";
+      }
       return await this.prisma.channel.delete({
         where: {
           id: channel.id,
@@ -152,45 +142,19 @@ export class ChannelService {
     }
   }
 
-  //leave
-  async leaveChannel(member: any) {
-    try {
-      return await this.prisma.member.deleteMany({
-        where: {
-            userId: member.id,
-            AND: {
-              channleId: member.chId,
-            }
-        },
-      });
-    } catch (error) {
-      console.log(error);
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: 'cannot leave channel',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-  }
-
   //update
 
   // *members
   //read
   async getMembers(channelId: number) {
     try {
-      return await this.prisma.channel.findFirst({
+      return await this.prisma.member.findMany({
         where: {
-          id: channelId,
+          channleId: channelId,
+          isMember: true,
         },
-        select: {
-          members: {
-            include: {
-              user: true,
-            },
-          },
+        include: {
+          user: true,
         },
       });
     } catch (error) {
@@ -235,8 +199,16 @@ export class ChannelService {
             },
           },
         });
-      }
-      throw "Member already exists";
+      } else if (!member.isMember) {
+        return this.prisma.member.update({
+          where: {
+            id: member.id,
+          },
+          data: {
+            isMember: true,
+          },
+        });
+      } else throw 'Member already exists';
     } catch (error) {
       throw new HttpException(
         {
@@ -248,38 +220,70 @@ export class ChannelService {
     }
   }
 
-  async joinChanned(me: Me, channel){
+  async joinChanned(me: Me, channel: any) {
     try {
-      const member = await this.prisma.member.findFirst({
+      const getCh = await this.prisma.channel.findFirst({
         where: {
-          user: {
-            id: me.id,
-          },
-          AND: {
-            channel: {
-              id: channel.id,
-            },
-          },
+          id: channel.id,
+        },
+        select: {
+          password: true,
+          isProtected: true,
         },
       });
-      if (!member) {
-        return await this.prisma.member.create({
-          data: {
-            nickname: me.username,
-            channel: {
-              connect: {
-                id: channel.id,
-              },
-            },
+      if (getCh.isProtected && !(await argon2.verify(channel.password, getCh.password))) {
+        throw 'Password Incorrect!';
+      } else {
+        console.log('wtf!!!!!!!!');
+        const member = await this.prisma.member.findFirst({
+          where: {
             user: {
-              connect: {
-                id: me.id,
+              id: me.id,
+            },
+            AND: {
+              channel: {
+                id: channel.id,
               },
             },
           },
         });
+        if (!member) {
+          return await this.prisma.member.create({
+            data: {
+              nickname: me.username,
+              channel: {
+                connect: {
+                  id: channel.id,
+                },
+              },
+              user: {
+                connect: {
+                  id: me.id,
+                },
+              },
+            },
+            select: {
+              channel: true,
+            },
+          });
+        } else if (member.isBanned) {
+          throw 'you have been banned from this channel';
+        } else if (member.isMember) {
+          throw "you'are an existing member of the channel";
+        } else if (!member.isMember) {
+          return await this.prisma.member.update({
+            where: {
+              id: member.id,
+            },
+            data: {
+              isMember: true,
+            },
+            select: {
+              channel: true,
+            },
+          });
+        }
       }
-      throw "you\'are an existing member of the channel";
     } catch (error) {
       console.log('err:', error);
       throw new HttpException(
@@ -288,6 +292,159 @@ export class ChannelService {
           error: error,
         },
         HttpStatus.NOT_ACCEPTABLE,
+      );
+    }
+  }
+  //leave
+  async leaveChannel(me: Me, channel: any) {
+    try {
+      return await this.prisma.member.updateMany({
+        where: {
+          userId: me.id,
+          channleId: channel.id,
+        },
+        data: {
+          isMember: false,
+          isOwner: false,
+          isAdministator: false,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'cannot leave channel',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  //setAdministator
+  async setChannelAdministator(me: Me, member: any) {
+    try {
+      if (
+        await this.prisma.member.findMany({
+          where: { userId: me.id, isOwner: true },
+        })
+      ) {
+        throw "you're not an administrator";
+      } else {
+        return await this.prisma.member.updateMany({
+          where: {
+            userId: member.id,
+            isMember: true,
+          },
+          data: {
+            isAdministator: true,
+          },
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'cannot set Channel Administator',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  //kick
+  async kickMember(me: Me, member: any) {
+    try {
+      if (
+        await this.prisma.member.findMany({
+          where: { userId: me.id, isOwner: true },
+        })
+      ) {
+        throw "you're not an administrator";
+      }
+      return await this.prisma.member.updateMany({
+        where: {
+          userId: member.id, //not done
+          isAdministator: false,
+          isOwner: false,
+        },
+        data: {
+          isMember: false,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'cannot kick member',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  async muteMember(me: Me, member: any) {
+    try {
+      if (
+        await this.prisma.member.findMany({
+          where: { userId: me.id, isOwner: true },
+        })
+      ) {
+        throw "you're not an administrator";
+      }
+      return await this.prisma.member.updateMany({
+        where: {
+          userId: member.id, // not done
+          isAdministator: false,
+          isOwner: false,
+        },
+        data: {
+          isMuted: true,
+          mutedAt: new Date(),
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'cannot kick member',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+  //ban
+  async banMember(me: Me, member: any) {
+    try {
+      if (
+        await this.prisma.member.findMany({
+          where: { userId: me.id, isOwner: true },
+        })
+      ) {
+        throw "you're not an administrator";
+      }
+      return await this.prisma.member.updateMany({
+        where: {
+          userId: member.id, //not done
+          isAdministator: false,
+          isOwner: false,
+        },
+        data: {
+          isMember: false,
+          isBanned: true,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'cannot ban member',
+        },
+        HttpStatus.BAD_REQUEST,
       );
     }
   }

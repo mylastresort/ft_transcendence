@@ -74,7 +74,6 @@ export function SearchUser() {
           id: res.body.id,
           name: event.value,
           img: event.image,
-          lastMsg: '',
         };
         router.push('/chat/private');
       })

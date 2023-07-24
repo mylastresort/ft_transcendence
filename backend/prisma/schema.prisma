@@ -122,13 +122,13 @@ model Room {
 
 // Private messages
 model PrivateMessage {
-  id      Int         @id @default(autoincrement())
-  sender  User        @relation(fields: [senderId], references: [id])
+  id       Int         @id @default(autoincrement())
+  sender   User        @relation(fields: [senderId], references: [id])
   senderId Int
-  sendAt  DateTime    @default(now())
-  content String
-  chat    PrivateChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  chatId  Int
+  sendAt   DateTime    @default(now())
+  content  String
+  chat     PrivateChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId   Int
 }
 
 model PrivateChat {
@@ -151,34 +151,33 @@ model ChannelMessage {
 }
 
 model Member {
-  id        Int              @id @default(autoincrement())
-  nickname  String
-  joinedAt  DateTime         @default(now())
-  isBanned  Boolean          @default(false)
-  isKiked   Boolean          @default(false)
-  kikedAt   DateTime         @default(now())
-  isMuted   Boolean          @default(false)
-  mutedAt   DateTime         @default(now())
-  user      User             @relation(fields: [userId], references: [id])
-  userId    Int
-  channel   Channel?         @relation(fields: [channleId], references: [id])
-  channleId Int?
-  owner     Channel?         @relation("owner")
-  messages  ChannelMessage[]
+  id             Int              @id @default(autoincrement())
+  nickname       String
+  joinedAt       DateTime         @default(now())
+  isOwner        Boolean          @default(false)
+  isAdministator Boolean          @default(true)
+  isMember       Boolean          @default(true)
+  isBanned       Boolean          @default(false)
+  bannedAt       DateTime?
+  isMuted        Boolean          @default(false)
+  mutedAt        DateTime?
+  user           User             @relation(fields: [userId], references: [id])
+  userId         Int
+  channel        Channel?         @relation(fields: [channleId], references: [id])
+  channleId      Int?
+  messages       ChannelMessage[]
 }
 
 model Channel {
   id          Int              @id @default(autoincrement())
   createdAt   DateTime         @default(now())
   updateAt    DateTime         @default(now())
-  channelName String            @unique
-  image       String            @default("https://static.vecteezy.com/system/resources/thumbnails/000/426/510/small/Sports__28154_29.jpg")
+  channelName String           @unique
+  image       String           @default("https://static.vecteezy.com/system/resources/thumbnails/000/426/510/small/Sports__28154_29.jpg")
   description String?
   password    String?
   isProtected Boolean
   isPrivate   Boolean
-  owner       Member           @relation("owner", fields: [ownerId], references: [id])
-  ownerId     Int              @unique
   members     Member[]
   messages    ChannelMessage[]
 }

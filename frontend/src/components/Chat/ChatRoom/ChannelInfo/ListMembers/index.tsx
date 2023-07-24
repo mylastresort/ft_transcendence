@@ -7,32 +7,18 @@ import request from 'superagent';
 interface Member {
   id: number;
   nickname: string;
+  isOwner: boolean;
   user:{
     id: number;
     imgProfile: string;
   }
 }
 
-export function ListMembers() {
-  const userContext = useContext(UserContext);
-  const chatContext = useContext(ChatContext);
-  const jwtToken = localStorage.getItem('jwtToken');
-  const [load, setLoad] = useState(false);
-  const [members, setMembers]: [Member[], any] = useState([]);
-  const [owner, setOwner] = useState();
-  useEffect(() => {
-    request
-      .get(`http://localhost:4400/api/chat/channel/members`)
-      .set('Authorization', `Bearer ${jwtToken}`)
-      .query({ id: chatContext.data.id })
-      .then((res) => {
-        setMembers(res.body.members);
-        console.log(res.body.members);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, [load, chatContext.data]);
+export function ListMembers({members}: {members:Member[]}) {
+  // const userContext = useContext(UserContext);
+  // const chatContext = useContext(ChatContext);
+  // const jwtToken = localStorage.getItem('jwtToken');
+  // const [owner, setOwner] = useState();
   return (
     <>
       <List m={'auto'} >
@@ -51,7 +37,7 @@ export function ListMembers() {
             <Text>{member.nickname}</Text>
             </Group>
             {
-              chatContext.data.ownerId == member.user.id ?
+              member.isOwner?
               <Badge color="red" bg={'red'} children="Owner" />
               : <Badge color="blue" bg={'blue'} children="mumber" />
             }
@@ -59,9 +45,9 @@ export function ListMembers() {
         </List.Item>
       ))}
       </List>
-      <Button w={300} m={'auto'} color="green" onClick={() => setLoad(!load)}>
+      {/* <Button w={300} m={'auto'} color="green" onClick={() => setLoad(!load)}>
         laod members
-      </Button>
+      </Button> */}
     </>
   );
 }

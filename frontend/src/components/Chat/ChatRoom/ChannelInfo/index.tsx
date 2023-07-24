@@ -9,17 +9,41 @@ import {
   useMantineTheme,
 } from '@mantine/core';
 import Link from 'next/link';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import request from 'superagent';
 import { AddMember } from './AddMember';
 import { ListMembers } from './ListMembers';
+interface Member {
+  id: number;
+  nickname: string;
+  isOwner: boolean;
+  user:{
+    id: number;
+    imgProfile: string;
+  }
+}
+
 
 function ChannelInfo() {
   const chatContext = useContext(ChatContext);
+  const jwtToken = localStorage.getItem('jwtToken');
   const userContext = useContext(UserContext);
   const theme = useMantineTheme();
+  const [members, setMembers]: [Member[], any] = useState([]);
+  useEffect(() => {
+    request
+      .get(`http://localhost:4400/api/chat/channel/members`)
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .query({ id: chatContext.data.id })
+      .then((res) => {
+        setMembers(res.body);
+        console.log(res.body);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [chatContext.data]);
   function deleteUser() {
-    const jwtToken = localStorage.getItem('jwtToken');
     request
       .post('http://localhost:4400/api/chat/channel/delete')
       .set('Authorization', `Bearer ${jwtToken}`)
@@ -29,12 +53,13 @@ function ChannelInfo() {
       });
   }
   function leaveChannel() {
-    const jwtToken = localStorage.getItem('jwtToken');
-    console.log("leave");
     request
       .post('http://localhost:4400/api/chat/channel/leave')
       .set('Authorization', `Bearer ${jwtToken}`)
-      .send({ id: userContext.data.id, chId: chatContext.data.id })
+      .send({id : chatContext.data.id })
+      .then((res)=>{
+        chatContext.data = undefined!;
+      })
       .catch((err) => {
         return err;
       });
@@ -91,7 +116,7 @@ function ChannelInfo() {
           </Button>
         </Link>
         <AddMember />
-        <ListMembers />
+        <ListMembers members={members} />
       </Flex>
     </Box>
   );

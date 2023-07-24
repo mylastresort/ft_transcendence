@@ -4,7 +4,6 @@ import {
   Burger,
   Tabs,
   Button,
-  ActionIcon,
 } from '@mantine/core';
 import { useDisclosure, useClickOutside } from '@mantine/hooks';
 import { useContext, useEffect, useState } from 'react';
@@ -15,7 +14,6 @@ import { SearchUser } from './SearchUser';
 import { ChannelCard, UserCard } from './Card';
 import { Search } from 'tabler-icons-react';
 import { ChatContext } from '@/context/chat';
-import { redirect } from 'next/dist/server/api-utils';
 import Link from 'next/link';
 
 export function RoomsList({ closeNav, load }: any) {
@@ -59,7 +57,6 @@ export function RoomsList({ closeNav, load }: any) {
                 key={channel.id}
                 channel={channel}
                 closeNav={closeNav}
-                ownerId={channel.owner.userId}
               />
             </div>
           ))}
@@ -81,7 +78,6 @@ export function RoomsList({ closeNav, load }: any) {
 }
 
 function ChatNav() {
-  const user = useContext(UserContext);
   const chatContext = useContext(ChatContext);
   const [opened, { toggle }] = useDisclosure(true);
   const [load, setLoad] = useState(true);
@@ -122,7 +118,7 @@ function ChatNav() {
           <Button onClick={() => setLoad(!load)}>load channels</Button>
         </Navbar.Section>
         <Navbar.Section className="nav-child">
-          <Link href={'/chat/channels'}>
+          <Link href={'/chat/'}>
             <Button
               variant="gradient"
               h={45}
@@ -130,7 +126,7 @@ function ChatNav() {
               p={0}
               radius={50}
               onClick={() => {
-                chatContext.data = undefined;
+                chatContext.data = undefined!;
               }}
             >
               <Search size="30px" />
