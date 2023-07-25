@@ -50,100 +50,98 @@ function Pofile() {
   const [username, setUsername] = useState<string>('');
 
   const [isMe, setIsMe] = useState<boolean>(false);
-  const [socketEvent, setSocketEvent] = useState(false);
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
   const [isBlockedBy, setIsBlockedBy] = useState<boolean>(false);
   const [isLoaded, setIsLoaded] = useState<boolean>(true);
   const [isNotFound, setIsNotFound] = useState<boolean>(false);
 
-  // const UserSocket = useContext(WsContext);
-
   const router = useRouter();
-  // const { username } = router.query;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        UserSocket.on('RerenderFriends', (data) => {
-          setSocketEvent((prevSocketEvent) => !prevSocketEvent);
-        });
+  const fetchData = async () => {
+    try {
+      const Username = window.location.pathname.split('/')[2];
+      setUsername(Username);
+      setIsMe(false);
+      // setIsLoaded(true);
+      setIsBlocked(false);
+      setIsNotFound(false);
+      setIsBlockedBy(false);
 
-        const Username = window.location.pathname.split('/')[2];
-        setUsername(Username);
-        setIsMe(false);
-        // setIsLoaded(true);
-        setIsBlocked(false);
-        setIsNotFound(false);
-        setIsBlockedBy(false);
-        setUsername;
-        const payload = {
-          username: Username,
+      const payload = {
+        username: Username,
+      };
+
+      const meResponse = await GetMe();
+      const me = meResponse.body;
+      setUserMe(me);
+      if (me.username === Username) {
+        setIsMe(true);
+      }
+
+      const userProfileResponse = await PostUserProfile(payload);
+      const UserProfile = userProfileResponse.body;
+      if (!UserProfile) {
+        setIsNotFound(true);
+        return () => {
+          // UserSocket.off('RerenderFriends');
+          router.events.off('routeChangeComplete', fetchData);
         };
+      }
+      setUserProfile(UserProfile);
 
-        const meResponse = await GetMe();
-        const me = meResponse.body;
-        setUserMe(me);
-        if (me.username === Username) {
-          setIsMe(true);
-        }
-        const userProfileResponse = await PostUserProfile(payload);
-        const UserProfile = userProfileResponse.body;
-        if (!UserProfile) {
-          setIsNotFound(true);
-          return () => {
-            UserSocket.off('RerenderFriends');
-            router.events.off('routeChangeComplete', fetchData);
-          };
-        }
-        setUserProfile(UserProfile);
-
-        const blockedFriendsResponse = await GetBLockedFriends();
-        const blockedFriends = blockedFriendsResponse.body;
-        const BlockedUsers = blockedFriends.find(
-          (item: any) => item.username === Username
-        );
-        if (BlockedUsers) {
-          setIsBlocked(true);
-        }
-        if (BlockedUsers?.blockedBy.length > 0) {
-          setIsBlockedBy(true);
-          setIsLoaded(false);
-
-          return () => {
-            UserSocket.off('RerenderFriends');
-            router.events.off('routeChangeComplete', fetchData);
-          };
-        }
-
+      const blockedFriendsResponse = await GetBLockedFriends();
+      const blockedFriends = blockedFriendsResponse.body;
+      const BlockedUsers = blockedFriends.find(
+        (item: any) => item.username === Username
+      );
+      if (BlockedUsers) {
+        setIsBlocked(true);
+      }
+      if (BlockedUsers?.blockedBy.length > 0) {
+        setIsBlockedBy(true);
         setIsLoaded(false);
 
-        const friendsPayload = {
-          username: UserProfile?.username,
+        return () => {
+          // UserSocket.off('RerenderFriends');
+          router.events.off('routeChangeComplete', fetchData);
         };
-        const friendsListResponse = await GetFriendsList(friendsPayload);
-        const friendsList = friendsListResponse.body;
-        setFriends(friendsList);
-
-        const notFriendsResponse = await Get_Not_Friends();
-        const notFriends = notFriendsResponse.body;
-        const PendingFriend = notFriends.find(
-          (item: any) => item.username === Username
-        );
-        setPendingFriend(PendingFriend);
-      } catch (err) {
-        console.log(err);
       }
-    };
 
-    fetchData();
+      setIsLoaded(false);
+
+      const friendsPayload = {
+        username: UserProfile?.username,
+      };
+      const friendsListResponse = await GetFriendsList(friendsPayload);
+      const friendsList = friendsListResponse.body;
+      setFriends(friendsList);
+
+      const notFriendsResponse = await Get_Not_Friends();
+      const notFriends = notFriendsResponse.body;
+      const PendingFriend = notFriends.find(
+        (item: any) => item.username === Username
+      );
+      setPendingFriend(PendingFriend);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    try {
+      fetchData();
+      UserSocket.on('RerenderFriends', fetchData);
+    } catch (err) {
+      console.log(err);
+    }
 
     router.events.on('routeChangeComplete', fetchData);
 
     return () => {
-      UserSocket.off('RerenderFriends');
+      UserSocket.off('RerenderFriends', fetchData);
       router.events.off('routeChangeComplete', fetchData);
     };
-  }, [username, socketEvent]);
+  }, [username]);
 
   const HandleUnfriend = (data: any) => () => {
     const payload = {

@@ -5,7 +5,7 @@ import goldencup from '@/../public/images/winner_animation.json';
 import Lottie from 'lottie-react';
 import styles from './Results.module.css';
 import { GameContext, PlayerContext } from '@/context/game';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { useRouter } from 'next/router';
 
 export default function Results() {
@@ -16,6 +16,23 @@ export default function Results() {
   const winner = game.winner === 'self' ? player : game.opponent;
   const loser = game.winner === 'self' ? game.opponent : player;
   const isWinner = game.winner === 'self';
+
+  useEffect(() => {
+    return () => {
+      game.gameId = '';
+      game.ready = false;
+      game.winner = '';
+      game.role = '';
+      game.gameStatus = '';
+      game.conf = {
+        isInvite: false,
+        map: 0,
+        games: 3,
+        speed: 5,
+        name: '',
+      }
+    }
+  }, []);
 
   return (
     <Flex justify="center" align="center" h="100%">

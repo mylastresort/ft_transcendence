@@ -250,79 +250,47 @@ function Friends() {
   const [blockedFriends, setBlockedFriends] = useState<any>(null);
   const [Addfriends, setAddfriends] = useState<any>(null);
 
-  const [socketEvent, setSocketEvent] = useState(false);
-
   const router = useRouter();
   const { username } = router.query;
 
-  const data = [
-    {
-      label: 'All Friends',
-      icon: <AiOutlineUser size={20} />,
-      rightSection: friends?.length,
-    },
-    {
-      label: 'Your Friends',
-      icon: <AiOutlineUserAdd size={20} />,
-      rightSection: friends?.length,
-    },
-    {
-      label: 'Add a Friend',
-      icon: <AiOutlineUser size={20} />,
-    },
-    {
-      label: 'Pending Invites',
-      icon: <HiMail size={20} />,
-      rightSection: friendReq?.length,
-    },
-    {
-      label: 'Blocked',
-      icon: <BiBlock size={20} />,
-      rightSection: blockedFriends?.length,
-    },
-  ];
+  const fetchData = async () => {
+    try {
+      const friendRequests = await GetFriendRequests();
+      setFriendReq(friendRequests.body);
+
+      const payload = {
+        username: username,
+      };
+
+      const me = await GetMe();
+      if (me.body.username === username) {
+        setIsMe(true);
+      }
+
+      const userProfile = await PostUserProfile(payload);
+      const friendsList = await GetFriendsList({
+        username: userProfile.body.username,
+      });
+      setFriends(friendsList.body);
+
+      const blockedFriends = await GetBLockedFriends();
+      setBlockedFriends(blockedFriends.body);
+
+      const notFriends = await Get_Not_Friends();
+      setAddfriends(notFriends.body);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        UserSocket.on('RerenderFriends', (data) => {
-          setSocketEvent((prevSocketEvent) => !prevSocketEvent);
-        });
-
-        const friendRequests = await GetFriendRequests();
-        setFriendReq(friendRequests.body);
-
-        const payload = {
-          username: username,
-        };
-
-        const me = await GetMe();
-        if (me.body.username === username) {
-          setIsMe(true);
-        }
-
-        const userProfile = await PostUserProfile(payload);
-        const friendsList = await GetFriendsList({
-          username: userProfile.body.username,
-        });
-        setFriends(friendsList.body);
-
-        const blockedFriends = await GetBLockedFriends();
-        setBlockedFriends(blockedFriends.body);
-
-        const notFriends = await Get_Not_Friends();
-        setAddfriends(notFriends.body);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
     fetchData();
+    UserSocket.on('RerenderFriends', fetchData);
 
     return () => {
-      UserSocket.off('RerenderFriends');
+      UserSocket.off('RerenderFriends', fetchData);
     };
-  }, [username, socketEvent]);
+  }, [username]);
 
   return (
     <div className="dash_container">

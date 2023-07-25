@@ -6,7 +6,7 @@ export const GameContext = createContext({
   gameId: '',
   opponent: {
     userImgProfile: '',
-    username: 'stamim',
+    username: '',
   } as Player,
   ready: false,
   conf: {
