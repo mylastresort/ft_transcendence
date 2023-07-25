@@ -74,13 +74,52 @@ export const User_Sidebar = (Show: any) => {
               <Button
                 color="cyan"
                 onClick={() => {
-                  router.push(data.gameid);
+                  const payload = {
+                    gameid: data.gameid,
+                    receiverId: data.receiverId,
+                    senderId: data.senderId,
+                  };
+                  UserSocket.emit('AcceptedGameInvite', payload);
+                  router.push(`/game/${data.gameid}`);
                 }}
               >
                 Accept
               </Button>
               <Button variant="light" color="red">
                 Cancel
+              </Button>
+            </Group>
+          </Stack>
+        ),
+        color: 'green',
+        radius: 'md',
+        bg: 'gray',
+
+        autoClose: 5000,
+      });
+    });
+
+    UserSocket.on('AcceptedGameInvite', async (data) => {
+      await notifications.show({
+        id: 'GameInviteNotification',
+        title: 'Game Invite Accepted',
+        message: (
+          <Stack>
+            <Text
+              style={{
+                color: '#fff',
+              }}
+            >
+              Your game invite was accepted by {data.receiverId}
+            </Text>
+            <Group>
+              <Button
+                color="cyan"
+                onClick={() => {
+                  router.push(`/game/${data.gameid}`);
+                }}
+              >
+                Join
               </Button>
             </Group>
           </Stack>
@@ -101,7 +140,6 @@ export const User_Sidebar = (Show: any) => {
         color: 'green',
         bg: 'gray',
         radius: 'md',
-        // icon: <BiSolidUserPlus />,
         autoClose: 5000,
       });
     });
@@ -126,42 +164,6 @@ export const User_Sidebar = (Show: any) => {
         id: 'AcceptFriendReq',
         title: 'Friend Request Accepted',
         message: name + ' accepted your friend request',
-        color: 'green',
-        radius: 'md',
-        bg: 'gray',
-
-        autoClose: 5000,
-      });
-    });
-
-    UserSocket.on('GameInviteNotification', async (data) => {
-      await notifications.show({
-        id: 'GameInviteNotification',
-        title: 'Game Invite',
-        message: (
-          <Stack>
-            <Text
-              style={{
-                color: '#fff',
-              }}
-            >
-              You have a game invite from {data.senderId}
-            </Text>
-            <Group>
-              <Button
-                color="cyan"
-                onClick={() => {
-                  router.push(data.gameid);
-                }}
-              >
-                Accept
-              </Button>
-              <Button variant="light" color="red">
-                Cancel
-              </Button>
-            </Group>
-          </Stack>
-        ),
         color: 'green',
         radius: 'md',
         bg: 'gray',
@@ -512,33 +514,62 @@ export const User_Sidebar = (Show: any) => {
                         }
                       >
                         {item.gameid ? (
-                          <Stack>
-                            <Text
-                              size="$sm"
-                              css={{
-                                fontFamily: 'poppins',
-                                color: 'var(--text-color)',
-                                fontWeight: '500',
-                              }}
-                            >
-                              {item.message}
-                            </Text>
-                            <Group>
-                              <Button
-                                color="cyan"
-                                size="sm"
-                                variant="light"
-                                onClick={() => {
-                                  router.push(`/game/${item.gameid}`);
+                          item.message.includes(
+                            'Your game invite was accepted by'
+                          ) ? (
+                            <Stack>
+                              <Text
+                                size="$sm"
+                                css={{
+                                  fontFamily: 'poppins',
+                                  color: 'var(--text-color)',
+                                  fontWeight: '500',
                                 }}
                               >
-                                Accept
-                              </Button>
-                              <Button size="sm" variant="light" color="red">
-                                Cancel
-                              </Button>
-                            </Group>
-                          </Stack>
+                                {item.message}
+                              </Text>
+                              <Group>
+                                <Button
+                                  color="cyan"
+                                  size="sm"
+                                  variant="light"
+                                  onClick={() => {
+                                    router.push(`/game/${item.gameid}`);
+                                  }}
+                                >
+                                  Join
+                                </Button>
+                              </Group>
+                            </Stack>
+                          ) : (
+                            <Stack>
+                              <Text
+                                size="$sm"
+                                css={{
+                                  fontFamily: 'poppins',
+                                  color: 'var(--text-color)',
+                                  fontWeight: '500',
+                                }}
+                              >
+                                {item.message}
+                              </Text>
+                              <Group>
+                                <Button
+                                  color="cyan"
+                                  size="sm"
+                                  variant="light"
+                                  onClick={() => {
+                                    router.push(`/game/${item.gameid}`);
+                                  }}
+                                >
+                                  Accept
+                                </Button>
+                                <Button size="sm" variant="light" color="red">
+                                  Cancel
+                                </Button>
+                              </Group>
+                            </Stack>
+                          )
                         ) : (
                           <div>{item.message}</div>
                         )}
