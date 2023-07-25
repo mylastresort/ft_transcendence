@@ -1,0 +1,33 @@
+.conffetti {
+    opacity: 0.2;
+    position: absolute;
+    width: 100%;
+}
+
+.goldcup_winner {
+    max-width: 28rem;
+    opacity: 0.8;
+    overflow: hidden;
+    position: relative;
+}
+
+.goldcup_winner_profile {
+    border-radius: 50%;
+    position: absolute;
+    scale: 0.4;
+    z-index: 1;
+}
+
+.goldcup_loser {
+    max-width: 18rem;
+    opacity: 0.8;
+    margin-top: 1.5rem;
+    position: relative;
+}
+
+.goldcup_loser_profile {
+    border-radius: 50%;
+    position: absolute;
+    scale: 0.4;
+    z-index: 1;
+}

@@ -64,9 +64,9 @@ function friends() {
     });
 
     return () => {
-      UserSocket.off('NewRequestNotification');
-      UserSocket.off('CandelFriendReq');
-      UserSocket.off('AcceptFriendReq');
+      // UserSocket.off('NewRequestNotification');
+      // UserSocket.off('CandelFriendReq');
+      // UserSocket.off('AcceptFriendReq');
     };
   }, []);
 

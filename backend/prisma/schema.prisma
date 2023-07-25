@@ -83,36 +83,48 @@ model Notification {
 
   message String
   gameid String?
+  receiverId Int?
+  senderId Int?
   read    Boolean @default(false)
 }
 
 model Achievement {
-  description String
+  description String?
   id          Int      @id @default(autoincrement())
-  name        String
+  name        String   @unique
   players     Player[]
 }
 
 model Player {
   achievements  Achievement[]
   currentStreak Int           @default(0)
-  level         Int           @default(0)
+  lastPlayed    DateTime
+  level         Float         @default(0)
   longestStreak Int           @default(0)
-  losses        Int           @default(0)
-  rooms         Room[]
-  user          User?         @relation(fields: [userId], references: [id])
+  losses        Room[]        @relation("losses")
+  rooms         Room[]        @relation("PlayerRooms")
+  user          User          @relation(fields: [userId], references: [id])
   userId        Int           @id
-  wins          Int           @default(0)
+  wins          Room[]        @relation("wins")
 }
 
 model Room {
-  createdAt  DateTime @default(now())
-  games      Int      @default(0)
-  guestScore Int      @default(0)
-  hostScore  Int      @default(0)
-  id         String   @id
-  map        String
-  maxGames   Int
-  players    Player[]
-  status     String
+  createdAt       DateTime  @default(now())
+  endedAt         DateTime?
+  games           Int       @default(0)
+  hostId          Int
+  id              String    @id
+  isInvite        Boolean   @default(false)
+  loser           Player?   @relation(fields: [loserUserId], references: [userId], name: "losses")
+  loserUserId     Int?
+  map             String
+  maxGames        Int
+  name            String
+  players         Player[]  @relation("PlayerRooms")
+  speed           Float
+  startedAt       DateTime?
+  status          String
+  winner          Player?   @relation(fields: [winnerUserId], references: [userId], name: "wins")
+  winnerPostLevel Float?
+  winnerUserId    Int?
 }

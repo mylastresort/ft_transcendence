@@ -6,7 +6,7 @@ import { UsersModule } from './users/users.module';
 import { FriendsModule } from './friends/friends.module';
 import { SeedModule } from './seed/seed.module';
 import { UserGatewayModule } from './usergateway/usergateway.module';
-import { NotificationsGateway } from './usergateway/notifications.gateway';
+// import { NotificationsGateway } from './usergateway/notifications.gateway';
 import { GameModule } from './game/game.module';
 
 @Module({
@@ -20,6 +20,6 @@ import { GameModule } from './game/game.module';
     UserGatewayModule,
     GameModule,
   ],
-  providers: [NotificationsGateway],
+  providers: [],
 })
 export class AppModule {}

@@ -17,8 +17,36 @@ import {
 import { GameService } from './game.service';
 import { HttpGatewayExceptionFilter } from './game-exception.filter';
 import { verify } from 'jsonwebtoken';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { User } from '@prisma/client';
+import { DefaultEventsMap } from 'socket.io/dist/typed-events';
+import { UUID } from 'crypto';
+
+export type Player = Socket<
+  DefaultEventsMap,
+  DefaultEventsMap,
+  DefaultEventsMap,
+  {
+    currentGameId?: UUID;
+    currentUserRole?: 'host' | 'guest';
+    currentUserSocketId?: Socket['id'];
+    hostSettableGames?: number;
+    hostWishedGameMap?: string;
+    hostWishedGameName?: string;
+    hostWishedGameSpeed?: number;
+    ready?: boolean;
+    userAchievements: { name: string; description: string }[];
+    userCurrentStreak: number;
+    userId: User['id'];
+    userImgProfile: string;
+    userLastPlayed: Date;
+    userLevel: number;
+    userLongestStreak: number;
+    userLosses: number;
+    username: string;
+    userWins: number;
+  }
+>;
 
 @Catch()
 @UsePipes(new ValidationPipe())
@@ -34,11 +62,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @Inject(forwardRef(() => GameService)) private game: GameService;
 
-  handleDisconnect(socket) {
+  handleDisconnect(socket: Player) {
     this.game.leave(socket);
   }
 
-  async handleConnection(socket) {
+  async handleConnection(socket: Player) {
     try {
       if (!socket.handshake.auth.token) throw new Error('No token');
       const user = verify(
@@ -47,32 +75,46 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       ) as User;
       if (!user) throw new Error('Invalid token');
       socket.data = await this.game.getPlayer(user.id);
-      socket.data.sid = socket.id;
+      socket.data.currentUserSocketId = socket.id;
+      this.game.addPlayerSocket(socket);
     } catch (err) {
+      console.error(err);
       socket.emit('exception', err.error || err.message || err);
-      socket.disconnect();
     }
   }
-  handlePlayerLeave(socket) {
+
+  @SubscribeMessage('leave')
+  handlePlayerLeave(socket: Player) {
     return this.game.leave(socket);
   }
 
-  handlePlayerJoin(socket, body) {
+  @SubscribeMessage('join')
+  handlePlayerJoin(socket: Player, body) {
     return this.game.join(socket, body);
   }
 
+  @SubscribeMessage('invite')
+  handlePlayerInvite(socket: Player, body) {
+    return this.game.invite(socket, body);
+  }
+
   @SubscribeMessage('ready')
-  handlePlayerReady(socket, ready) {
-    return this.game.ready(socket, ready);
+  handlePlayerReady(socket: Player, { ready, gameId }) {
+    return this.game.ready(socket, ready, gameId);
   }
 
   @SubscribeMessage('pong')
-  handlePlayerPong(socket, key) {
+  handlePlayerPong(socket: Player, key) {
     return this.game.pong(socket, key);
   }
 
   @SubscribeMessage('move')
-  handlePlayerMove(socket, crd) {
+  handlePlayerMove(socket: Player, crd) {
     return this.game.move(socket, crd);
+  }
+
+  @SubscribeMessage('chat')
+  handlePlayerChat(socket: Player, msg) {
+    return this.game.chat(socket, msg);
   }
 }

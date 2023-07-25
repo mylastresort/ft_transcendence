@@ -1,62 +1,61 @@
-import { Flex, Button, Box } from '@mantine/core';
-import React, { Dispatch, useContext, useEffect } from 'react';
-import { Action } from '../game.reducer';
-import styles from './Lobby.module.css';
-import Profile from './Profile';
-import {
-  DispatchContext,
-  Player,
-  PlayerContext,
-  SocketContext,
-} from '../context';
-import { Socket } from 'socket.io-client';
+import { Flex, Button, Text } from '@mantine/core';
+import React, { useContext, useEffect, useState } from 'react';
+import { GameContext } from '@/context/game';
+import { useRouter } from 'next/router';
 
-export default function Lobby({ gameId, ready, user, opponent }) {
-  const dispatch = useContext(DispatchContext) as Dispatch<Action>;
-  const socket = useContext(SocketContext) as Socket;
-  const player = useContext(PlayerContext) as Player;
+export default function Lobby() {
+  const game = useContext(GameContext);
+  const router = useRouter();
+  const [timer, setTimer] = useState([0, 0]);
 
   useEffect(() => {
-    if (gameId)
-      socket.emit('ready', ready, () =>
-        dispatch({ type: 'READY', value: ready })
-      );
-  }, [gameId, ready]);
+    let waiting = true;
+    game.socket?.on('joined', (gameId, member, conf) => {
+      waiting = false;
+      game.gameId = gameId;
+      game.conf.games = conf.hostSettableGames;
+      game.conf.map = conf.hostWishedGameMap;
+      game.conf.name = conf.hostWishedGameName;
+      game.conf.speed = conf.hostWishedGameSpeed;
+      game.opponent = member;
+      game.ready = false;
+      game.gameStatus = 'waiting';
+      router.push(`/game/${gameId}`);
+    });
+    const start = Date.now();
+    const interval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - start) / 1000);
+      setTimer([elapsed % 60, Math.floor(elapsed / 60)]);
+    }, 1000);
+    return () => {
+      clearInterval(interval);
+      if (waiting) game.socket?.emit('leave', () => router.push('/game'));
+      game.socket?.off('joined');
+    };
+  }, []);
 
   return (
-    <Flex align="center" h="100%">
-      <Box className={styles.lobby}>
-        <Flex gap={0} className={styles.profiles}>
-          <Profile user={{ ...user, ...player.user, ...player }} />
-          <Profile user={opponent} />
-        </Flex>
-        <Flex
-          direction={{ base: 'column', sm: 'row' }}
-          justify="space-evenly"
-          align="center"
-          className={styles.actions}
-        >
+    <Flex justify="space-around" align="center" h="100%">
+      {game.role ? (
+        <>
+          <div>
+            <Text>Waiting for players to join...</Text>
+            <Text>
+              Time Spent: {!!timer[1] && `${timer[1]}m`} {timer[0]}s
+            </Text>
+          </div>
           <Button
             variant="outline"
             onClick={() =>
-              socket.emit('leave', () => dispatch({ type: 'LEAVE' }))
+              game.socket?.emit('leave', () => router.push('/game'))
             }
           >
-            Leave
+            Cancel
           </Button>
-          <Button
-            disabled={!gameId}
-            variant={ready ? 'filled' : 'outline'}
-            onClick={() =>
-              socket.emit('ready', !ready, () =>
-                dispatch({ type: 'READY', value: !ready })
-              )
-            }
-          >
-            Ready
-          </Button>
-        </Flex>
-      </Box>
+        </>
+      ) : (
+        <Text>You must create or join a game first :(</Text>
+      )}
     </Flex>
   );
 }
