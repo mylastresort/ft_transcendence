@@ -559,6 +559,15 @@ export const User_Sidebar = (Show: any) => {
                                   size="sm"
                                   variant="light"
                                   onClick={() => {
+                                    const payload = {
+                                      gameid: item.gameid,
+                                      receiverId: item.receiverId,
+                                      senderId: item.senderId,
+                                    };
+                                    UserSocket.emit(
+                                      'AcceptedGameInvite',
+                                      payload
+                                    );
                                     router.push(`/game/${item.gameid}`);
                                   }}
                                 >
