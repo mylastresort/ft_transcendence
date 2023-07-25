@@ -14,7 +14,6 @@ import { WsProvider, UserSocket } from '@/context/WsContext';
 import { Button, Group, MantineProvider, Stack, Text } from '@mantine/core';
 import Theme from './styles/theme';
 import { Notifications, notifications } from '@mantine/notifications';
-import { BiSolidUserPlus } from 'react-icons/bi';
 
 export default function App({ Component, pageProps }: AppProps) {
   let user = useContext(UserContext);
@@ -22,11 +21,11 @@ export default function App({ Component, pageProps }: AppProps) {
   const [isTwoFactorAuth, setIsTwoFactorAuth] = useState(false);
   const [Token, setToken] = useState<string | null>(null);
   const router = useRouter();
-  // const UserSocket = useContext(WsContext);
 
   useEffect(() => {
     const token = localStorage.getItem('jwtToken');
     setToken(token);
+    console.log('token', token);
     if (token) {
       setShow(false);
       GetMe()
@@ -73,87 +72,6 @@ export default function App({ Component, pageProps }: AppProps) {
 
     return () => {
       router.events.off('routeChangeComplete', handleRouteChange);
-    };
-  }, []);
-
-  useEffect(() => {
-    UserSocket.on('NewRequestNotification', (name) => {
-      notifications.show({
-        id: 'NewRequestNotification',
-        title: 'New Request',
-        message: 'You have a new request from ' + name,
-        color: 'green',
-        bg: 'gray',
-        radius: 'md',
-        // icon: <BiSolidUserPlus />,
-        autoClose: 5000,
-      });
-    });
-
-    UserSocket.on('CandelFriendReq', (name) => {
-      if (name !== 'CanceledfrmSender') {
-        notifications.show({
-          id: 'CandelFriendReq',
-          title: 'Friend Request Canceled',
-          message: name + ' canceled your friend request',
-          color: 'red',
-          radius: 'md',
-          bg: 'gray',
-
-          // icon: <BiSolidUserPlus />,
-          autoClose: 5000,
-        });
-      }
-    });
-
-    UserSocket.on('AcceptFriendReq', (name) => {
-      notifications.show({
-        id: 'AcceptFriendReq',
-        title: 'Friend Request Accepted',
-        message: name + ' accepted your friend request',
-        color: 'green',
-        radius: 'md',
-        bg: 'gray',
-
-        // icon: <BiSolidUserPlus />,
-        autoClose: 5000,
-      });
-    });
-
-    UserSocket.on('GameInviteNotification', (data) => {
-      notifications.show({
-        id: 'GameInviteNotification',
-        title: 'Game Invite',
-        message: (
-          <Stack>
-            <Text c="#fff">You have a game invite from {data.senderId}</Text>
-            <Group>
-              <Button
-                color="cyan"
-                onClick={() => {
-                  router.push(data.gameid);
-                }}
-              >
-                Accept
-              </Button>
-              <Button variant="light" color="red">
-                Cancel
-              </Button>
-            </Group>
-          </Stack>
-        ),
-        color: 'green',
-        radius: 'md',
-        bg: 'gray',
-
-        autoClose: 100000,
-        withCloseButton: false,
-      });
-    });
-
-    return () => {
-      UserSocket.off('NewRequestNotification');
-      UserSocket.off('CandelFriendReq');
     };
   }, []);
 

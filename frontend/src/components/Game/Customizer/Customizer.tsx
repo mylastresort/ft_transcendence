@@ -1,4 +1,3 @@
-import { Action } from '../game.reducer';
 import {
   Button,
   Stack,
@@ -10,52 +9,81 @@ import {
   Box,
   Input,
 } from '@mantine/core';
-import { DispatchContext, MapsContext, SocketContext } from '../context';
+import { MapsContext, PlayerContext } from '../../../context/game';
 import { motion } from 'framer-motion';
-import { Socket } from 'socket.io-client';
 import { useForm } from '@mantine/form';
 import { useSwipeable } from 'react-swipeable';
-import React, { Dispatch, useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import styles from './Customizer.module.css';
+import Link from 'next/link';
+import { GameContext } from '@/context/game';
+import { useRouter } from 'next/router';
+import { UserSocket } from '@/context/WsContext';
 
-export default function Customizer({ map }: { map: number }) {
-  const socket = useContext(SocketContext) as Socket;
-  const dispatch = useContext(DispatchContext) as Dispatch<Action>;
+export default function Customizer({ type = 'create', userId }) {
+  const game = useContext(GameContext);
   const maps = useContext(MapsContext);
   const form = useForm({
-    initialValues: { speed: 5, games: 3, name: '' },
+    initialValues: { speed: 3, games: 3, name: '' },
     validate: {
       name: (value) => {
         if (!value) return 'Room name is required';
         if (value.length > 20) return 'Room name is too long';
         return null;
       },
-      speed: (value) => (value < 5 || value > 7 ? 'Invalid speed' : null),
+      speed: (value) => (value < 2 || value > 5 ? 'Invalid speed' : null),
       games: (value) =>
         value < 3 || value > 10 ? 'Invalid number of games' : null,
     },
   });
-  const [selected, setSelected] = useState(map);
+  const [selected, setSelected] = useState(0);
   const handlers = useSwipeable({
     onSwipedLeft: () => setSelected(Math.min(maps.length - 1, selected + 1)),
     onSwipedRight: () => setSelected(Math.max(0, selected - 1)),
     trackMouse: true,
   });
+  const router = useRouter();
+  const player = useContext(PlayerContext);
 
   return (
     <Flex align="center" h="100%" maw="1500px" m="0 auto">
       <Box
         component="form"
         onSubmit={form.onSubmit(() =>
-          socket.emit(
-            'join',
-            {
-              role: 'host',
-              map: maps[selected].name,
-              ...form.values,
-            },
-            () => dispatch({ type: 'LOBBY', value: { role: 'host' } })
-          )
+          type === 'create'
+            ? game.socket?.emit(
+                'join',
+                {
+                  ...form.values,
+                  map: maps[selected].name,
+                  role: 'host',
+                },
+                () => {
+                  game.role = 'host';
+                  game.conf = {
+                    ...form.values,
+                    map: maps[selected].name,
+                    isInvite: false,
+                  };
+                  router.push('/game/lobby');
+                }
+              )
+            : game.socket?.emit(
+                'invite',
+                {
+                  ...form.values,
+                  map: maps[selected].name,
+                  userId,
+                },
+                (gameId) => {
+                  UserSocket.emit('SendGameInvite', {
+                    gameid: gameId,
+                    receiverId: Number(userId),
+                    senderId: player?.userId,
+                  });
+                  router.push('/game');
+                }
+              )
         )}
         className={styles.customizer}
       >
@@ -80,12 +108,12 @@ export default function Customizer({ map }: { map: number }) {
                     key={item.name + idx}
                     component={motion.div}
                     className={styles.map}
-                    bg={`url(${item.url})`}
+                    bg={`url(${item.preview})`}
                     animate={{
                       opacity: 1 - 0.1 * Math.abs(selected - idx),
                       rotateY: 30 * Math.sign(idx - selected),
                       scale: 1 - 0.1 * Math.abs(selected - idx),
-                      x: (idx - selected) * 25,
+                      x: (idx - selected) * 40,
                       zIndex: 100 - 10 * Math.abs(selected - idx),
                       content: idx === selected ? item.name : undefined,
                     }}
@@ -112,12 +140,13 @@ export default function Customizer({ map }: { map: number }) {
                 {...form.getInputProps('speed')}
                 label={null}
                 marks={[
-                  { value: 5, label: 'normal' },
-                  { value: 6, label: 'fast' },
-                  { value: 7, label: 'super fast' },
+                  { value: 2, label: 'Slow' },
+                  { value: 3, label: 'Normal' },
+                  { value: 4, label: 'Fast' },
+                  { value: 5, label: 'Very fast' },
                 ]}
-                max={7}
-                min={5}
+                max={5}
+                min={2}
                 step={0.01}
               />
             </Input.Wrapper>
@@ -136,14 +165,15 @@ export default function Customizer({ map }: { map: number }) {
               withAsterisk
             />
             <Button m="0 auto" w="12rem" h="2.7em" type="submit">
-              Create
+              {type === 'create' ? 'Create' : 'Invite'}
             </Button>
             <Button
+              component={Link}
+              href="/game"
               m="0 auto"
               w="12rem"
               h="2.7em"
               variant="outline"
-              onClick={() => dispatch({ type: 'LEAVE' })}
             >
               Leave
             </Button>

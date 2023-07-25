@@ -18,10 +18,19 @@ import { FiUsers } from 'react-icons/fi';
 import { FaUserAlt } from 'react-icons/fa';
 import { useRouter } from 'next/router';
 import { GetUserData } from '@/pages/api/user';
-import { Burger, Group, Menu, Divider, Stack, Button } from '@mantine/core';
+import {
+  Burger,
+  Group,
+  Menu,
+  Divider,
+  Stack,
+  Button,
+  Center,
+} from '@mantine/core';
 import { IoNotifications } from 'react-icons/io5';
 import { UserSocket } from '@/context/WsContext';
 import { MdLabelImportantOutline } from 'react-icons/md';
+import { notifications } from '@mantine/notifications';
 
 export const User_Sidebar = (Show: any) => {
   if (Show.Show) {
@@ -48,8 +57,125 @@ export const User_Sidebar = (Show: any) => {
       setNotifications(data);
     });
 
+    UserSocket.on('GameInviteNotification', async (data) => {
+      await notifications.show({
+        id: 'GameInviteNotification',
+        title: 'Game Invite',
+        message: (
+          <Stack>
+            <Text
+              style={{
+                color: '#fff',
+              }}
+            >
+              You have a game invite from {data.senderId}
+            </Text>
+            <Group>
+              <Button
+                color="cyan"
+                onClick={() => {
+                  router.push(data.gameid);
+                }}
+              >
+                Accept
+              </Button>
+              <Button variant="light" color="red">
+                Cancel
+              </Button>
+            </Group>
+          </Stack>
+        ),
+        color: 'green',
+        radius: 'md',
+        bg: 'gray',
+
+        autoClose: 5000,
+      });
+    });
+
+    UserSocket.on('NewRequestNotification', (name) => {
+      notifications.show({
+        id: 'NewRequestNotification',
+        title: 'New Request',
+        message: 'You have a new request from ' + name,
+        color: 'green',
+        bg: 'gray',
+        radius: 'md',
+        // icon: <BiSolidUserPlus />,
+        autoClose: 5000,
+      });
+    });
+
+    UserSocket.on('CandelFriendReq', (name) => {
+      if (name !== 'CanceledfrmSender') {
+        notifications.show({
+          id: 'CandelFriendReq',
+          title: 'Friend Request Canceled',
+          message: name + ' canceled your friend request',
+          color: 'red',
+          radius: 'md',
+          bg: 'gray',
+
+          autoClose: 5000,
+        });
+      }
+    });
+
+    UserSocket.on('AcceptFriendReq', (name) => {
+      notifications.show({
+        id: 'AcceptFriendReq',
+        title: 'Friend Request Accepted',
+        message: name + ' accepted your friend request',
+        color: 'green',
+        radius: 'md',
+        bg: 'gray',
+
+        autoClose: 5000,
+      });
+    });
+
+    UserSocket.on('GameInviteNotification', async (data) => {
+      await notifications.show({
+        id: 'GameInviteNotification',
+        title: 'Game Invite',
+        message: (
+          <Stack>
+            <Text
+              style={{
+                color: '#fff',
+              }}
+            >
+              You have a game invite from {data.senderId}
+            </Text>
+            <Group>
+              <Button
+                color="cyan"
+                onClick={() => {
+                  router.push(data.gameid);
+                }}
+              >
+                Accept
+              </Button>
+              <Button variant="light" color="red">
+                Cancel
+              </Button>
+            </Group>
+          </Stack>
+        ),
+        color: 'green',
+        radius: 'md',
+        bg: 'gray',
+
+        autoClose: 5000,
+      });
+    });
+
     return () => {
       UserSocket.off('GetNotifications');
+      UserSocket.off('GameInviteNotification');
+      UserSocket.off('NewRequestNotification');
+      UserSocket.off('CandelFriendReq');
+      UserSocket.off('AcceptFriendReq');
     };
   }, []);
 
@@ -354,60 +480,78 @@ export const User_Sidebar = (Show: any) => {
               </Menu.Target>
 
               <Menu.Dropdown>
-                {Notifications.map((item: any, index: number) => (
-                  <div>
-                    <Menu.Item
-                      icon={
-                        item.read ? (
-                          ''
-                        ) : (
-                          <MdLabelImportantOutline
-                            size={17}
-                            color="var(--secondary-color)"
-                          />
-                        )
-                      }
-                    >
-                      {item.gameid ? (
-                        <Stack>
-                          <Text
-                            size="$sm"
-                            css={{
-                              fontFamily: 'poppins',
-                              color: 'var(--text-color)',
-                              fontWeight: '500',
-                            }}
-                          >
-                            {item.message}
-                          </Text>
-                          <Group>
-                            <Button
-                              color="cyan"
-                              size="sm"
-                              variant="light"
-                              onClick={() => {
-                                router.push(`/game/${item.gameid}`);
+                {Notifications.length === 0 ? (
+                  <Center
+                    p="xs"
+                    style={{
+                      width: '100%',
+                      // height: '79vh',
+                      backgroundColor: 'var(--sidebar-color)',
+                      borderRadius: '5px',
+                      flexDirection: 'column',
+                      // border: '1px solid #9DA4AE',
+                    }}
+                  >
+                    <Text className="Text_W500" style={{ fontSize: '0.9rem' }}>
+                      No Notifications Found
+                    </Text>
+                  </Center>
+                ) : (
+                  Notifications.map((item: any, index: number) => (
+                    <div>
+                      <Menu.Item
+                        icon={
+                          item.read ? (
+                            ''
+                          ) : (
+                            <MdLabelImportantOutline
+                              size={17}
+                              color="var(--secondary-color)"
+                            />
+                          )
+                        }
+                      >
+                        {item.gameid ? (
+                          <Stack>
+                            <Text
+                              size="$sm"
+                              css={{
+                                fontFamily: 'poppins',
+                                color: 'var(--text-color)',
+                                fontWeight: '500',
                               }}
                             >
-                              Accept
-                            </Button>
-                            <Button size="sm" variant="light" color="red">
-                              Cancel
-                            </Button>
-                          </Group>
-                        </Stack>
-                      ) : (
-                        <div>{item.message}</div>
-                      )}
-                    </Menu.Item>
-                    <Divider
-                      style={{
-                        display:
-                          index === Notifications.length - 1 ? 'none' : '',
-                      }}
-                    />
-                  </div>
-                ))}
+                              {item.message}
+                            </Text>
+                            <Group>
+                              <Button
+                                color="cyan"
+                                size="sm"
+                                variant="light"
+                                onClick={() => {
+                                  router.push(`/game/${item.gameid}`);
+                                }}
+                              >
+                                Accept
+                              </Button>
+                              <Button size="sm" variant="light" color="red">
+                                Cancel
+                              </Button>
+                            </Group>
+                          </Stack>
+                        ) : (
+                          <div>{item.message}</div>
+                        )}
+                      </Menu.Item>
+                      <Divider
+                        style={{
+                          display:
+                            index === Notifications.length - 1 ? 'none' : '',
+                        }}
+                      />
+                    </div>
+                  ))
+                )}
               </Menu.Dropdown>
             </Menu>
             <Dropdown placement="bottom-right">

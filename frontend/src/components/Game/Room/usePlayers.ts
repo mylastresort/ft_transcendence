@@ -1,28 +1,23 @@
-import {
-  MouseEventHandler,
-  MutableRefObject,
-  useContext,
-  useEffect,
-} from 'react';
-import { Socket } from 'socket.io-client';
-import { SocketContext } from '../context';
+import { GameContext } from '@/context/game';
+import { MouseEventHandler, useContext, useEffect } from 'react';
 
 export default function usePlayers(
-  Host: MutableRefObject<HTMLDivElement>,
-  Guest: MutableRefObject<HTMLDivElement>,
-  paddle: number,
-  height: number,
-  role: 'host' | 'guest' | null
+  Host,
+  Guest,
+  mapPaddle,
+  role,
+  canvas,
+  mapHeight
 ) {
-  const socket = useContext(SocketContext) as Socket;
+  const game = useContext(GameContext);
 
   const handleMouseMove: MouseEventHandler<HTMLDivElement> = (event) => {
-    const top = event.currentTarget.getBoundingClientRect().top;
     return requestAnimationFrame(() => {
       if (!Host.current || !Guest.current) return;
+      const { top, height } = canvas.current.getBoundingClientRect();
       const next = top + height / 2 - event.clientY;
-      if (Math.abs(next) < height / 2 - paddle / 2) {
-        socket.emit('move', -next, () =>
+      if (Math.abs(next) < height / 2 - (mapPaddle * height) / mapHeight / 2) {
+        game.socket?.emit('move', -((next * mapHeight) / height), () =>
           (role === 'host' ? Host : Guest).current.style.setProperty(
             '--player-y',
             `${-next}px`
@@ -34,18 +29,20 @@ export default function usePlayers(
 
   useEffect(() => {
     if (Host.current && Guest.current)
-      socket.on('moved', (crd) =>
+      game.socket?.on('moved', (crd) =>
         requestAnimationFrame(() =>
           (role === 'host' ? Guest : Host).current.style.setProperty(
             '--player-y',
-            `${crd}px`
+            `${
+              (crd * canvas.current.getBoundingClientRect().height) / mapHeight
+            }px`
           )
         )
       );
     return () => {
-      socket.off('moved');
+      game.socket?.off('moved');
     };
-  }, [Guest, Host, role, socket]);
+  }, [Guest, Host, role, game.socket]);
 
   return { handleMouseMove };
 }

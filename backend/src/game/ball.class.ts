@@ -3,7 +3,7 @@ import { randomInt } from 'crypto';
 import { Room } from './room.class';
 
 export default class Ball {
-  static readonly radius = 5;
+  static readonly radius = 2;
 
   crd = [0, 0];
 

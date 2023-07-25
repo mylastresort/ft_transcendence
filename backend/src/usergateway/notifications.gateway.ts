@@ -15,14 +15,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
   cors: {
     origin: 'http://localhost:3000',
   },
-  // allowRequest: ({ headers: { Authorization } }, callback) => {
-  //   try {
-  //     WsJwtGuard.validateToken(Authorization);
-  //     callback(null, true);
-  //   } catch (err) {
-  //     callback(err, false);
-  //   }
-  // },
 })
 @UseGuards(WsJwtGuard)
 export class NotificationsGateway {
@@ -67,9 +59,7 @@ export class NotificationsGateway {
           console.log('Error updating user status:', err);
         }
 
-        for (const esocket of this.connectedSockets.get(socket.data.id)) {
-          await this.SendNotification(esocket.data.id);
-        }
+        await this.SendNotification(socket.data.id);
 
         socket.on('disconnect', async () => {
           try {
@@ -145,13 +135,18 @@ export class NotificationsGateway {
         });
 
         for (const socket of sockets) {
-          socket.emit('RerenderFriends', 'rerender');
-          await this.SendNotification(socket.data.id);
+          await socket.emit('RerenderFriends', 'rerender');
+
+          await socket.emit('NewRequestNotification', sendername.username);
+          console.log('NewRequestNotification', sendername.username);
         }
+        await this.SendNotification(UserId);
       }
       if (sockets2) {
-        for (const socket2 of sockets2)
-          socket2.emit('RerenderFriends', 'rerender');
+        for (const socket2 of sockets2) {
+          await socket2.emit('RerenderFriends', 'rerender');
+        }
+        await this.SendNotification(senderId);
       }
     } catch (err) {
       console.log(err);
@@ -202,9 +197,10 @@ export class NotificationsGateway {
         });
 
         for (const socket of sockets) {
-          socket.emit('CandelFriendReq', sendername.username);
-          await this.SendNotification(socket.data.id);
+          await socket.emit('CandelFriendReq', sendername.username);
+          console.log('CandelFriendReq', sendername.username);
         }
+        await this.SendNotification(UserId);
       }
     } catch (err) {
       console.log(err);
@@ -217,9 +213,9 @@ export class NotificationsGateway {
 
       if (sockets) {
         for (const socket of sockets) {
-          socket.emit('CandelFriendReq', 'CanceledfrmSender');
-          await this.SendNotification(socket.data.id);
+          await socket.emit('CandelFriendReq', 'CanceledfrmSender');
         }
+        await this.SendNotification(receiverId);
       }
     } catch (err) {
       console.log(err);
@@ -240,7 +236,7 @@ export class NotificationsGateway {
       const sockets = this.connectedSockets.get(UserId);
       if (sockets) {
         for (const socket of sockets) {
-          socket.emit('GetNotifications', Notifications);
+          await socket.emit('GetNotifications', Notifications);
         }
       }
     } catch (err) {
@@ -292,9 +288,10 @@ export class NotificationsGateway {
         });
 
         for (const socket of sockets) {
-          socket.emit('AcceptFriendReq', sendername.username);
-          await this.SendNotification(socket.data.id);
+          await socket.emit('AcceptFriendReq', sendername.username);
         }
+
+        await this.SendNotification(UserId);
       }
       // if (socket2) {
       //   socket2.emit('AcceptFriendReq', 'Accepted');
@@ -310,10 +307,12 @@ export class NotificationsGateway {
       const sockets2 = this.connectedSockets.get(senderId);
 
       if (sockets) {
-        for (const socket of sockets) socket.emit('RerenderFriends', senderId);
+        for (const socket of sockets)
+          await socket.emit('RerenderFriends', senderId);
       }
       if (sockets2) {
-        for (const socket2 of sockets2) socket2.emit('RerenderFriends', UserId);
+        for (const socket2 of sockets2)
+          await socket2.emit('RerenderFriends', UserId);
       }
     } catch (err) {
       console.log(err);
@@ -364,11 +363,12 @@ export class NotificationsGateway {
       });
       if (sockets) {
         for (const socket of sockets) {
-          socket.emit('GameInviteNotification', {
+          await socket.emit('GameInviteNotification', {
             senderId: data.senderId,
             gameurl: data.gameid,
           });
         }
+        await this.SendNotification(data.receiverId);
       }
     } catch (err) {
       console.log(err);
@@ -407,12 +407,12 @@ export class NotificationsGateway {
 
       if (sockets) {
         for (const socket of sockets) {
-          socket.emit('InGame', 'InGame');
+          await socket.emit('InGame', 'InGame');
         }
       }
       if (sockets2) {
         for (const socket2 of sockets2) {
-          socket2.emit('InGame', 'InGame');
+          await socket2.emit('InGame', 'InGame');
         }
       }
     } catch (err) {
