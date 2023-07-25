@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useContext, use } from 'react';
+import React, { useEffect, useState } from 'react';
 // import './styles.css';
 import 'boxicons/css/boxicons.min.css';
 import Link from 'next/link';
 import {
   Text,
   Grid,
-  Input,
   Spacer,
   Image,
   Navbar,
@@ -13,15 +12,13 @@ import {
   Avatar,
   Badge,
 } from '@nextui-org/react';
-import { FiSearch } from 'react-icons/fi';
 import { GiPingPongBat } from 'react-icons/gi';
 import { HiOutlineChatAlt2 } from 'react-icons/hi';
 import { FiUsers } from 'react-icons/fi';
-import { BiBarChartAlt2 } from 'react-icons/bi';
 import { FaUserAlt } from 'react-icons/fa';
 import { useRouter } from 'next/router';
 import { GetUserData } from '@/pages/api/user';
-import { Burger, Group, ActionIcon, Menu, Divider } from '@mantine/core';
+import { Burger, Group, Menu, Divider, Stack, Button } from '@mantine/core';
 import { IoNotifications } from 'react-icons/io5';
 import { UserSocket } from '@/context/WsContext';
 import { MdLabelImportantOutline } from 'react-icons/md';
@@ -47,6 +44,7 @@ export const User_Sidebar = (Show: any) => {
 
   useEffect(() => {
     UserSocket.on('GetNotifications', (data) => {
+      console.log(data);
       setNotifications(data);
     });
 
@@ -370,7 +368,37 @@ export const User_Sidebar = (Show: any) => {
                         )
                       }
                     >
-                      {item.message}
+                      {item.gameid ? (
+                        <Stack>
+                          <Text
+                            size="$sm"
+                            css={{
+                              fontFamily: 'poppins',
+                              color: 'var(--text-color)',
+                              fontWeight: '500',
+                            }}
+                          >
+                            {item.message}
+                          </Text>
+                          <Group>
+                            <Button
+                              color="cyan"
+                              size="sm"
+                              variant="light"
+                              onClick={() => {
+                                router.push(`/game/${item.gameid}`);
+                              }}
+                            >
+                              Accept
+                            </Button>
+                            <Button size="sm" variant="light" color="red">
+                              Cancel
+                            </Button>
+                          </Group>
+                        </Stack>
+                      ) : (
+                        <div>{item.message}</div>
+                      )}
                     </Menu.Item>
                     <Divider
                       style={{
