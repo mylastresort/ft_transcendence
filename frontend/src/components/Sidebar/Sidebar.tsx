@@ -116,6 +116,7 @@ export const User_Sidebar = (Show: any) => {
               <Button
                 color="cyan"
                 onClick={() => {
+                  notifications.clean;
                   router.push(`/game/${data.gameid}`);
                 }}
               >
