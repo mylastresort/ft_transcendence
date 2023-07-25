@@ -162,8 +162,9 @@ export default function Customizer({ type = 'create', userId }) {
             <NumberInput
               {...form.getInputProps('games')}
               label="How much do you wish to play?"
-              max={10}
+              max={9}
               min={3}
+              step={2}
               placeholder="Number of games"
               sx={{ '& label': { color: 'white' } }}
             />

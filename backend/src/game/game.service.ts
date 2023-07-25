@@ -512,8 +512,16 @@ export class GameService {
         if (isOut[1] === 4) {
           room.games++;
           room.players[isOut[0]][2]++;
-          if (room.games === room.maxGames) {
-            this.broadcast(socket, 'gameover', isOut[0]);
+          if (
+            room.games > room.maxGames ||
+            room.players.guest[2] > room.maxGames / 2 ||
+            room.players.host[2] > room.maxGames / 2
+          ) {
+            this.broadcast(
+              socket,
+              'gameover',
+              room.players.guest[2] > room.players.host[2] ? 'guest' : 'host',
+            );
             room.status = 'finished';
             delete room.guest.currentGameId;
             delete room.guest.currentGameId;
@@ -529,7 +537,7 @@ export class GameService {
             delete room.host.hostWishedGameSpeed;
             delete room.host.ready;
           } else {
-            this.broadcast(socket, 'games:counter', room.games);
+            this.broadcast(socket, 'games:counter', room.games, isOut[0]);
             room.resetPlayers();
             this.broadcast(socket, 'scored', 'host', 0);
             this.broadcast(socket, 'scored', 'guest', 0);

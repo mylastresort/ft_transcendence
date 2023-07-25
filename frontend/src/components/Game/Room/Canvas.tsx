@@ -3,7 +3,6 @@ import { Box, Flex, Text } from '@mantine/core';
 import { motion } from 'framer-motion';
 import React, {
   ReactNode,
-  use,
   useContext,
   useEffect,
   useRef,
@@ -17,10 +16,6 @@ import {
 } from '@/context/game';
 import useBall from './useBall';
 import usePlayers from './usePlayers';
-import '@fontsource/orbitron';
-import '@fontsource/creepster';
-import '@fontsource/bebas-neue';
-import '@fontsource/audiowide';
 import { useRouter } from 'next/router';
 import { FaCircle, FaRegCircle } from 'react-icons/fa';
 import { ScrollArea } from '@mantine/core';
@@ -74,6 +69,7 @@ export default function Canvas() {
     onOpen: () => (read.current = true),
   });
   const [messages, setMessages] = useState<ReactNode[]>([]);
+  const [history, setHistory] = useState<string[]>([]);
 
   useEffect(() => {
     let winner = 'opponent';
@@ -83,11 +79,13 @@ export default function Canvas() {
       )
       .on('gameover', (value) => {
         finished.current = true;
+        setHistory((history) => [...history, value]);
         winner = value === game.role ? 'self' : 'opponent';
-        // router.push('/game/results');
+        router.push('/game/results');
       })
-      .on('games:counter', (count) => {
+      .on('games:counter', (count, winner) => {
         setGamesCounter(count);
+        setHistory((history) => [...history, winner]);
         requestAnimationFrame(() => {
           host.current?.style.setProperty('--ball-y', '0px');
           guest.current?.style.setProperty('--ball-y', '0px');
@@ -96,7 +94,7 @@ export default function Canvas() {
       .on('left', () => {
         game.winner = 'self';
         winner = game.winner;
-        // router.push('/game/results');
+        router.push('/game/results');
       })
       .on('chat', (username, message) => {
         setMessages((messages) => [
@@ -127,15 +125,14 @@ export default function Canvas() {
         .off('gameover')
         .off('games:counter')
         .off('left')
-        .off('chat');
-      // .emit('leave', () => router.push('/game/results'));
+        .off('chat')
+        .emit('leave', () => router.push('/game/results'));
     };
   }, []);
 
   useEffect(() => {
     if (!opened) read.current = false;
   }, [messages]);
-
   const mapobj = maps[maps.findIndex(({ name }) => name === game.conf.map)];
 
   const msg = useRef<HTMLInputElement>(null);
@@ -256,14 +253,14 @@ export default function Canvas() {
       borderRadius: '1rem',
     },
     overlay: {
-      // backgroundColor: '#141b26',
-      // height: '100%',
-      // left: '0',
-      // opacity: '0.55',
-      // position: 'absolute',
-      // right: '0',
-      // width: '100%',
-      // zIndex: 1,
+      backgroundColor: '#141b26',
+      height: '100%',
+      left: '0',
+      opacity: '0.55',
+      position: 'absolute',
+      right: '0',
+      width: '100%',
+      zIndex: 1,
     },
     scoreboard: {
       maxWidth: '1000px',
@@ -319,12 +316,23 @@ export default function Canvas() {
           sx={classes.games}
         >
           {gamesCounter}
-          {gamesCounter === 1 ? 'st' : gamesCounter === 2 ? 'nd' : 'nth'} Round
+          {gamesCounter === 1
+            ? 'st'
+            : gamesCounter === 2
+            ? 'nd'
+            : gamesCounter === 3
+            ? 'rd'
+            : 'th'}{' '}
+          Round
         </Text>
         <Flex w="90%" sx={classes.scoreboard}>
           <Flex
             gap=".7rem"
-            sx={{ order: game.role === 'host' ? 1 : 3, position: 'relative' }}
+            sx={{
+              order: game.role === 'host' ? 1 : 3,
+              direction: game.role === 'host' ? 'ltr' : 'rtl',
+              position: 'relative',
+            }}
           >
             <Flex
               direction="column"
@@ -340,20 +348,18 @@ export default function Canvas() {
                 {mapobj.gamesFont === "'Nightcore Demo'" && ')'}
               </Text>
               <Box style={{ position: 'relative' }}>
-                {Array.from({ length: game.conf.games + 2 }, (_, i) =>
-                  i === 0 ? (
+                {Array.from({ length: game.conf.games }, (_, i) =>
+                  history.length > i ? (
                     <FaCircle
-                      size="1.3rem"
+                      size="1.1rem"
                       style={{ marginInline: '.1rem' }}
-                      fill={'#ff5151'}
+                      fill={history[i] === game.role ? '#1dfc34' : '#ff5151'}
                     />
                   ) : (
                     <FaRegCircle
-                      size="1.3rem"
+                      size="1.1rem"
                       style={{ marginInline: '.1rem' }}
-                      fill={
-                        i === 1 ? mapobj.fillColor : mapobj.fillColor + '75'
-                      }
+                      fill={mapobj.fillColor + '75'}
                     />
                   )
                 )}
@@ -364,8 +370,8 @@ export default function Canvas() {
           <Flex
             gap=".7rem"
             sx={{
-              order: game.role === 'host' ? 1 : 3,
-              direction: 'rtl',
+              order: game.role === 'host' ? 3 : 1,
+              direction: game.role === 'host' ? 'rtl' : 'ltr',
               position: 'relative',
             }}
           >
@@ -382,21 +388,19 @@ export default function Canvas() {
                 {game.opponent.username}
                 {mapobj.gamesFont === "'Nightcore Demo'" && ')'}
               </Text>
-              <Box style={{ position: 'relative', direction: 'rtl' }}>
-                {Array.from({ length: game.conf.games + 2 }, (_, i) =>
-                  i === 0 ? (
+              <Box style={{ position: 'relative' }}>
+                {Array.from({ length: game.conf.games }, (_, i) =>
+                  history.length > i ? (
                     <FaCircle
-                      size="1.3rem"
+                      size="1.1rem"
                       style={{ marginInline: '.1rem' }}
-                      fill={'#1dfc34'}
+                      fill={history[i] !== game.role ? '#1dfc34' : '#ff5151'}
                     />
                   ) : (
                     <FaRegCircle
-                      size="1.3rem"
+                      size="1.1rem"
                       style={{ marginInline: '.1rem' }}
-                      fill={
-                        i === 1 ? mapobj.fillColor : mapobj.fillColor + '75'
-                      }
+                      fill={mapobj.fillColor + '75'}
                     />
                   )
                 )}
