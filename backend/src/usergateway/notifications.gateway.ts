@@ -356,6 +356,8 @@ export class NotificationsGateway {
             create: {
               message: 'You have a game invite from ' + data.senderId,
               gameid: data.gameid,
+              receiverId: data.receiverId,
+              senderId: data.senderId,
               read: false,
             },
           },
@@ -397,6 +399,8 @@ export class NotificationsGateway {
             create: {
               message: 'Your game invite was accepted by ' + data.receiverId,
               gameid: data.gameid,
+              receiverId: data.receiverId,
+              senderId: data.senderId,
               read: false,
             },
           },

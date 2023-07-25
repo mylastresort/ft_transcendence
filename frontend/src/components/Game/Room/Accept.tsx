@@ -2,9 +2,6 @@ import { Button, Text } from '@mantine/core';
 import { Box, Flex } from '@mantine/core';
 import React, { useContext, useEffect, useState } from 'react';
 import styles from '../Lobby/Lobby.module.css';
-import '@fontsource/orbitron';
-import '@fontsource/creepster';
-import '@fontsource/bebas-neue';
 import Profile from './Profile';
 import { GameContext, PlayerContext } from '@/context/game';
 import { useRouter } from 'next/router';
@@ -27,7 +24,7 @@ export default function Accept() {
         game.gameStatus = 'playing';
         setStatus('playing');
       })
-      .on('cancelled', () => router.push('/game'));
+      .on('cancelled', () => router.push('/game'))
     return () => {
       if (!started) game.socket?.emit('leave', () => router.push('/game'));
       game.socket?.off('started').off('cancelled');

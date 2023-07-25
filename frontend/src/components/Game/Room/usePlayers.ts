@@ -7,13 +7,14 @@ export default function usePlayers(
   mapPaddle,
   role,
   canvas,
-  mapHeight
+  mapHeight,
+  finished
 ) {
   const game = useContext(GameContext);
 
   const handleMouseMove: MouseEventHandler<HTMLDivElement> = (event) => {
     return requestAnimationFrame(() => {
-      if (!Host.current || !Guest.current) return;
+      if (!Host.current || !Guest.current || finished.current) return;
       const { top, height } = canvas.current.getBoundingClientRect();
       const next = top + height / 2 - event.clientY;
       if (Math.abs(next) < height / 2 - (mapPaddle * height) / mapHeight / 2) {

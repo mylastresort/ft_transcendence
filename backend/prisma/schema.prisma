@@ -83,6 +83,8 @@ model Notification {
 
   message String
   gameid String?
+  receiverId Int?
+  senderId Int?
   read    Boolean @default(false)
 }
 
