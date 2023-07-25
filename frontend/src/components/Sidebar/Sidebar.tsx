@@ -51,6 +51,10 @@ export const User_Sidebar = (Show: any) => {
   const [Auth, setAuth] = useState(false);
   const [Notifications, setNotifications] = useState<any>([]);
 
+  const handleCleanNotifications = () => {
+    notifications.clean();
+  };
+
   useEffect(() => {
     UserSocket.on('GetNotifications', (data) => {
       console.log(data);
@@ -79,6 +83,7 @@ export const User_Sidebar = (Show: any) => {
                     receiverId: data.receiverId,
                     senderId: data.senderId,
                   };
+                  handleCleanNotifications();
                   UserSocket.emit('AcceptedGameInvite', payload);
                   router.push(`/game/${data.gameid}`);
                 }}
@@ -116,7 +121,7 @@ export const User_Sidebar = (Show: any) => {
               <Button
                 color="cyan"
                 onClick={() => {
-                  notifications.clean;
+                  handleCleanNotifications();
                   router.push(`/game/${data.gameid}`);
                 }}
               >
