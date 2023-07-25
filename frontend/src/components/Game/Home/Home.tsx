@@ -1,5 +1,5 @@
 import { Button, Group, Stack, Text, Title } from '@mantine/core';
-import { useContext } from 'react';
+import { use, useContext } from 'react';
 import styles from './Home.module.css';
 import Link from 'next/link';
 import { GameContext, PlayerContext } from '@/context/game';
@@ -35,8 +35,8 @@ export default function Home() {
         >
           Join
         </Button>
+        <Text>my id is: {player?.userId}</Text>
       </Group>
-      <Text>my id is: {player?.userId}</Text>
     </Stack>
   );
 }

@@ -9,7 +9,7 @@ import {
   Box,
   Input,
 } from '@mantine/core';
-import { MapsContext, PlayerContext } from '../../../context/game';
+import { MapsContext, PlayerContext } from '@/context/game';
 import { motion } from 'framer-motion';
 import { useForm } from '@mantine/form';
 import { useSwipeable } from 'react-swipeable';
@@ -36,7 +36,7 @@ export default function Customizer({ type = 'create', userId }) {
         value < 3 || value > 10 ? 'Invalid number of games' : null,
     },
   });
-  const [selected, setSelected] = useState(0);
+  const [selected, setSelected] = useState(Math.floor(maps.length / 2));
   const handlers = useSwipeable({
     onSwipedLeft: () => setSelected(Math.min(maps.length - 1, selected + 1)),
     onSwipedRight: () => setSelected(Math.max(0, selected - 1)),
@@ -86,13 +86,18 @@ export default function Customizer({ type = 'create', userId }) {
               )
         )}
         className={styles.customizer}
+        h="100%"
+        w="100%"
       >
         <Flex
-          justify="space-evenly"
+          justify={{ base: 'center', md: 'space-around' }}
           align="center"
-          direction={{ base: 'column', sm: 'row' }}
+          gap="6rem"
+          w="100%"
+          h="100%"
+          direction={{ base: 'column', md: 'row' }}
         >
-          <Flex align="center" gap="3rem">
+          <Flex justify="space-between" align="center">
             <Button
               bg="cyan"
               className={styles.prev_btn}
@@ -101,7 +106,7 @@ export default function Customizer({ type = 'create', userId }) {
               onClick={() => setSelected(Math.max(0, selected - 1))}
               variant="filled"
             />
-            <Flex direction="column" gap="1em" align="center">
+            <Flex w="20rem" mx="3rem" direction="column" align="center">
               <Box className={styles.map_container} {...handlers}>
                 {maps.map((item, idx) => (
                   <Box
@@ -113,7 +118,11 @@ export default function Customizer({ type = 'create', userId }) {
                       opacity: 1 - 0.1 * Math.abs(selected - idx),
                       rotateY: 30 * Math.sign(idx - selected),
                       scale: 1 - 0.1 * Math.abs(selected - idx),
-                      x: (idx - selected) * 40,
+                      x:
+                        Math.abs(selected - idx) < 3
+                          ? (idx - selected) * 14 + '%'
+                          : 0,
+                      display: Math.abs(selected - idx) < 3 ? 'block' : 'none',
                       zIndex: 100 - 10 * Math.abs(selected - idx),
                       content: idx === selected ? item.name : undefined,
                     }}
@@ -134,8 +143,8 @@ export default function Customizer({ type = 'create', userId }) {
               variant="filled"
             />
           </Flex>
-          <Stack spacing="2rem">
-            <Input.Wrapper label="Speed">
+          <Stack sx={{}} spacing="3rem" w={{ base: '20rem', md: '26rem' }}>
+            <Input.Wrapper label="Speed" pb="1rem">
               <Slider
                 {...form.getInputProps('speed')}
                 label={null}
@@ -153,8 +162,9 @@ export default function Customizer({ type = 'create', userId }) {
             <NumberInput
               {...form.getInputProps('games')}
               label="How much do you wish to play?"
-              max={10}
+              max={9}
               min={3}
+              step={2}
               placeholder="Number of games"
               sx={{ '& label': { color: 'white' } }}
             />
@@ -164,19 +174,28 @@ export default function Customizer({ type = 'create', userId }) {
               sx={{ '& label': { color: 'white' } }}
               withAsterisk
             />
-            <Button m="0 auto" w="12rem" h="2.7em" type="submit">
-              {type === 'create' ? 'Create' : 'Invite'}
-            </Button>
-            <Button
-              component={Link}
-              href="/game"
-              m="0 auto"
-              w="12rem"
-              h="2.7em"
-              variant="outline"
-            >
-              Leave
-            </Button>
+            <div>
+              <Button
+                mt="2rem"
+                mb="1rem"
+                m="0 auto"
+                w="100%"
+                h="2.7em"
+                type="submit"
+              >
+                {type === 'create' ? 'Create' : 'Invite'}
+              </Button>
+              <Button
+                component={Link}
+                href="/game"
+                m="0 auto"
+                w="100%"
+                h="2.7em"
+                variant="outline"
+              >
+                Leave
+              </Button>
+            </div>
           </Stack>
         </Flex>
       </Box>

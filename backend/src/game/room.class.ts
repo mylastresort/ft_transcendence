@@ -6,7 +6,7 @@ import { Player } from './game.gateway';
 export class Room {
   private ball: Ball;
 
-  public games = 0;
+  public games = 1;
 
   public id = randomUUID();
 

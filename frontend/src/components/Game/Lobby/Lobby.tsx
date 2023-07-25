@@ -41,7 +41,7 @@ export default function Lobby() {
           <div>
             <Text>Waiting for players to join...</Text>
             <Text>
-              {!!timer[1] && `${timer[1]}m`} {timer[0]}s
+              Time Spent: {!!timer[1] && `${timer[1]}m`} {timer[0]}s
             </Text>
           </div>
           <Button
