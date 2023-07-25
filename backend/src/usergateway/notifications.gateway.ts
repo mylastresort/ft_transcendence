@@ -365,11 +365,55 @@ export class NotificationsGateway {
         for (const socket of sockets) {
           await socket.emit('GameInviteNotification', {
             senderId: data.senderId,
-            gameurl: data.gameid,
+            receiverId: data.receiverId,
+            gameid: data.gameid,
           });
         }
         await this.SendNotification(data.receiverId);
       }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  @SubscribeMessage('AcceptedGameInvite')
+  async AcceptedGameInvite(
+    @MessageBody()
+    data: {
+      senderId: number;
+      receiverId: number;
+      gameid: string;
+    },
+  ) {
+    try {
+      const sockets = this.connectedSockets.get(data.senderId);
+
+      await this.prisma.user.update({
+        where: {
+          id: data.senderId,
+        },
+        data: {
+          notifications: {
+            create: {
+              message: 'Your game invite was accepted by ' + data.receiverId,
+              gameid: data.gameid,
+              read: false,
+            },
+          },
+        },
+      });
+
+      if (sockets) {
+        for (const socket of sockets) {
+          await socket.emit('AcceptedGameInvite', {
+            senderId: data.senderId,
+            receiverId: data.receiverId,
+            gameid: data.gameid,
+          });
+        }
+      }
+
+      await this.SendNotification(data.senderId);
     } catch (err) {
       console.log(err);
     }
