@@ -67,8 +67,8 @@ export const MapsContext = createContext<
     hostColor: 'linear-gradient(#e9a852, #e9a852)',
     name: 'StarWars',
     playerRadius: '2px',
-    preview: '/images/maps/astronomy5.png',
-    url: '/images/maps/astronomy5.png',
+    preview: '/images/maps/starwars.png',
+    url: '/images/maps/starwars.png',
   },
   {
     backgroundOpacity: '1',
@@ -118,7 +118,7 @@ export const MapsContext = createContext<
     hostColor: 'linear-gradient(whitesmoke, whitesmoke)',
     name: 'WitchCraft',
     playerRadius: '2px',
-    preview: '/images/maps/witchcraft.jpg ',
+    preview: '/images/maps/witchcraft.jpg',
     url: '/images/maps/witchcraft.jpg',
   },
   {
@@ -135,7 +135,7 @@ export const MapsContext = createContext<
     hostColor: 'linear-gradient(whitesmoke, whitesmoke)',
     name: 'DragonBall',
     playerRadius: '2px',
-    preview: '/images/maps/dragonball.jpg ',
+    preview: '/images/maps/dragonball.jpg',
     url: '/images/maps/dragonball.jpg',
   },
 ]);

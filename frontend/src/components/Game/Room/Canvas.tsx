@@ -1,7 +1,14 @@
-import { Avatar, Input, Sx } from '@mantine/core';
+import { ActionIcon, Avatar, Input, Sx } from '@mantine/core';
 import { Box, Flex, Text } from '@mantine/core';
 import { motion } from 'framer-motion';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  ReactNode,
+  use,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
   Player,
   PlayerContext,
@@ -17,7 +24,9 @@ import '@fontsource/audiowide';
 import { useRouter } from 'next/router';
 import { FaCircle, FaRegCircle } from 'react-icons/fa';
 import { ScrollArea } from '@mantine/core';
-import { TextInput } from '@mantine/core';
+import { IoSend } from 'react-icons/io5';
+import { useDisclosure } from '@mantine/hooks';
+import { BsChatLeftText, BsCircleFill } from 'react-icons/bs';
 
 export default function Canvas() {
   const rAFball = useRef(0);
@@ -59,6 +68,13 @@ export default function Canvas() {
   const maps = useContext(MapsContext);
   const [gamesCounter, setGamesCounter] = useState(1);
   const router = useRouter();
+  const read = useRef(false);
+
+  const [opened, handlers] = useDisclosure(false, {
+    onOpen: () => (read.current = true),
+  });
+  const [messages, setMessages] = useState<ReactNode[]>([]);
+
   useEffect(() => {
     let winner = 'opponent';
     game.socket
@@ -71,16 +87,38 @@ export default function Canvas() {
         // router.push('/game/results');
       })
       .on('games:counter', (count) => {
-        // setGamesCounter(count);
-        // requestAnimationFrame(() => {
-        //   host.current?.style.setProperty('--ball-y', '0px');
-        //   guest.current?.style.setProperty('--ball-y', '0px');
-        // });
+        setGamesCounter(count);
+        requestAnimationFrame(() => {
+          host.current?.style.setProperty('--ball-y', '0px');
+          guest.current?.style.setProperty('--ball-y', '0px');
+        });
       })
       .on('left', () => {
         game.winner = 'self';
         winner = game.winner;
         // router.push('/game/results');
+      })
+      .on('chat', (username, message) => {
+        setMessages((messages) => [
+          ...messages,
+          <Box fw="lighter">
+            <Text size=".8rem" display="inline" color="gray">
+              {Date.now()}
+            </Text>
+            <Text size=".8rem" display="inline">
+              {' - '}
+            </Text>
+            <Text size=".8rem" display="inline" color="grey">
+              {username}
+            </Text>
+            <Text size=".8rem" display="inline">
+              {': '}
+            </Text>
+            <Text size=".8rem" display="inline">
+              {message}
+            </Text>
+          </Box>,
+        ]);
       });
     return () => {
       game.winner = winner;
@@ -88,12 +126,19 @@ export default function Canvas() {
         ?.off('scored')
         .off('gameover')
         .off('games:counter')
-        .off('left');
+        .off('left')
+        .off('chat');
       // .emit('leave', () => router.push('/game/results'));
     };
   }, []);
 
+  useEffect(() => {
+    if (!opened) read.current = false;
+  }, [messages]);
+
   const mapobj = maps[maps.findIndex(({ name }) => name === game.conf.map)];
+
+  const msg = useRef<HTMLInputElement>(null);
 
   const classes: Record<string, Sx> = {
     canvas_container: {
@@ -211,14 +256,14 @@ export default function Canvas() {
       borderRadius: '1rem',
     },
     overlay: {
-      backgroundColor: '#141b26',
-      height: '100%',
-      left: '0',
-      opacity: '0.55',
-      position: 'absolute',
-      right: '0',
-      width: '100%',
-      zIndex: 1,
+      // backgroundColor: '#141b26',
+      // height: '100%',
+      // left: '0',
+      // opacity: '0.55',
+      // position: 'absolute',
+      // right: '0',
+      // width: '100%',
+      // zIndex: 1,
     },
     scoreboard: {
       maxWidth: '1000px',
@@ -251,10 +296,9 @@ export default function Canvas() {
       bottom: '2%',
       margin: '0 auto',
       marginBottom: '1em',
+      marginInline: '4em',
     },
   };
-  const chat = useRef<HTMLDivElement>(null);
-  const input = useRef<HTMLInputElement>(null);
 
   return (
     <>
@@ -299,13 +343,13 @@ export default function Canvas() {
                 {Array.from({ length: game.conf.games + 2 }, (_, i) =>
                   i === 0 ? (
                     <FaCircle
-                      size="1.5rem"
+                      size="1.3rem"
                       style={{ marginInline: '.1rem' }}
                       fill={'#ff5151'}
                     />
                   ) : (
                     <FaRegCircle
-                      size="1.5rem"
+                      size="1.3rem"
                       style={{ marginInline: '.1rem' }}
                       fill={
                         i === 1 ? mapobj.fillColor : mapobj.fillColor + '75'
@@ -342,13 +386,13 @@ export default function Canvas() {
                 {Array.from({ length: game.conf.games + 2 }, (_, i) =>
                   i === 0 ? (
                     <FaCircle
-                      size="1.5rem"
+                      size="1.3rem"
                       style={{ marginInline: '.1rem' }}
                       fill={'#1dfc34'}
                     />
                   ) : (
                     <FaRegCircle
-                      size="1.5rem"
+                      size="1.3rem"
                       style={{ marginInline: '.1rem' }}
                       fill={
                         i === 1 ? mapobj.fillColor : mapobj.fillColor + '75'
@@ -396,21 +440,64 @@ export default function Canvas() {
             style={{ height: (game.config.paddle * 100) / height + '%' }}
           />
         </Flex>
-        <Box sx={classes.chat} w="25rem" maw="1000px">
-          <ScrollArea h="10rem" sx={classes.chat_content} ref={chat}>
-            {[
-              <Text>lorem ipsum dolor sit amet</Text>,
-              <Text>lorem ipsum dolor sit amet</Text>,
-              <Text>lorem ipsum dolor sit amet</Text>,
-              <Text>lorem ipsum dolor sit amet</Text>,
-              <Text>lorem ipsum dolor sit amet</Text>,
-              <Text>lorem ipsum dolor sit amet</Text>,
-              <Text>lorem ipsum dolor sit amet</Text>,
-              <Text>lorem ipsum dolor sit amet</Text>,
-              <Text>lorem ipsum dolor sit amet</Text>,
-            ]}
-          </ScrollArea>
-          <Input sx={classes.chat_input} ref={input} />
+        <Box sx={classes.chat} w="25rem">
+          {opened && (
+            <Box style={{ zIndex: 100 }}>
+              <ScrollArea h="10rem" sx={classes.chat_content}>
+                {messages}
+              </ScrollArea>
+              <form
+                style={{ zIndex: 100 }}
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!msg.current) return;
+                  game.socket?.emit('chat', player.username, msg.current.value);
+                  setMessages((messages) => [
+                    ...messages,
+                    <Box fw="lighter">
+                      <Text size=".8rem" display="inline" color="gray">
+                        {Date.now()}
+                      </Text>
+                      <Text size=".8rem" display="inline">
+                        {' - '}
+                      </Text>
+                      <Text size=".8rem" display="inline" color="grey">
+                        {player.username}
+                      </Text>
+                      <Text size=".8rem" display="inline">
+                        {': '}
+                      </Text>
+                      <Text size=".8rem" display="inline">
+                        {msg.current?.value}
+                      </Text>
+                    </Box>,
+                  ]);
+                  msg.current.value = '';
+                }}
+              >
+                <Input
+                  name="message"
+                  sx={classes.chat_input}
+                  rightSection={<IoSend />}
+                  ref={msg}
+                />
+              </form>
+            </Box>
+          )}
+          <ActionIcon
+            variant="transparent"
+            onClick={() => handlers.toggle()}
+            style={{ zIndex: 100 }}
+          >
+            <BsChatLeftText size="1.5rem" />
+            {!read.current && (
+              <BsCircleFill
+                size=".5rem"
+                fill="#ff5151"
+                style={{ position: 'absolute', left: '100%', top: '-10%' }}
+              />
+            )}
+          </ActionIcon>
         </Box>
       </Box>
     </>

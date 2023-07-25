@@ -112,4 +112,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handlePlayerMove(socket: Player, crd) {
     return this.game.move(socket, crd);
   }
+
+  @SubscribeMessage('chat')
+  handlePlayerChat(socket: Player, msg) {
+    return this.game.chat(socket, msg);
+  }
 }

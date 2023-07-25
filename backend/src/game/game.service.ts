@@ -186,6 +186,11 @@ export class GameService {
     };
   }
 
+  chat(socket: Player, message: string) {
+    if (socket.data.currentGameId)
+      socket.to(socket.data.currentGameId).emit('chat', ...message);
+  }
+
   async getPlayer(id: Player['data']['userId'], createOnNotFound = true) {
     const sockets = this.players.get(id);
     if (sockets && sockets.length) return sockets[sockets.length - 1].data;

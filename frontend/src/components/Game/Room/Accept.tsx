@@ -27,7 +27,7 @@ export default function Accept() {
         game.gameStatus = 'playing';
         setStatus('playing');
       })
-      .on('cancelled', () => router.push('/game'));
+      .on('cancelled', () => router.push('/game'))
     return () => {
       if (!started) game.socket?.emit('leave', () => router.push('/game'));
       game.socket?.off('started').off('cancelled');
