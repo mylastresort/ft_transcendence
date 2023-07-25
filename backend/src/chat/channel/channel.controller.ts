@@ -74,8 +74,24 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async leaveChannel(@Req() req: any): Promise<any> {
-    console.log('leaveChannel=>', req.user);
+    console.log('leaveChannel=>', req.body);
     return this.channelService.leaveChannel(req.user, req.body);
+  }
+  @Post('kick')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async kickMember(@Req() req: any): Promise<any> {
+    console.log('kickMember=>', req.body);
+    return this.channelService.kickMember(req.user, req.body);
+  }
+  @Post('mute')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async muteMember(@Req() req: any): Promise<any> {
+    console.log('muteMember=>', req.body);
+    return this.channelService.muteMember(req.user, req.body);
   }
 
   //create

@@ -13,16 +13,17 @@ import { useContext, useEffect, useState } from 'react';
 import request from 'superagent';
 import { AddMember } from './AddMember';
 import { ListMembers } from './ListMembers';
+import { ChannelSetting } from './ChannelSetting';
 interface Member {
   id: number;
   nickname: string;
   isOwner: boolean;
-  user:{
+  isAdministator: boolean;
+  user: {
     id: number;
     imgProfile: string;
-  }
+  };
 }
-
 
 function ChannelInfo() {
   const chatContext = useContext(ChatContext);
@@ -43,21 +44,12 @@ function ChannelInfo() {
         console.log(err);
       });
   }, [chatContext.data]);
-  function deleteUser() {
-    request
-      .post('http://localhost:4400/api/chat/channel/delete')
-      .set('Authorization', `Bearer ${jwtToken}`)
-      .send({ id: chatContext.data.id })
-      .catch((err) => {
-        return err;
-      });
-  }
   function leaveChannel() {
     request
       .post('http://localhost:4400/api/chat/channel/leave')
       .set('Authorization', `Bearer ${jwtToken}`)
-      .send({id : chatContext.data.id })
-      .then((res)=>{
+      .send({ id: chatContext.data.id })
+      .then((res) => {
         chatContext.data = undefined!;
       })
       .catch((err) => {
@@ -65,8 +57,8 @@ function ChannelInfo() {
       });
   }
   return (
-    <Box w={'100%'} h={'100%'} bg={theme.colors.dark[6]} pt={100}>
-      <Flex direction={'column'} gap={10}>
+    <Flex direction={'column'} w={'100%'} h={'100%'} bg={theme.colors.dark[6]}>
+      <Flex direction={'column'} mt={40} gap={10}>
         <Avatar
           m={'auto'}
           radius={500}
@@ -80,45 +72,40 @@ function ChannelInfo() {
         <Text fw={500} size={'xl'} m={'auto'}>
           {chatContext.data.name}
         </Text>
-        <Link
-          href={'/chat'}
+        <Text
+          maw={300}
+          p={15}
+          m={'auto'}
+          color="dimmed"
           style={{
-            margin: 'auto',
+            border: '1px solid var(--chat-red-color)',
+            borderRadius: '10px',
           }}
         >
-          {chatContext.data.ownerId == userContext.data.id && (
-            <Button
-              color="red"
-              w={300}
-              onClick={() => {
-                deleteUser();
-              }}
-            >
-              delete conversation
-            </Button>
-          )}
-        </Link>
-        <Link
-          href={'/chat'}
-          style={{
-            margin: 'auto',
-          }}
-        >
-          <Button
-            m={'auto'}
-            w={300}
-            onClick={() => {
-              leaveChannel();
-            }}
-            color='red'
-          >
-            Leave Channel
-          </Button>
-        </Link>
-        <AddMember />
-        <ListMembers members={members} />
+          this is description this is description this is description this is
+          description this is description
+        </Text>
       </Flex>
-    </Box>
+      <ListMembers members={members} />
+      <Link
+        href={'/chat'}
+        style={{
+          margin: 'auto',
+        }}
+      >
+        <Button
+          m={'auto'}
+          w={300}
+          onClick={() => {
+            leaveChannel();
+          }}
+          color="red"
+        >
+          Leave Channel
+        </Button>
+      </Link>
+      <ChannelSetting members={members} />
+    </Flex>
   );
 }
 export default ChannelInfo;

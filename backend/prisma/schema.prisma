@@ -155,12 +155,12 @@ model Member {
   nickname       String
   joinedAt       DateTime         @default(now())
   isOwner        Boolean          @default(false)
-  isAdministator Boolean          @default(true)
+  isAdministator Boolean          @default(false)
   isMember       Boolean          @default(true)
   isBanned       Boolean          @default(false)
-  bannedAt       DateTime?
+  bannedTime     Int?
   isMuted        Boolean          @default(false)
-  mutedAt        DateTime?
+  mutedTime      Int?
   user           User             @relation(fields: [userId], references: [id])
   userId         Int
   channel        Channel?         @relation(fields: [channleId], references: [id])

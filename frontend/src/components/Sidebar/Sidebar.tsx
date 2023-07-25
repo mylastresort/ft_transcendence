@@ -60,7 +60,7 @@ export const User_Sidebar = (Show: any) => {
 
     if (urlPath === '/game') {
       setClickedon(1);
-    } else if (urlPath === '/chat/channels') {
+    } else if (urlPath === '/chat') {
       setClickedon(2);
     } else if (urlPath === '/home/friends') {
       setClickedon(3);
@@ -205,7 +205,7 @@ export const User_Sidebar = (Show: any) => {
                   HandleSelected(2);
                 }}
               >
-                <Link href="/chat/channels">
+                <Link href="/chat">
                   <i
                     className=" icon"
                     style={{

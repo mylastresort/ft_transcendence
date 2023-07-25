@@ -231,10 +231,9 @@ export class ChannelService {
           isProtected: true,
         },
       });
-      if (getCh.isProtected && !(await argon2.verify(channel.password, getCh.password))) {
+      if (getCh.isProtected && !( channel.password && await argon2.verify(getCh.password, channel.password))) {
         throw 'Password Incorrect!';
       } else {
-        console.log('wtf!!!!!!!!');
         const member = await this.prisma.member.findFirst({
           where: {
             user: {
@@ -329,7 +328,7 @@ export class ChannelService {
           where: { userId: me.id, isOwner: true },
         })
       ) {
-        throw "you're not an administrator";
+        throw "you\'re not an administrator";
       } else {
         return await this.prisma.member.updateMany({
           where: {
@@ -357,16 +356,16 @@ export class ChannelService {
   async kickMember(me: Me, member: any) {
     try {
       if (
-        await this.prisma.member.findMany({
-          where: { userId: me.id, isOwner: true },
+        !await this.prisma.member.findMany({
+          where: { userId: me.id, isAdministator: true },
         })
       ) {
-        throw "you're not an administrator";
+        console.log('waaaaaaaaaaaaaa');
+        throw "you\'re not an administrator";
       }
       return await this.prisma.member.updateMany({
         where: {
-          userId: member.id, //not done
-          isAdministator: false,
+          nickname: member.nickname,
           isOwner: false,
         },
         data: {
@@ -384,25 +383,23 @@ export class ChannelService {
       );
     }
   }
-
   async muteMember(me: Me, member: any) {
     try {
-      if (
-        await this.prisma.member.findMany({
-          where: { userId: me.id, isOwner: true },
-        })
-      ) {
-        throw "you're not an administrator";
-      }
+      // if (
+      //   !await this.prisma.member.findMany({
+      //     where: { userId: me.id, isAdministator: true },
+      //   })
+      // ) {
+      //   throw "you\'re not an administrator";
+      // }
       return await this.prisma.member.updateMany({
         where: {
-          userId: member.id, // not done
-          isAdministator: false,
+          nickname: member.nickname,
           isOwner: false,
         },
         data: {
           isMuted: true,
-          mutedAt: new Date(),
+          // mutedTime: member.mutedTime,
         },
       });
     } catch (error) {
@@ -416,6 +413,7 @@ export class ChannelService {
       );
     }
   }
+
   //ban
   async banMember(me: Me, member: any) {
     try {
