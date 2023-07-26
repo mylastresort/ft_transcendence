@@ -6,6 +6,19 @@ export interface Chat {
     name: string;
     img: string;
     ownerId?: number;
+    me?: {
+      id: number;
+      nickname: string;
+      joinedAt: number;
+      isOwner: boolean;
+      isAdministator: boolean;
+      isMember: boolean;
+      isBanned: boolean;
+      bannedTime: number;
+      isMuted: boolean;
+      mutedTime: number;
+      userId: number;
+    };
   };
 }
 

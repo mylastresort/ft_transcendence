@@ -158,9 +158,9 @@ model Member {
   isAdministator Boolean          @default(false)
   isMember       Boolean          @default(true)
   isBanned       Boolean          @default(false)
-  bannedTime     Int?
+  bannedTime     DateTime?
   isMuted        Boolean          @default(false)
-  mutedTime      Int?
+  mutedTime      DateTime?
   user           User             @relation(fields: [userId], references: [id])
   userId         Int
   channel        Channel?         @relation(fields: [channleId], references: [id])
@@ -171,7 +171,7 @@ model Member {
 model Channel {
   id          Int              @id @default(autoincrement())
   createdAt   DateTime         @default(now())
-  updateAt    DateTime         @default(now())
+  updateAt    DateTime         @updatedAt
   channelName String           @unique
   image       String           @default("https://static.vecteezy.com/system/resources/thumbnails/000/426/510/small/Sports__28154_29.jpg")
   description String?

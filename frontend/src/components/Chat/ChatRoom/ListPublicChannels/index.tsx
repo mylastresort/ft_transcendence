@@ -35,7 +35,7 @@ export function ListPublicChannels() {
   const router = useRouter();
   useEffect(() => {
     request
-      .get(`http://localhost:4400/api/chat/channel`)
+      .get(`http://localhost:4400/api/chat/channel/public`)
       .set('Authorization', `Bearer ${jwtToken}`)
       .then((res) => {
         setChannels(res.body);
@@ -125,7 +125,7 @@ export function ListPublicChannels() {
             </Button>
             <Modal
               opened={opened}
-              onClose={(ev) => {close(); passwordForm.reset();}}
+              onClose={() => {close(); passwordForm.reset();}}
               title="Authentication"
               overlayProps={{
                 opacity: 0.1,

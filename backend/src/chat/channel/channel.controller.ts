@@ -31,8 +31,17 @@ export class ChannelController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
+  async getChannel(@Req() req: any, @Query('id') id: any): Promise<any> {
+    console.log('getChannel1 =>', id);
+    return this.channelService.getChannel(req.user, +id);
+  }
+
+  @Get('public')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
   async getPublicChannel(@Req() req: any): Promise<any> {
-    console.log('getChannel=>', req.user);
+    console.log('getPublicChannel=>', req.user);
     return this.channelService.getPublicChannel(req.user);
   }
   @Get('me')
@@ -40,7 +49,7 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async getMyChannel(@Req() req: any): Promise<any> {
-    console.log('getChannel=>', req.user);
+    console.log('getMyChannel=>', req.user);
     return this.channelService.getMyChannel(req.user);
   }
 
@@ -54,10 +63,8 @@ export class ChannelController {
     return this.channelService.deleteChannel(req.user, req.body);
   }
 
-  
-  
   //update
-  
+
   // *members
   //read
   @Get('members')
@@ -68,6 +75,14 @@ export class ChannelController {
     console.log('getMembers req:', +id);
     return await this.channelService.getMembers(+id);
   }
+  @Get('members/me')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async getMe(@Req() req: any, @Query('id') id: any) {
+    console.log('getMe req:', +id);
+    return await this.channelService.getMe(req.user, +id);
+  }
   //leave
   @Post('leave')
   @UseGuards(AuthGuard('jwt'))
@@ -77,21 +92,30 @@ export class ChannelController {
     console.log('leaveChannel=>', req.body);
     return this.channelService.leaveChannel(req.user, req.body);
   }
-  @Post('kick')
+
+  @Post('settings/members')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  async kickMember(@Req() req: any): Promise<any> {
-    console.log('kickMember=>', req.body);
-    return this.channelService.kickMember(req.user, req.body);
+  async membersSettings(@Req() req: any): Promise<any> {
+    console.log('membersSettings=>', req.body);
+    return this.channelService.membersSettings(req.user, req.body);
   }
-  @Post('mute')
+  @Post('settings/admin')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  async muteMember(@Req() req: any): Promise<any> {
-    console.log('muteMember=>', req.body);
-    return this.channelService.muteMember(req.user, req.body);
+  async adminSettings(@Req() req: any): Promise<any> {
+    console.log('membersSettings=>', req.body);
+    return this.channelService.adminSettings(req.user, req.body);
+  }
+  @Post('settings/password')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async passwordSettings(@Req() req: any): Promise<any> {
+    console.log('passwordSettings=>', req.body);
+    return this.channelService.passwordSettings(req.user, req.body);
   }
 
   //create

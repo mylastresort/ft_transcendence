@@ -56,6 +56,9 @@ export default function ChatInput({ isChannel = false }) {
     initialValues: {
       message: '',
     },
+    validate: {
+      message: msg => (msg.trim() == '' )
+    }
   });
 
   const inputStyles = useInputStyle();
@@ -74,7 +77,7 @@ export default function ChatInput({ isChannel = false }) {
       <form
         onSubmit={form.onSubmit((value) => {
           value.message.trim() && sendMessage(value.message.trim());
-          value.message = '';
+          form.reset();
         })}
         style={{
           width: '70%',

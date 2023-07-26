@@ -13,7 +13,7 @@ import { useContext, useEffect, useState } from 'react';
 import request from 'superagent';
 import { AddMember } from './AddMember';
 import { ListMembers } from './ListMembers';
-import { ChannelSetting } from './ChannelSetting';
+import { ChannelSettings } from './ChannelSettings';
 interface Member {
   id: number;
   nickname: string;
@@ -27,23 +27,25 @@ interface Member {
 
 function ChannelInfo() {
   const chatContext = useContext(ChatContext);
-  const jwtToken = localStorage.getItem('jwtToken');
   const userContext = useContext(UserContext);
+  const jwtToken = localStorage.getItem('jwtToken');
   const theme = useMantineTheme();
   const [members, setMembers]: [Member[], any] = useState([]);
+  const [channel, setChannel] = useState();
   useEffect(() => {
+    console.log('chat contesxt', chatContext.data);
     request
-      .get(`http://localhost:4400/api/chat/channel/members`)
+      .get('http://localhost:4400/api/chat/channel')
       .set('Authorization', `Bearer ${jwtToken}`)
       .query({ id: chatContext.data.id })
       .then((res) => {
-        setMembers(res.body);
-        console.log(res.body);
+        setMembers(res.body.members);
+        setChannel(res.body);
       })
       .catch((err) => {
         console.log(err);
       });
-  }, [chatContext.data]);
+  }, []);
   function leaveChannel() {
     request
       .post('http://localhost:4400/api/chat/channel/leave')
@@ -104,7 +106,9 @@ function ChannelInfo() {
           Leave Channel
         </Button>
       </Link>
-      <ChannelSetting members={members} />
+      {chatContext.data.ownerId == userContext.data.id && (
+        <ChannelSettings channel={channel} members={members} />
+      )}
     </Flex>
   );
 }

@@ -72,6 +72,34 @@ export class ChannelService {
   }
 
   //read
+  async getChannel(me: Me, channelId: number) {
+    try {
+      return await this.prisma.channel.findFirst({
+        where: {
+          id: channelId,
+        },
+        include: {
+          members: {
+            where: {
+              isMember: true,
+            },
+            include: {
+              user: true,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'channel not found',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
   async getPublicChannel(me: Me) {
     try {
       return await this.prisma.channel.findMany({
@@ -168,6 +196,26 @@ export class ChannelService {
     }
   }
 
+  async getMe(me: Me, channelId: number) {
+    try {
+      return await this.prisma.member.findFirst({
+        where: {
+          channleId: channelId,
+          userId : me.id,
+          isMember: true,
+        },
+      });
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'getMe error',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
   //create
   async createMember(channel: CreateMember) {
     try {
@@ -231,7 +279,13 @@ export class ChannelService {
           isProtected: true,
         },
       });
-      if (getCh.isProtected && !( channel.password && await argon2.verify(getCh.password, channel.password))) {
+      if (
+        getCh.isProtected &&
+        !(
+          channel.password &&
+          (await argon2.verify(getCh.password, channel.password))
+        )
+      ) {
         throw 'Password Incorrect!';
       } else {
         const member = await this.prisma.member.findFirst({
@@ -328,7 +382,7 @@ export class ChannelService {
           where: { userId: me.id, isOwner: true },
         })
       ) {
-        throw "you\'re not an administrator";
+        throw "you're not an administrator";
       } else {
         return await this.prisma.member.updateMany({
           where: {
@@ -353,53 +407,64 @@ export class ChannelService {
   }
 
   //kick
-  async kickMember(me: Me, member: any) {
+  async membersSettings(me: Me, member: any) {
     try {
       if (
-        !await this.prisma.member.findMany({
+        !(await this.prisma.member.findMany({
           where: { userId: me.id, isAdministator: true },
-        })
+        }))
       ) {
-        console.log('waaaaaaaaaaaaaa');
-        throw "you\'re not an administrator";
+        throw "you're not an administrator";
       }
       return await this.prisma.member.updateMany({
         where: {
           nickname: member.nickname,
           isOwner: false,
         },
-        data: {
-          isMember: false,
-        },
+        data: member.isKick
+          ? {
+              isMember: false,
+            }
+          : member.isMute
+          ? {
+              isMuted: true,
+              mutedTime: new Date(member.time),
+            }
+          : member.isBan
+          ? {
+              isBanned: true,
+              bannedTime: new Date(member.time),
+            }
+          : {},
       });
     } catch (error) {
       console.log(error);
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
-          error: 'cannot kick member',
+          error: 'cannot change member settings',
         },
         HttpStatus.BAD_REQUEST,
       );
     }
   }
-  async muteMember(me: Me, member: any) {
+  async adminSettings(me: Me, member: any) {
     try {
-      // if (
-      //   !await this.prisma.member.findMany({
-      //     where: { userId: me.id, isAdministator: true },
-      //   })
-      // ) {
-      //   throw "you\'re not an administrator";
-      // }
+      if (
+        !(await this.prisma.member.findMany({
+          where: { userId: me.id, isAdministator: true },
+        }))
+      ) {
+        throw "you're not an administrator";
+      }
       return await this.prisma.member.updateMany({
         where: {
           nickname: member.nickname,
           isOwner: false,
+          isAdministator: false,
         },
         data: {
-          isMuted: true,
-          // mutedTime: member.mutedTime,
+          isAdministator: true,
         },
       });
     } catch (error) {
@@ -407,32 +472,31 @@ export class ChannelService {
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
-          error: 'cannot kick member',
+          error: 'cannot change member settings',
         },
         HttpStatus.BAD_REQUEST,
       );
     }
   }
 
-  //ban
-  async banMember(me: Me, member: any) {
+  async passwordSettings(me: Me, channel: any) {
+    const isPass = channel.mode != 'r';
     try {
       if (
-        await this.prisma.member.findMany({
+        !(await this.prisma.member.findMany({
           where: { userId: me.id, isOwner: true },
-        })
+        }))
       ) {
-        throw "you're not an administrator";
+        throw "you're not an Owner";
       }
-      return await this.prisma.member.updateMany({
+      const hashedPass = isPass ? await argon2.hash(channel.pass) : '';
+      return await this.prisma.channel.update({
         where: {
-          userId: member.id, //not done
-          isAdministator: false,
-          isOwner: false,
+          id: channel.id,
         },
         data: {
-          isMember: false,
-          isBanned: true,
+          password: hashedPass,
+          isProtected: isPass,
         },
       });
     } catch (error) {
@@ -440,7 +504,7 @@ export class ChannelService {
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
-          error: 'cannot ban member',
+          error: 'cannot change member settings',
         },
         HttpStatus.BAD_REQUEST,
       );
