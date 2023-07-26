@@ -58,6 +58,9 @@ export class ChannelService {
             },
           },
         },
+        include: {
+          members: true,
+        },
       });
     } catch (error) {
       console.log('channel err: ', error);
@@ -201,7 +204,7 @@ export class ChannelService {
       return await this.prisma.member.findFirst({
         where: {
           channleId: channelId,
-          userId : me.id,
+          userId: me.id,
           isMember: true,
         },
       });
@@ -247,7 +250,9 @@ export class ChannelService {
             },
           },
         });
-      } else if (!member.isMember) {
+      } else if (member.isBanned) {
+        throw 'This member is banned'
+      }  else if (!member.isMember) {
         return this.prisma.member.update({
           where: {
             id: member.id,
@@ -432,6 +437,7 @@ export class ChannelService {
             }
           : member.isBan
           ? {
+              isMember: false,
               isBanned: true,
               bannedTime: new Date(member.time),
             }
@@ -548,6 +554,9 @@ export class ChannelService {
       const sender = await this.prisma.member.findFirst({
         where: {
           userId: me.id,
+          isMuted: false,
+          isBanned: false,
+          isMember: true,
         },
       });
       const createdMessage = await this.prisma.channelMessage.create({

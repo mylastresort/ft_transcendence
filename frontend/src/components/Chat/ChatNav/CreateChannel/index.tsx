@@ -55,7 +55,9 @@ export function CreateChannel() {
           id: res.body.id,
           name: data.channelName,
           img: res.body.image,
+          me: res.body.members[0],
         };
+        console.log("created =>>", chatContext.data);
         notifications.show({
           title: `Channel ${data.channelName} has been created`,
           message: 'New Channel Lesgooo..',

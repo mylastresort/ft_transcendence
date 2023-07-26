@@ -29,7 +29,13 @@ interface Member {
   };
 }
 
-export function ChannelSettings({channel, members }: {channel: any, members: Member[] }) {
+export function ChannelSettings({
+  channel,
+  members,
+}: {
+  channel: any;
+  members: Member[];
+}) {
   const [opened, { open, close }] = useDisclosure(false);
   const chatContext = useContext(ChatContext);
   const userContext = useContext(UserContext);
@@ -66,7 +72,7 @@ export function ChannelSettings({channel, members }: {channel: any, members: Mem
         centered
         title="Channel Settings"
       >
-        <Flex direction={'column'} h={550}>
+        <Flex direction={'column'}>
           <Text m={'auto'} opacity={0.4} color="var(--chat-red-color)">
             Member managment
           </Text>
@@ -75,10 +81,14 @@ export function ChannelSettings({channel, members }: {channel: any, members: Mem
             Administrator managment:
           </Text>
           <AdminSettings members={getMembers(members)} />
-          <Text m={'auto'} opacity={0.4} color="var(--chat-red-color)">
-            Password managment:
-          </Text>
-          {true && <PasswordSettings channel={channel}/>}
+          {chatContext.data.me!.isOwner && (
+            <>
+              <Text m={'auto'} opacity={0.4} color="var(--chat-red-color)">
+                Password managment:
+              </Text>
+              <PasswordSettings channel={channel} />
+            </>
+          )}
         </Flex>
       </Modal>
 

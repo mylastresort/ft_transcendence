@@ -7,14 +7,6 @@ import { style } from '@mui/system';
 import { forwardRef, useContext, useState } from 'react';
 import request from 'superagent';
 
-function SpotlightControl() {
-  return (
-    <Group position="center">
-      <Button onClick={(event) => spotlight.open()}>Add Member</Button>
-    </Group>
-  );
-}
-
 export function AddMember() {
   const chatContext = useContext(ChatContext);
   function createMember(data: any) {
@@ -77,7 +69,9 @@ export function AddMember() {
       nothingFoundMessage="Nothing found..."
       onQueryChange={requestUsers}
     >
-      <SpotlightControl />
+      <Group position="center" >
+        <Button w={300} onClick={(event) => spotlight.open()}>Add Member</Button>
+      </Group>
     </SpotlightProvider>
   );
 }

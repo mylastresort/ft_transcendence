@@ -45,7 +45,7 @@ function ChannelInfo() {
       .catch((err) => {
         console.log(err);
       });
-  }, []);
+  }, [chatContext.data]);
   function leaveChannel() {
     request
       .post('http://localhost:4400/api/chat/channel/leave')
@@ -106,8 +106,11 @@ function ChannelInfo() {
           Leave Channel
         </Button>
       </Link>
-      {chatContext.data.ownerId == userContext.data.id && (
+      {chatContext.data.me?.isAdministator && (
+        <>
+        <AddMember/>
         <ChannelSettings channel={channel} members={members} />
+        </>
       )}
     </Flex>
   );

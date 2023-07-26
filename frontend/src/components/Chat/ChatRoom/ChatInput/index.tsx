@@ -95,6 +95,7 @@ export default function ChatInput({ isChannel = false }) {
           withAsterisk
           placeholder="Send Message ..."
           {...form.getInputProps('message')}
+          disabled={chatContext.data.me?.isMuted}
         />
         <Button type="submit" radius={50} h={50} w={50} p={4}>
           <img src="/images/SendIcon.svg" />

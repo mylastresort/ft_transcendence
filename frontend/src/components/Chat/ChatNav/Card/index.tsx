@@ -68,13 +68,31 @@ export function UserCard({ user, closeNav }) {
 }
 
 export function ChannelCard({
-  channel
+  channel,
 }: {
   channel: ChannelData;
   closeNav: any;
 }) {
   const [bgColor, setBgColor] = useState('var(--white-color)');
   const chatContext = useContext(ChatContext);
+  function getMe() {
+    const jwtToken = localStorage.getItem('jwtToken');
+    request
+      .get('http://localhost:4400/api/chat/channel/members/me')
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .query({ id: channel.id })
+      .then((res) => {
+        chatContext.data = {
+          id: channel.id,
+          name: channel.channelName,
+          img: channel.image,
+          me: res.body,
+        };
+      })
+      .catch((err) => {
+        return err;
+      });
+  }
   return (
     <Link href={'/chat/channels'}>
       <Box
@@ -100,13 +118,7 @@ export function ChannelCard({
               ? 'var(--white-color)'
               : 'var(--chat-red-color)',
         }}
-        onClick={() => {
-          chatContext.data = {
-            id: channel.id,
-            name: channel.channelName,
-            img: channel.image,
-          };
-        }}
+        onClick={getMe}
       >
         <Group noWrap h={60}>
           <Avatar radius={50} size={60} src={channel.image} />
