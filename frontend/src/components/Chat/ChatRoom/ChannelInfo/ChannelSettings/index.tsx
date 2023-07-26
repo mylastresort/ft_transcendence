@@ -18,6 +18,7 @@ import { Settings } from 'tabler-icons-react';
 import { MemberSettings } from './MemberSettings/index.tsx';
 import { AdminSettings } from './AdminSettings';
 import { PasswordSettings } from './PasswordSettings';
+import { AddMember } from './AddMember';
 
 interface Member {
   id: number;
@@ -84,9 +85,10 @@ export function ChannelSettings({
           {chatContext.data.me!.isOwner && (
             <>
               <Text m={'auto'} opacity={0.4} color="var(--chat-red-color)">
-                Password managment:
+                Owner settings:
               </Text>
               <PasswordSettings channel={channel} />
+              <AddMember/>
             </>
           )}
         </Flex>

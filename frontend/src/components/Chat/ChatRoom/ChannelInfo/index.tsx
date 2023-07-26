@@ -11,7 +11,7 @@ import {
 import Link from 'next/link';
 import { useContext, useEffect, useState } from 'react';
 import request from 'superagent';
-import { AddMember } from './AddMember';
+import { AddMember } from './ChannelSettings/AddMember';
 import { ListMembers } from './ListMembers';
 import { ChannelSettings } from './ChannelSettings';
 interface Member {
