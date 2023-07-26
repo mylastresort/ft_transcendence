@@ -27,7 +27,7 @@ export default function Customizer({ type = 'create', userId }) {
     initialValues: { speed: 3, games: 3, name: '' },
     validate: {
       name: (value) => {
-        if (!value) return 'Room name is required';
+        // if (!value) return 'Room name is required';
         if (value.length > 20) return 'Room name is too long';
         return null;
       },
@@ -167,12 +167,6 @@ export default function Customizer({ type = 'create', userId }) {
               step={2}
               placeholder="Number of games"
               sx={{ '& label': { color: 'white' } }}
-            />
-            <TextInput
-              {...form.getInputProps('name')}
-              label="Room name"
-              sx={{ '& label': { color: 'white' } }}
-              withAsterisk
             />
             <div>
               <Button
