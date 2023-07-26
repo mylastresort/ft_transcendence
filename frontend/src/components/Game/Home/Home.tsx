@@ -8,7 +8,6 @@ import { useRouter } from 'next/router';
 export default function Home() {
   const game = useContext(GameContext);
   const router = useRouter();
-  const player = useContext(PlayerContext);
 
   return (
     <Stack justify="center" align="center" className={styles.home}>
@@ -35,7 +34,6 @@ export default function Home() {
         >
           Join
         </Button>
-        <Text>my id is: {player?.userId}</Text>
       </Group>
     </Stack>
   );
