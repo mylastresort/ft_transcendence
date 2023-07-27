@@ -34,7 +34,7 @@ export default function Accept() {
   useEffect(() => {
     if (game.socket && !game.gameStatus && router.query.id) {
       request
-        .get(`http://localhost:4400/api/v1/game/${router.query.id}`)
+        .get(`http://localhost:4400/api/v1/game/conf/${router.query.id}`)
         .set('Authorization', `Bearer ${localStorage.getItem('jwtToken')}`)
         .then((res) => {
           if (res.status !== 200) return router.push('/game');
