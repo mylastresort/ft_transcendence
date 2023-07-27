@@ -4,7 +4,7 @@ import { useContext, useEffect, useState } from 'react';
 import { ChatContext } from '@/context/chat';
 import request from 'superagent';
 
-export default function MsgList({ isChannel = false }) {
+export default function MsgList({ h, isChannel = false }) {
   const route = isChannel ? 'channel' : 'private';
   interface MessageI {
     id: number;
@@ -14,7 +14,10 @@ export default function MsgList({ isChannel = false }) {
     sendBy: any;
   }
   const chatContext = useContext(ChatContext);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages]: [
+    { id: number; content: string; sender: any }[],
+    any
+  ] = useState([]);
   const [load, setLoad] = useState(false);
   const jwtToken = localStorage.getItem('jwtToken');
 
@@ -22,10 +25,12 @@ export default function MsgList({ isChannel = false }) {
     request
       .get(`http://localhost:4400/api/chat/${route}/msgs`)
       .set('Authorization', `Bearer ${jwtToken}`)
-      .query({id: chatContext.data.id})
+      .query({ id: chatContext.data.id })
       .then((res) => {
         console.log(res.body);
-        isChannel ?setMessages(res.body.messages): setMessages(res.body.Messages)
+        isChannel
+          ? setMessages(res.body.messages)
+          : setMessages(res.body.Messages);
       })
       .catch((err) => {
         console.log(err);
@@ -36,7 +41,7 @@ export default function MsgList({ isChannel = false }) {
       w={'95%'}
       maw={2000}
       style={{
-        height: 'calc(100% - 77px)',
+        height: h,
       }}
     >
       {messages.map((message) => (

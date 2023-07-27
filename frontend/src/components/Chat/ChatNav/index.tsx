@@ -94,7 +94,7 @@ function ChatNav() {
     <>
       <Navbar
         ref={ref}
-        zIndex={1}
+        zIndex={2}
         id="chat-nav"
         height={'calc(100vh - 77px)'}
         p="xs"
