@@ -38,6 +38,8 @@ import {
   PostAcceptFriendRequest,
   GetBLockedFriends,
   PostUnblock,
+  GetPlayerStats,
+  GetGameMatches,
 } from '@/pages/api/friends/friends';
 import { UserSocket } from '@/context/WsContext';
 import { BlockedPanel, ProfileNotFound } from '@/components/Pageutils/NotFound';
@@ -48,6 +50,8 @@ function Pofile() {
   const [friends, setFriends] = useState<[]>([]);
   const [PendingFriend, setPendingFriend] = useState<[]>([]);
   const [username, setUsername] = useState<string>('');
+  const [PlayerStats, setPlayerStats] = useState<[]>([]);
+  const [GameMatches, setGameMatches] = useState<[]>([]);
 
   const [isMe, setIsMe] = useState<boolean>(false);
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
@@ -59,6 +63,12 @@ function Pofile() {
 
   const fetchData = async () => {
     try {
+      const player = await GetPlayerStats();
+      setPlayerStats(player.body);
+
+      const matches = await GetGameMatches();
+      setGameMatches(matches.body);
+
       const Username = window.location.pathname.split('/')[2];
       setUsername(Username);
       setIsMe(false);
@@ -286,19 +296,21 @@ function Pofile() {
                 <ThemeIcon color="cyan" variant="light" size="xl">
                   <FaGamepad size="1.5rem" />
                 </ThemeIcon>
-                <Text>134 Games</Text>
+                <Text>
+                  {PlayerStats?.userWins + PlayerStats?.userLoses} Games
+                </Text>
               </Group>
               <Group spacing="xs">
                 <ThemeIcon color="green" variant="light" size="xl">
                   <FaSmileWink size="1.5rem" />
                 </ThemeIcon>
-                <Text>85 Wins</Text>
+                <Text>{PlayerStats?.userWins} Wins</Text>
               </Group>
               <Group spacing="xs">
                 <ThemeIcon color="red" variant="light" size="xl">
                   <HiEmojiSad size="1.5rem" />
                 </ThemeIcon>
-                <Text>21 Lost</Text>
+                <Text>{PlayerStats?.userLoses} Lost</Text>
               </Group>
             </Flex>
             <Flex
@@ -311,7 +323,7 @@ function Pofile() {
               <Group spacing="10px">
                 <Text size={25}>Level</Text>
                 <Avatar color="cyan" radius="xl">
-                  7
+                  {PlayerStats?.userLevel?.toFixed(1)}
                 </Avatar>
               </Group>
               <Group spacing="10px">
@@ -488,7 +500,7 @@ function Pofile() {
                               <FaSmileWink size="1.5rem" />
                             </ThemeIcon>
                             <Text size="1.2rem" weight={600}>
-                              85 Wins
+                              {PlayerStats?.userWins} Wins
                             </Text>
                           </Group>
                         </UnstyledButton>
@@ -499,20 +511,19 @@ function Pofile() {
                               <HiEmojiSad size="1.5rem" />
                             </ThemeIcon>
                             <Text size="1.2rem" weight={600}>
-                              21 Lost
+                              {PlayerStats?.userLoses} Lost
                             </Text>
                           </Group>
                         </UnstyledButton>
                         <Group spacing={10}>
                           {[1, 2, 3, 4, 5].map((item, index) => (
                             <Avatar
+                              src="/images/avatar1.jpg"
                               radius="md"
                               size={45}
                               color="cyan"
                               key={index}
-                            >
-                              BH
-                            </Avatar>
+                            />
                           ))}
                         </Group>
                       </Flex>
@@ -558,17 +569,21 @@ function Pofile() {
                 <Anchor
                   size="1.1rem"
                   weight={300}
-                  href="https://mantine.dev/"
-                  target="_blank"
+                  onClick={() => {
+                    router.push(`/id/${userProfile?.username}/achievements`);
+                  }}
                 >
-                  Achievements (6)
+                  Achievements ({PlayerStats?.userAchievements?.length})
                 </Anchor>
                 <Group spacing="xs">
-                  {[1, 2, 3, 4].map((item, index) => (
+                  {PlayerStats?.userAchievements?.map((item, index) => (
                     <UnstyledButton key={index}>
-                      <Avatar size={60} color="cyan" variant="light">
-                        BH
-                      </Avatar>
+                      <Avatar
+                        src="/images/avatar1.jpg"
+                        size={60}
+                        color="cyan"
+                        variant="light"
+                      />
                     </UnstyledButton>
                   ))}
                 </Group>
