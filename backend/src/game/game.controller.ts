@@ -108,4 +108,12 @@ export class GameController {
       throw new HttpException(err.error, HttpStatus.BAD_REQUEST);
     }
   }
+
+  @Get('achievements')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async getAchievements() {
+    return await this.prisma.achievement.findMany();
+  }
 }

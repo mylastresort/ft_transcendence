@@ -166,7 +166,7 @@ export class GameService {
             select: {
               _count: { select: { wins: true, losses: true } },
               achievements: {
-                select: { name: true, description: true, icon: true },
+                select: { name: true, description: true, icon: true, id: true },
               },
               currentStreak: true,
               lastPlayed: true,
@@ -254,7 +254,9 @@ export class GameService {
         currentStreak: true,
         longestStreak: true,
         _count: { select: { wins: true, losses: true } },
-        achievements: { select: { name: true, description: true, icon: true } },
+        achievements: {
+          select: { name: true, description: true, icon: true, id: true },
+        },
         lastPlayed: true,
       };
       const player =
@@ -383,7 +385,7 @@ export class GameService {
             data,
             select: {
               achievements: {
-                select: { name: true, description: true, icon: true },
+                select: { name: true, description: true, icon: true, id: true },
               },
               currentStreak: true,
               level: true,
@@ -403,7 +405,7 @@ export class GameService {
             data: { lastPlayed: endedAt },
             select: {
               achievements: {
-                select: { name: true, description: true, icon: true },
+                select: { name: true, description: true, icon: true, id: true },
               },
               currentStreak: true,
               level: true,
