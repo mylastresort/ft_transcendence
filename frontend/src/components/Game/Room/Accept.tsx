@@ -46,7 +46,7 @@ export default function Accept() {
           game.opponent = game.role === 'host' ? res.body.guest : res.body.host;
           game.gameStatus = res.body.status;
           game.gameId = router.query.id as string;
-          router.push(`/game/${router.query.id}`);
+          setStatus({ gameStatus: res.body.status });
         })
         .catch((err) => setStatus({ gameStatus: 'invalid', error: err }));
     }
@@ -57,6 +57,10 @@ export default function Accept() {
       <Text>
         Invalid room {!!status.error && `because: ${status.error.message}`}
       </Text>
+    </Flex>
+  ) : !game.opponent.username ? (
+    <Flex align="center" justify="center" h="100%">
+      <Text>Loading game...</Text>
     </Flex>
   ) : status.gameStatus === 'playing' ? (
     <Canvas />

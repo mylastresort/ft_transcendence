@@ -135,9 +135,19 @@ export default function Canvas() {
   useEffect(() => {
     if (!opened) read.current = false;
   }, [messages]);
-  const mapobj = maps[maps.findIndex(({ name }) => name === game.conf.map)];
 
   const msg = useRef<HTMLInputElement>(null);
+
+  const mapobj = maps[maps.findIndex(({ name }) => name === game.conf.map)];
+
+  if (!mapobj) {
+    console.log(game);
+    return (
+      <Flex h="100%" align="center" justify="center">
+        <Text>Map not found</Text>
+      </Flex>
+    );
+  }
 
   const classes: Record<string, Sx> = {
     canvas_container: {
