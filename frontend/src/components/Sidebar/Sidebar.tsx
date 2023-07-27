@@ -32,6 +32,7 @@ import { IoNotifications } from 'react-icons/io5';
 import { UserSocket } from '@/context/WsContext';
 import { MdLabelImportantOutline } from 'react-icons/md';
 import { notifications } from '@mantine/notifications';
+import request from 'superagent';
 
 export const User_Sidebar = (Show: any) => {
   if (Show.Show) {
@@ -79,19 +80,45 @@ export const User_Sidebar = (Show: any) => {
               <Button
                 color="cyan"
                 onClick={() => {
-                  const payload = {
-                    gameid: data.gameid,
-                    receiverId: data.receiverId,
-                    senderId: data.senderId,
-                  };
-                  handleCleanNotifications();
-                  UserSocket.emit('AcceptedGameInvite', payload);
-                  router.push(`/game/${data.gameid}`);
+                  request
+                    .get(`http://localhost:4400/api/v1/game/${data.gameid}`)
+                    .set(
+                      'Authorization',
+                      `Bearer ${localStorage.getItem('jwtToken')}`
+                    )
+                    .then(() => {
+                      const payload = {
+                        gameid: data.gameid,
+                        receiverId: data.receiverId,
+                        senderId: data.senderId,
+                      };
+                      handleCleanNotifications();
+                      UserSocket.emit('AcceptedGameInvite', payload);
+                      router.push(`/game/${data.gameid}`);
+                    })
+                    .catch(console.error);
                 }}
               >
                 Accept
               </Button>
-              <Button variant="light" color="red">
+              <Button
+                variant="light"
+                color="red"
+                onClick={() =>
+                  request
+                    .post(
+                      `http://localhost:4400/api/v1/game/invite/cancel/${data.gameid}`
+                    )
+                    .set(
+                      'Authorization',
+                      `Bearer ${localStorage.getItem('jwtToken')}`
+                    )
+                    .then((res) => {
+                      console.log(res);
+                    })
+                    .catch(console.error)
+                }
+              >
                 Cancel
               </Button>
             </Group>

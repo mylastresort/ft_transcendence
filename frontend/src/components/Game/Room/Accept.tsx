@@ -1,4 +1,4 @@
-import { Button, Text } from '@mantine/core';
+import { Button, Center, Text } from '@mantine/core';
 import { Box, Flex } from '@mantine/core';
 import React, { useContext, useEffect, useState } from 'react';
 import styles from '../Lobby/Lobby.module.css';
@@ -13,7 +13,9 @@ export default function Accept() {
   const router = useRouter();
   const [ready, setReady] = useState(false);
   const player = useContext(PlayerContext);
-  const [status, setStatus] = useState(game.gameStatus);
+  const [status, setStatus] = useState<{ gameStatus: string; error?: Error }>({
+    gameStatus: game.gameStatus,
+  });
 
   useEffect(() => {
     let started = false;
@@ -22,9 +24,9 @@ export default function Accept() {
         started = true;
         game.config = value;
         game.gameStatus = 'playing';
-        setStatus('playing');
+        setStatus({ gameStatus: 'playing' });
       })
-      .on('cancelled', () => router.push('/game'))
+      .on('cancelled', () => router.push('/game'));
     return () => {
       if (!started) game.socket?.emit('leave', () => router.push('/game'));
       game.socket?.off('started').off('cancelled');
@@ -34,7 +36,7 @@ export default function Accept() {
   useEffect(() => {
     if (game.socket && !game.gameStatus && router.query.id) {
       request
-        .get(`http://localhost:4400/api/v1/game/conf/${router.query.id}`)
+        .get(`http://localhost:4400/api/v1/game/${router.query.id}`)
         .set('Authorization', `Bearer ${localStorage.getItem('jwtToken')}`)
         .then((res) => {
           if (res.status !== 200) return router.push('/game');
@@ -46,11 +48,17 @@ export default function Accept() {
           game.gameId = router.query.id as string;
           router.push(`/game/${router.query.id}`);
         })
-        .catch(console.error);
+        .catch((err) => setStatus({ gameStatus: 'invalid', error: err }));
     }
   }, [router.query.id]);
 
-  return status === 'playing' ? (
+  return status.gameStatus === 'invalid' ? (
+    <Flex justify="center" align="center" h="100%">
+      <Text>
+        Invalid room {!!status.error && `because: ${status.error.message}`}
+      </Text>
+    </Flex>
+  ) : status.gameStatus === 'playing' ? (
     <Canvas />
   ) : (
     <Flex align="center" h="100%">

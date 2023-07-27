@@ -26,7 +26,7 @@ export class GameController {
     private readonly prisma: PrismaService,
   ) {}
 
-  @Get('me')
+  @Get('player/me')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
@@ -45,7 +45,7 @@ export class GameController {
     };
   }
 
-  @Post()
+  @Post('player')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
@@ -97,7 +97,7 @@ export class GameController {
     });
   }
 
-  @Get('conf/:id')
+  @Get(':id')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
@@ -115,5 +115,13 @@ export class GameController {
   @ApiBearerAuth()
   async getAchievements() {
     return await this.prisma.achievement.findMany();
+  }
+
+  @Post('invite/cancel/:id')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async cancelInvite(@Param('id') id: UUID, @Req() req) {
+    await this.game.cancelInvite(req.user.id, id);
   }
 }

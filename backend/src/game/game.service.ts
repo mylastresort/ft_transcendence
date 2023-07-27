@@ -240,6 +240,38 @@ export class GameService {
       socket.to(socket.data.currentGameId).emit('chat', ...message);
   }
 
+  async cancelInvite(
+    playerId: Player['data']['userId'],
+    id: Player['data']['currentGameId'],
+  ) {
+    const room = this.rooms.get(id);
+    if (room) {
+      if (
+        !room.isInvite ||
+        (room.host.userId !== playerId && room.guest.userId !== playerId)
+      )
+        throw new HttpException('Forbbidden', HttpStatus.FORBIDDEN);
+      if (room.status === 'playing')
+        throw new HttpException('Room is playing', HttpStatus.FORBIDDEN);
+      await this.prisma.room.delete({ where: { id } });
+    } else {
+      const lazyRoom = await this.prisma.room.findUnique({
+        where: { id },
+        select: { players: { select: { userId: true } }, status: true },
+      });
+      if (!lazyRoom)
+        throw new HttpException('Room not found', HttpStatus.NOT_FOUND);
+      if (!lazyRoom.players.some(({ userId }) => userId === playerId))
+        throw new HttpException(
+          'You are not in this room',
+          HttpStatus.FORBIDDEN,
+        );
+      if (lazyRoom.status === 'finished')
+        throw new HttpException('Room is finished', HttpStatus.FORBIDDEN);
+      await this.prisma.room.delete({ where: { id } });
+    }
+  }
+
   async getPlayer(id: Player['data']['userId'], createOnNotFound = true) {
     const sockets = this.players.get(id);
     if (sockets && sockets.length) return sockets[sockets.length - 1].data;

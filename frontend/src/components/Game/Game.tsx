@@ -22,7 +22,7 @@ function GameWrapper(Component) {
           auth: { token: localStorage.getItem('jwtToken') },
         });
       request
-        .get('http://localhost:4400/api/v1/game/me')
+        .get('http://localhost:4400/api/v1/game/player/me')
         .set('Authorization', `Bearer ${localStorage.getItem('jwtToken')}`)
         .then((res) => {
           if (res.status === 200) setPlayer(res.body);
