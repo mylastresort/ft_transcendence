@@ -33,34 +33,37 @@ function Achievements() {
     <div className="dash_container">
       <Container size="xl">
         <SimpleGrid cols={3}>
-          {PlayerAchievements?.map((item, index) => (
-            <Stack className={Styles.css_div}>
-              <Flex justify="space-between" h="100%">
-                <Stack p="lg">
-                  <Text fz="lg" fw={500} c="#fff">
-                    {item.name}
-                  </Text>
-                  <Text fz="sm">{item.description}</Text>
-                  <UnstyledButton>
-                    <Group spacing="xs">
-                      <AiFillCheckCircle
-                        size="1.7rem"
-                        color="var(--success-color)"
-                      />{' '}
-                      <Text fw={500}>Achieved</Text>
-                    </Group>
-                  </UnstyledButton>
-                </Stack>
-                <Center
-                  style={{ borderRadius: '0 5px 5px 0' }}
-                  bg="var(--primary-color)"
-                  w="35%"
-                >
-                  <Avatar size="xl" radius="lg" src="/images/avatar1.jpg" />
-                </Center>
-              </Flex>
-            </Stack>
-          ))}
+          {PlayerAchievements?.map((item, index) => {
+            console.log(item.icon)
+            return (
+              <Stack className={Styles.css_div}>
+                <Flex justify="space-between" h="100%">
+                  <Stack p="lg">
+                    <Text fz="lg" fw={500} c="#fff">
+                      {item.name}
+                    </Text>
+                    <Text fz="sm">{item.description}</Text>
+                    <UnstyledButton>
+                      <Group spacing="xs">
+                        <AiFillCheckCircle
+                          size="1.7rem"
+                          color="var(--success-color)"
+                        />{' '}
+                        <Text fw={500}>Achieved</Text>
+                      </Group>
+                    </UnstyledButton>
+                  </Stack>
+                  <Center
+                    style={{ borderRadius: '0 5px 5px 0' }}
+                    bg="var(--primary-color)"
+                    w="35%"
+                  >
+                    <img src={item.icon}></img>
+                  </Center>
+                </Flex>
+              </Stack>
+            )
+          })}
         </SimpleGrid>
       </Container>
     </div>
