@@ -31,8 +31,10 @@ export class GameController {
       username: player.username,
       userLevel: player.userLevel,
       userWins: player.userWins,
+      userLoses: player.userLosses,
       userCurrentStreak: player.userCurrentStreak,
       userLongestStreak: player.userLongestStreak,
+      userAchievements: player.userAchievements,
     };
   }
 
@@ -45,7 +47,7 @@ export class GameController {
       const duration =
         new Date(game.endedAt).valueOf() - new Date(game.startedAt).valueOf();
       delete game.endedAt;
-      delete game.startedAt;
+      // delete game.startedAt;
       return {
         ...game,
         duration: {
@@ -53,6 +55,9 @@ export class GameController {
           minutes: Math.floor((duration % 3600000) / 60000),
           seconds: Math.floor(((duration % 3600000) % 60000) / 1000),
         },
+        status:
+          game.winner.user.username === req.user.username ? 'WINNER' : 'LOSER',
+        startedat: game.startedAt,
       };
     });
   }

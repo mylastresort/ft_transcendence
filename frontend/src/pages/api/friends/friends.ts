@@ -151,6 +151,19 @@ export const PostUnblock = (body: any) => {
     });
 };
 
+export const GetPlayerStats = () => {
+  const jwtToken = localStorage.getItem('jwtToken');
+  return request
+    .get('http://localhost:4400/api/v1/game/me')
+    .set('Authorization', `Bearer ${jwtToken}`)
+    .then((res) => {
+      return res;
+    })
+    .catch((err) => {
+      return err;
+    });
+};
+
 export const GetGameMatches = () => {
   const jwtToken = localStorage.getItem('jwtToken');
   return request

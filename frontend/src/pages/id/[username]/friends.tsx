@@ -1,45 +1,23 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   Stack,
-  Button,
   Flex,
-  Grid,
-  Image,
   Group,
   Text,
-  Indicator,
-  ThemeIcon,
-  Center,
-  ActionIcon,
-  Menu,
   Avatar,
-  Tabs,
   UnstyledButton,
-  Anchor,
   Divider,
   NavLink,
-  Box,
-  Input,
-  Checkbox,
-  Select,
-  Textarea,
-  FileButton,
 } from '@mantine/core';
 import { Spacer } from '@nextui-org/react';
 import { useRouter } from 'next/router';
 import { GetMe } from '@/pages/api/auth/auth';
-import { HiEmojiSad } from 'react-icons/hi';
-import { GetUserData, PostUpdateProfile } from '@/pages/api/user';
 import { PostUserProfile } from '@/pages/api/user';
 import {
   GetFriendRequests,
-  PostAcceptFriendRequest,
   GetFriendsList,
-  PostUnfriend,
-  PostBlockFriend,
   GetBLockedFriends,
-  PostUnblock,
   Get_Not_Friends,
 } from '@/pages/api/friends/friends';
 import Styles from './friends.module.css';
@@ -53,7 +31,6 @@ function SideLink({ data, active, setActive }) {
     <NavLink
       style={{ borderRadius: '5px' }}
       color="cyan"
-      key={item.label}
       icon={item.icon}
       rightSection={item?.rightSection}
       active={index === active}
@@ -253,6 +230,33 @@ function Friends() {
   const router = useRouter();
   const { username } = router.query;
 
+  const data = [
+    {
+      label: 'All Friends',
+      icon: <AiOutlineUser size={20} />,
+      rightSection: friends?.length,
+    },
+    {
+      label: 'Your Friends',
+      icon: <AiOutlineUserAdd size={20} />,
+      rightSection: friends?.length,
+    },
+    {
+      label: 'Add a Friend',
+      icon: <AiOutlineUser size={20} />,
+    },
+    {
+      label: 'Pending Invites',
+      icon: <HiMail size={20} />,
+      rightSection: friendReq?.length,
+    },
+    {
+      label: 'Blocked',
+      icon: <BiBlock size={20} />,
+      rightSection: blockedFriends?.length,
+    },
+  ];
+
   const fetchData = async () => {
     try {
       const friendRequests = await GetFriendRequests();
@@ -314,7 +318,7 @@ function Friends() {
               }}
             >
               <SideLink
-                data={isMe ? data.slice(1) : data.slice(0, 1)}
+                data={isMe ? data?.slice(1) : data?.slice(0, 1)}
                 active={active}
                 setActive={setActive}
               />

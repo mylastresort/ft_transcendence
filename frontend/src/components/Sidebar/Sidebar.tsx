@@ -26,6 +26,7 @@ import {
   Stack,
   Button,
   Center,
+  SimpleGrid,
 } from '@mantine/core';
 import { IoNotifications } from 'react-icons/io5';
 import { UserSocket } from '@/context/WsContext';
@@ -72,7 +73,7 @@ export const User_Sidebar = (Show: any) => {
                 color: '#fff',
               }}
             >
-              You have a game invite from {data.senderId}
+              You have a game invite from {data.username}
             </Text>
             <Group>
               <Button
@@ -115,7 +116,7 @@ export const User_Sidebar = (Show: any) => {
                 color: '#fff',
               }}
             >
-              Your game invite was accepted by {data.receiverId}
+              Your game invite was accepted by {data.username}
             </Text>
             <Group>
               <Button
@@ -523,7 +524,7 @@ export const User_Sidebar = (Show: any) => {
                           item.message.includes(
                             'Your game invite was accepted by'
                           ) ? (
-                            <Stack>
+                            <SimpleGrid cols={2}>
                               <Text
                                 size="$sm"
                                 css={{
@@ -534,55 +535,55 @@ export const User_Sidebar = (Show: any) => {
                               >
                                 {item.message}
                               </Text>
-                              <Group>
-                                <Button
-                                  color="cyan"
-                                  size="sm"
-                                  variant="light"
-                                  onClick={() => {
-                                    router.push(`/game/${item.gameid}`);
-                                  }}
-                                >
-                                  Join
-                                </Button>
-                              </Group>
-                            </Stack>
+                              <Button
+                                color="cyan"
+                                size="xs"
+                                variant="light"
+                                onClick={() => {
+                                  router.push(`/game/${item.gameid}`);
+                                }}
+                              >
+                                Join
+                              </Button>
+                            </SimpleGrid>
                           ) : (
                             <Stack>
-                              <Text
-                                size="$sm"
-                                css={{
-                                  fontFamily: 'poppins',
-                                  color: 'var(--text-color)',
-                                  fontWeight: '500',
-                                }}
-                              >
-                                {item.message}
-                              </Text>
-                              <Group>
-                                <Button
-                                  color="cyan"
-                                  size="sm"
-                                  variant="light"
-                                  onClick={() => {
-                                    const payload = {
-                                      gameid: item.gameid,
-                                      receiverId: item.receiverId,
-                                      senderId: item.senderId,
-                                    };
-                                    UserSocket.emit(
-                                      'AcceptedGameInvite',
-                                      payload
-                                    );
-                                    router.push(`/game/${item.gameid}`);
+                              <SimpleGrid cols={2}>
+                                <Text
+                                  size="$sm"
+                                  css={{
+                                    fontFamily: 'poppins',
+                                    color: 'var(--text-color)',
+                                    fontWeight: '500',
                                   }}
                                 >
-                                  Accept
-                                </Button>
-                                <Button size="sm" variant="light" color="red">
-                                  Cancel
-                                </Button>
-                              </Group>
+                                  {item.message}
+                                </Text>
+                                <Group>
+                                  <Button
+                                    color="cyan"
+                                    size="sm"
+                                    variant="light"
+                                    onClick={() => {
+                                      const payload = {
+                                        gameid: item.gameid,
+                                        receiverId: item.receiverId,
+                                        senderId: item.senderId,
+                                      };
+                                      UserSocket.emit(
+                                        'AcceptedGameInvite',
+                                        payload
+                                      );
+                                      router.push(`/game/${item.gameid}`);
+                                    }}
+                                  >
+                                    Accept
+                                  </Button>
+                                  <Button size="sm" variant="light" color="red">
+                                    Cancel
+                                  </Button>
+                                </Group>
+                              </SimpleGrid>
                             </Stack>
                           )
                         ) : (

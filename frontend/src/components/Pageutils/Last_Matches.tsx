@@ -33,26 +33,31 @@ interface UsersTableProps {
 
 export function Last_Matches() {
   const [currentPage, setCurrentPage] = useState(1);
-  const [data, setData] = useState([]);
+  const [GameMatches, setGameMatches] = useState<[]>([]);
+
   const itemsPerPage = 6;
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentData = data?.slice(startIndex, endIndex);
+  const currentData = GameMatches?.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
   useEffect(() => {
-    GetGameMatches().then((res) => {
-      setData(res.data);
-    });
+    GetGameMatches()
+      .then((res) => {
+        setGameMatches(res.body.reverse());
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, []);
 
   return (
     <Stack justify="center" align="center">
-      {data?.length > 0 ? (
+      {currentData?.length > 0 ? (
         <>
           <Stack style={{ minHeight: '48em', width: '100%' }}>
             <Table verticalSpacing="xs" fontSize="md" highlightOnHover>
@@ -97,24 +102,32 @@ export function Last_Matches() {
                       <Stack>
                         <UnstyledButton>
                           <Group>
-                            <Avatar size={40} color="cyan" variant="light">
-                              BH
-                            </Avatar>
+                            <Avatar
+                              src={item?.winner?.user?.imgProfile}
+                              size={40}
+                              color="cyan"
+                              variant="light"
+                              radius="xl"
+                            />
                             <div style={{ flex: 1 }}>
                               <Text size="sm" weight={500}>
-                                player1
+                                {item?.winner?.user?.username}
                               </Text>
                             </div>
                           </Group>
                         </UnstyledButton>
                         <UnstyledButton>
                           <Group>
-                            <Avatar size={40} color="cyan" variant="light">
-                              BH
-                            </Avatar>
+                            <Avatar
+                              src={item?.loser?.user?.imgProfile}
+                              size={40}
+                              color="cyan"
+                              variant="light"
+                              radius="xl"
+                            />
                             <div style={{ flex: 1 }}>
                               <Text size="sm" weight={500}>
-                                player2
+                                {item?.loser?.user?.username}
                               </Text>
                             </div>
                           </Group>
@@ -123,16 +136,21 @@ export function Last_Matches() {
                     </td>
                     <td>
                       <Badge color="green" size="lg" radius="sm">
-                        winner
+                        {item?.status}
                       </Badge>
                     </td>
                     <td>
                       <Avatar color="cyan" radius="xl">
-                        7
+                        {item?.winnerPostLevel?.toFixed(1)}
                       </Avatar>
                     </td>
-                    <td>2021-10-10</td>
-                    <td>10min:00sec</td>
+                    <td>
+                      {item && new Date(item.startedat).toLocaleDateString()}
+                    </td>
+                    <td>
+                      {item?.duration?.hours}h:{item?.duration?.minutes}m:
+                      {item?.duration?.seconds}s
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -140,7 +158,7 @@ export function Last_Matches() {
           </Stack>
           <Pagination
             color="cyan"
-            total={Math.ceil(data?.length / itemsPerPage)}
+            total={Math.ceil(GameMatches?.length / itemsPerPage)}
             value={currentPage}
             onChange={handlePageChange}
           />

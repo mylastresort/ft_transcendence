@@ -20,6 +20,9 @@ export const GameContext = createContext({
   winner: '',
   socket: null as Socket | null,
   gameStatus: '',
+  // leave : (gameid) => {
+  //   (socket as Socket).emit('leave', gameid)
+  // },
 });
 
 export type Player = {

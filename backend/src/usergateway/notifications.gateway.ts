@@ -347,6 +347,16 @@ export class NotificationsGateway {
   ) {
     try {
       const sockets = this.connectedSockets.get(data.receiverId);
+
+      const username = await this.prisma.user.findUnique({
+        where: {
+          id: data.senderId,
+        },
+        select: {
+          username: true,
+        },
+      });
+
       await this.prisma.user.update({
         where: {
           id: data.receiverId,
@@ -354,7 +364,7 @@ export class NotificationsGateway {
         data: {
           notifications: {
             create: {
-              message: 'You have a game invite from ' + data.senderId,
+              message: 'You have a game invite from ' + username.username,
               gameid: data.gameid,
               receiverId: data.receiverId,
               senderId: data.senderId,
@@ -369,6 +379,7 @@ export class NotificationsGateway {
             senderId: data.senderId,
             receiverId: data.receiverId,
             gameid: data.gameid,
+            username: username.username,
           });
         }
         await this.SendNotification(data.receiverId);
@@ -390,6 +401,15 @@ export class NotificationsGateway {
     try {
       const sockets = this.connectedSockets.get(data.senderId);
 
+      const username = await this.prisma.user.findUnique({
+        where: {
+          id: data.receiverId,
+        },
+        select: {
+          username: true,
+        },
+      });
+
       await this.prisma.user.update({
         where: {
           id: data.senderId,
@@ -397,7 +417,7 @@ export class NotificationsGateway {
         data: {
           notifications: {
             create: {
-              message: 'Your game invite was accepted by ' + data.receiverId,
+              message: 'Your game invite was accepted by ' + username.username,
               gameid: data.gameid,
               receiverId: data.receiverId,
               senderId: data.senderId,
@@ -413,6 +433,7 @@ export class NotificationsGateway {
             senderId: data.senderId,
             receiverId: data.receiverId,
             gameid: data.gameid,
+            username: username.username,
           });
         }
       }
