@@ -15,7 +15,8 @@ export default function useBall(
   allow,
   canvas,
   mapWidth,
-  mapHeight
+  mapHeight,
+  radius
 ) {
   const game = useContext(GameContext);
 
@@ -31,24 +32,14 @@ export default function useBall(
       .on('ping', ([right, top, dx, dy], key) => {
         if (!Ball.current) return;
         cancelAnimationFrame(rAFball.current);
-        const curX = cord.current['--ball-x'][0];
-        if (Math.abs(curX) <= (right * canvas.current.width) / mapWidth)
-          Ball.current.style.setProperty(
-            '--ball-x',
-            `${(right * canvas.current.width) / mapWidth}px`
-          );
-        const curY = cord.current['--ball-y'][0];
-        if (Math.abs(curY) <= (top * canvas.current.height) / mapHeight)
-          Ball.current.style.setProperty(
-            '--ball-y',
-            `${(top * canvas.current.height) / mapHeight}px`
-          );
         cord.current['--ball-x'] = [right, dx];
         cord.current['--ball-y'] = [top, dy];
         rAFball.current = (function move() {
           return requestAnimationFrame(() => {
             if (!Ball.current) return;
-            const { width, height } = canvas.current.getBoundingClientRect();
+            let { width, height } = canvas.current.getBoundingClientRect();
+            width -= (radius * 2 * width) / mapWidth;
+            height -= (radius * 2 * height) / mapHeight;
             if (
               Object.entries(cord.current).reduce(
                 (_done, [name, [max, lsz]]) => {
