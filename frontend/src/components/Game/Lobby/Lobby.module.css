@@ -6,16 +6,6 @@
     margin-block: 2rem;
 }
 
-.lobby .actions {
-    gap: 5rem;
-    margin-top: 5rem;
-}
-
-.lobby .actions>* {
-    height: 2.7em;
-    width: 12rem;
-}
-
 .lobby .profile {
     width: 100%;
     color: white;

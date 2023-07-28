@@ -18,22 +18,6 @@ export default function Profile({ player }: { player: Player }) {
         bg={`url(${player.userImgProfile || 'https://picsum.photos/300'})`}
       />
       <Text className={styles.text_profile}>{player.username || 'N/A'}</Text>
-      <Text className={styles.text_profile}>
-        level {(player.userLevel as number)?.toFixed(2) ?? 'N/A'}
-      </Text>
-      <Text className={styles.text_profile}>
-        {player.userWins ?? 'N/A'} <BiMedal /> wins
-      </Text>
-      <Text className={styles.text_profile}>
-        {player.userCurrentStreak ?? 'N/A'}
-        <GoFlame size="1.2rem" style={{ marginInline: '3px' }} />
-        current streak
-      </Text>
-      <Text className={styles.text_profile}>
-        {player.userLongestStreak ?? 'N/A'}
-        <GoFlame size="1.2rem" style={{ marginInline: '3px' }} />
-        longest streak
-      </Text>
     </Flex>
   );
 }

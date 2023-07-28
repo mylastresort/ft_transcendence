@@ -200,6 +200,7 @@ export class GameService {
           speed: lazyRoom.speed,
           games: lazyRoom.maxGames,
           name: lazyRoom.name,
+          isInvite: lazyRoom.isInvite,
         },
         [lazyRoom.players[0].userId === lazyRoom.hostId ? 'host' : 'guest']: {
           username: lazyRoom.players[0].user.username,
@@ -228,6 +229,7 @@ export class GameService {
         speed: room.host.hostWishedGameSpeed,
         games: room.host.hostSettableGames,
         name: room.host.hostWishedGameName,
+        isInvite: room.isInvite,
       },
       host: room.host,
       guest: room.guest,
@@ -334,34 +336,36 @@ export class GameService {
   }
 
   async invite(socket: Player, body) {
-    const guest = await this.getPlayer(Number(body.userId));
-    if (!guest)
-      throw new HttpException('Player is offline', HttpStatus.BAD_REQUEST);
-    socket.data.hostWishedGameSpeed = body.speed;
-    socket.data.hostSettableGames = body.games;
-    socket.data.hostWishedGameName = body.name;
-    socket.data.hostWishedGameMap = body.map;
-    const room = new Room(socket.data, guest);
-    room.isInvite = true;
-    await this.prisma.room.create({
-      data: {
-        id: room.id,
-        players: {
-          connect: [
-            { userId: room.host.userId },
-            { userId: room.guest.userId },
-          ],
+    if (socket.data.userId !== Number(body.userId)) {
+      const guest = await this.getPlayer(Number(body.userId));
+      if (!guest)
+        throw new HttpException('Player is offline', HttpStatus.BAD_REQUEST);
+      socket.data.hostWishedGameSpeed = body.speed;
+      socket.data.hostSettableGames = body.games;
+      socket.data.hostWishedGameName = body.name;
+      socket.data.hostWishedGameMap = body.map;
+      const room = new Room(socket.data, guest);
+      room.isInvite = true;
+      await this.prisma.room.create({
+        data: {
+          id: room.id,
+          players: {
+            connect: [
+              { userId: room.host.userId },
+              { userId: room.guest.userId },
+            ],
+          },
+          hostId: room.host.userId,
+          map: room.host.hostWishedGameMap,
+          maxGames: room.host.hostSettableGames,
+          name: room.host.hostWishedGameName,
+          speed: room.host.hostWishedGameSpeed,
+          status: 'waiting',
+          isInvite: room.isInvite,
         },
-        hostId: room.host.userId,
-        map: room.host.hostWishedGameMap,
-        maxGames: room.host.hostSettableGames,
-        name: room.host.hostWishedGameName,
-        speed: room.host.hostWishedGameSpeed,
-        status: 'waiting',
-        isInvite: room.isInvite,
-      },
-    });
-    return room.id;
+      });
+      return room.id;
+    }
   }
 
   async leave(socket: Player) {
@@ -473,17 +477,18 @@ export class GameService {
     return true;
   }
 
+  async currentGame(id: Player['data']['userId']) {
+    return (await this.getPlayer(id, false)).currentGameId;
+  }
+
   async ready(
     socket: Player,
     ready: boolean,
     id: Player['data']['currentGameId'],
   ) {
-    if (socket.data.currentGameId && socket.data.currentGameId !== id)
-      throw new WsException('Already in game');
-    let room;
-    if (socket.data.currentGameId)
-      room = this.rooms.get(socket.data.currentGameId);
-    else {
+    if (socket.data.currentGameId) throw new WsException('Already in game');
+    let room: any = this.rooms.get(id);
+    if (!room) {
       room = await this.prisma.room.findUnique({
         where: { id },
         select: {
@@ -525,8 +530,6 @@ export class GameService {
       room = new Room(host, guest);
       room.isInvite = true;
       room.id = id;
-      host.currentGameId = id;
-      guest.currentGameId = id;
       this.rooms.set(id, room);
     }
     if (!room) throw new WsException('Room not found');
@@ -535,6 +538,8 @@ export class GameService {
       room.guest.userId !== socket.data.userId
     )
       throw new WsException('You are not in this room');
+    socket.data =
+      room.host.userId === socket.data.userId ? room.host : room.guest;
     socket.data.ready = ready;
     if (room.guest.ready && room.host.ready) {
       const config = {

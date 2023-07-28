@@ -85,7 +85,7 @@ export const User_Sidebar = (Show: any) => {
                       'Authorization',
                       `Bearer ${localStorage.getItem('jwtToken')}`
                     )
-                    .then(() => {
+                    .then((res) => {
                       const payload = {
                         gameid: data.gameid,
                         receiverId: data.receiverId,
@@ -95,7 +95,7 @@ export const User_Sidebar = (Show: any) => {
                       UserSocket.emit('AcceptedGameInvite', payload);
                       router.push(`/game/${data.gameid}`);
                     })
-                    .catch(console.error);
+                    .catch(() => {});
                 }}
               >
                 Accept
@@ -117,6 +117,11 @@ export const User_Sidebar = (Show: any) => {
                       console.log(res);
                     })
                     .catch(console.error);
+                  UserSocket.emit('ClearNotification', {
+                    gameid: data.gameid,
+                    receiverId: data.receiverId,
+                    senderId: data.senderId,
+                  });
                 }}
               >
                 Cancel
@@ -592,21 +597,60 @@ export const User_Sidebar = (Show: any) => {
                                     size="sm"
                                     variant="light"
                                     onClick={() => {
-                                      const payload = {
-                                        gameid: item.gameid,
-                                        receiverId: item.receiverId,
-                                        senderId: item.senderId,
-                                      };
-                                      UserSocket.emit(
-                                        'AcceptedGameInvite',
-                                        payload
-                                      );
-                                      router.push(`/game/${item.gameid}`);
+                                      request
+                                        .get(
+                                          `http://localhost:4400/api/v1/game/${item.gameid}`
+                                        )
+                                        .set(
+                                          'Authorization',
+                                          `Bearer ${localStorage.getItem(
+                                            'jwtToken'
+                                          )}`
+                                        )
+                                        .then((res) => {
+                                          const payload = {
+                                            gameid: item.gameid,
+                                            receiverId: item.receiverId,
+                                            senderId: item.senderId,
+                                          };
+                                          handleCleanNotifications();
+                                          UserSocket.emit(
+                                            'AcceptedGameInvite',
+                                            payload
+                                          );
+                                          router.push(`/game/${item.gameid}`);
+                                        })
+                                        .catch(() => {});
                                     }}
                                   >
                                     Accept
                                   </Button>
-                                  <Button size="sm" variant="light" color="red">
+                                  <Button
+                                    size="sm"
+                                    variant="light"
+                                    color="red"
+                                    onClick={() => {
+                                      request
+                                        .post(
+                                          `http://localhost:4400/api/v1/game/invite/cancel/${item.gameid}`
+                                        )
+                                        .set(
+                                          'Authorization',
+                                          `Bearer ${localStorage.getItem(
+                                            'jwtToken'
+                                          )}`
+                                        )
+                                        .then((res) => {
+                                          console.log(res);
+                                        })
+                                        .catch(console.error);
+                                      UserSocket.emit('ClearNotification', {
+                                        gameid: item.gameid,
+                                        receiverId: item.receiverId,
+                                        senderId: item.senderId,
+                                      });
+                                    }}
+                                  >
                                     Cancel
                                   </Button>
                                 </Group>

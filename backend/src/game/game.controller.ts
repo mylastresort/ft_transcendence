@@ -45,6 +45,14 @@ export class GameController {
     };
   }
 
+  @Get('player/me/currentGame')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async currentGame(@Req() req) {
+    return await this.game.currentGame(req.user.id);
+  }
+
   @Post('player')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)

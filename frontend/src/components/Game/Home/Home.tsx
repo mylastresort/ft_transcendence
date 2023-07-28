@@ -20,7 +20,7 @@ export default function Home() {
       </Text>
       <Group w="100%" className={styles.actions} display="flex">
         <Button w="11rem" component={Link} href="/game/create">
-          Create
+          Invite user 2
         </Button>
         <Button
           w="11rem"
