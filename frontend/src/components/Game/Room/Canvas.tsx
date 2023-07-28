@@ -1,4 +1,4 @@
-import { ActionIcon, Avatar, Input, Sx } from '@mantine/core';
+import { ActionIcon, Avatar, Input, MediaQuery, Sx } from '@mantine/core';
 import { Box, Flex, Text } from '@mantine/core';
 import { motion } from 'framer-motion';
 import React, {
@@ -24,6 +24,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { BsChatLeftText, BsCircleFill } from 'react-icons/bs';
 import Lottie from 'lottie-react';
 import batAnimation from '@/../public/images/maps/bat-animation.json';
+import { WsContext } from '@/context/WsContext';
 
 export default function Canvas() {
   const rAFball = useRef(0);
@@ -72,9 +73,26 @@ export default function Canvas() {
   });
   const [messages, setMessages] = useState<ReactNode[]>([]);
   const [history, setHistory] = useState<string[]>([]);
+  const socket = useContext(WsContext);
 
   useEffect(() => {
     let winner = 'opponent';
+    socket.emit('ClearNotification', {
+      gameid: game.gameId,
+      user1: player.userId,
+      user2: game.opponent.userId,
+    });
+    socket.emit('InGame', {
+      user1Id: player?.userId,
+      user2Id: game.opponent.userId,
+    });
+    function leave() {
+      socket.emit('GameEnded', {
+        user1Id: player.userId,
+        user2Id: game.opponent.userId,
+      });
+      router.push('/game/results');
+    }
     game.socket
       ?.on('scored', (role, score) =>
         role === 'host' ? setHostScore(score) : setGuestScore(score)
@@ -83,7 +101,7 @@ export default function Canvas() {
         finished.current = true;
         setHistory((history) => [...history, value]);
         winner = value === game.role ? 'self' : 'opponent';
-        router.push('/game/results');
+        leave();
       })
       .on('games:counter', (count, winner) => {
         setGamesCounter(count);
@@ -96,7 +114,7 @@ export default function Canvas() {
       .on('left', () => {
         game.winner = 'self';
         winner = game.winner;
-        router.push('/game/results');
+        leave();
       })
       .on('chat', (username, message) => {
         setMessages((messages) => [
@@ -128,7 +146,7 @@ export default function Canvas() {
         .off('games:counter')
         .off('left')
         .off('chat')
-        .emit('leave', () => router.push('/game/results'));
+        .emit('leave', leave);
     };
   }, []);
 
@@ -149,166 +167,20 @@ export default function Canvas() {
     );
   }
 
-  const classes: Record<string, Sx> = {
-    canvas_container: {
-      flexDirection: 'column',
-      fontWeight: 'bold',
-      gap: '1em',
-      height: '100%',
-      margin: '0 auto',
-      overflow: 'hidden',
-      position: 'relative',
-      width: '100%',
-      '&:before': {
-        backgroundImage: `url(${mapobj.url})`,
-        backgroundPosition: mapobj.backgroundPosition,
-        backgroundRepeat: 'repeat',
-        backgroundSize: 'cover',
-        content: "' '",
-        height: '100%',
-        position: 'absolute',
-        width: '100%',
-      },
-    },
-    canvas: {
-      aspectRatio: (width / height).toString(),
-      backdropFilter: 'blur(10px)',
-      borderBottom: '.1em solid',
-      color: mapobj.color,
-      borderImage: mapobj.color + ' 1',
-      borderTop: '.1em solid',
-      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
-      boxSizing: 'content-box',
-      justifyContent: 'space-between',
-      marginBlock: '0',
-      maxWidth: '1000px',
-      position: 'relative',
-      zIndex: 2,
-    },
-    divider: {
-      borderImage: mapobj.color + ' 1',
-      borderLeft: '1px solid',
-      borderRight: '1px solid',
-      height: '100%',
-      position: 'absolute',
-      top: '0',
-    },
-    ball: {
-      '--ball-x': '0px',
-      '--ball-y': '0px',
-      backgroundImage: mapobj.ballColor,
-      borderRadius: mapobj.ballRadius,
-      position: 'absolute',
-      transform: 'translate(var(--ball-x), var(--ball-y))',
-    },
-    guest: {
-      '--player-y': '0px',
-      backgroundImage: mapobj.guestColor,
-      backgroundPosition: 'center',
-      backgroundSize: 'cover',
-      borderRadius: mapobj.playerRadius,
-      transform: 'translateY(calc(var(--player-y)))',
-      width: '0.5%',
-      translate: '100%',
-    },
-    host: {
-      '--player-y': '0px',
-      backgroundImage: mapobj.hostColor,
-      borderRadius: mapobj.playerRadius,
-      transform: 'translateY(calc(var(--player-y)))',
-      width: '0.5%',
-      translate: '-100%',
-    },
-    hostScore: {
-      background: mapobj.color,
-      backgroundClip: 'text',
-      fontFamily: mapobj.font,
-      fontSize: '2.5rem',
-      left: '15%',
-      position: 'absolute',
-      textAlign: 'left',
-      top: '1em',
-      WebkitTextFillColor: 'transparent',
-    },
-    guestScore: {
-      background: mapobj.color,
-      backgroundClip: 'text',
-      fontFamily: mapobj.font,
-      fontSize: '2.5rem',
-      position: 'absolute',
-      right: '15%',
-      textAlign: 'left',
-      top: '1em',
-      WebkitTextFillColor: 'transparent',
-    },
-    username: {
-      background: mapobj.color,
-      backgroundClip: 'text',
-      fontSize: '1.6rem',
-      WebkitTextFillColor: 'transparent',
-      fontFamily: mapobj.gamesFont,
-    },
-    games: {
-      background: mapobj.color,
-      backgroundClip: 'text',
-      fontFamily: mapobj.font,
-      fontSize: '2.5rem',
-      order: 2,
-      WebkitTextFillColor: 'transparent',
-      position: 'relative',
-      zIndex: 2,
-      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
-      backdropFilter: 'blur(10px)',
-      borderRadius: '1rem',
-    },
-    overlay: {
-      backgroundColor: '#141b26',
-      height: '100%',
-      left: '0',
-      opacity: '0.55',
-      position: 'absolute',
-      right: '0',
-      width: '100%',
-      zIndex: 1,
-    },
-    scoreboard: {
-      maxWidth: '1000px',
-      justifyContent: 'space-between',
-      margin: '0 auto',
-      marginBlock: '2rem',
-      paddingBlock: '.7rem',
-      paddingInline: '1rem',
-      zIndex: 2,
-      position: 'relative',
-      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
-      backdropFilter: 'blur(10px)',
-      borderRadius: '1rem',
-    },
-    chat_input: {
-      backgroundColor: '',
-      '& input': {
-        backgroundColor: 'transparent',
-        border: '0',
-      },
-      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
-      backdropFilter: 'blur(10px)',
-      zIndex: 2,
-    },
-    chat_content: {
-      zIndex: 2,
-    },
-    chat: {
-      position: 'absolute',
-      bottom: '2%',
-      margin: '0 auto',
-      marginBottom: '1em',
-      marginInline: '4em',
-    },
-  };
-
   return (
     <>
-      <Box sx={classes.overlay} />
+      <Box
+        sx={{
+          backgroundColor: '#141b26',
+          height: '100%',
+          left: '0',
+          opacity: '0.55',
+          position: 'absolute',
+          right: '0',
+          width: '100%',
+          zIndex: 1,
+        }}
+      />
       {game.conf.map === 'WitchCraft' && (
         <div style={{ height: '100%', position: 'absolute', width: '100%' }}>
           <div
@@ -363,16 +235,48 @@ export default function Canvas() {
         component={motion.div}
         initial={{ opacity: 0, scale: 1.05 }}
         animate={{ opacity: 1, scale: 1 }}
-        sx={classes.canvas_container}
+        sx={{
+          flexDirection: 'column',
+          fontWeight: 'bold',
+          gap: '1em',
+          height: '100%',
+          margin: '0 auto',
+          overflow: 'hidden',
+          position: 'relative',
+          width: '100%',
+          '&:before': {
+            backgroundImage: `url(${mapobj.url})`,
+            backgroundPosition: mapobj.backgroundPosition,
+            backgroundRepeat: 'repeat',
+            backgroundSize: 'cover',
+            content: "' '",
+            height: '100%',
+            position: 'absolute',
+            width: '100%',
+          },
+        }}
       >
         <Text
           w="90%"
           ta="center"
           m="0 auto"
-          my="1rem"
-          maw="1000px"
+          my="min(1vw, 1vh)"
+          maw="min(90vh, 90%)"
           color={mapobj.color}
-          sx={classes.games}
+          sx={{
+            background: mapobj.color,
+            backgroundClip: 'text',
+            fontFamily: mapobj.font,
+            fontSize: 'min(3vh, 3vw)',
+            order: 2,
+            WebkitTextFillColor: 'transparent',
+            position: 'relative',
+            zIndex: 2,
+            boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '1rem',
+            paddingBlock: '.5rem',
+          }}
         >
           {gamesCounter}
           {gamesCounter === 1
@@ -384,7 +288,24 @@ export default function Canvas() {
             : 'th'}{' '}
           Round
         </Text>
-        <Flex w="90%" sx={classes.scoreboard}>
+        <Flex
+          sx={{
+            maxWidth: 'min(90vh, 90%)',
+            justifyContent: 'space-between',
+            margin: '0 auto',
+            marginBlock: 'min(1vh, 1vw)',
+            paddingBlock: '.7rem',
+            paddingInline: '1rem',
+            zIndex: 2,
+            position: 'relative',
+            boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '1rem',
+            ['@media (min-aspect-ratio: 5/4)']: {
+              display: 'none',
+            },
+          }}
+        >
           <Flex
             gap=".7rem"
             sx={{
@@ -401,7 +322,17 @@ export default function Canvas() {
                 paddingBlock: '.5rem',
               }}
             >
-              <Text sx={classes.username} size="1rem" color={mapobj.color}>
+              <Text
+                sx={{
+                  background: mapobj.color,
+                  backgroundClip: 'text',
+                  fontSize: 'min(2vh, 2vw)',
+                  WebkitTextFillColor: 'transparent',
+                  fontFamily: mapobj.gamesFont,
+                }}
+                size="1rem"
+                color={mapobj.color}
+              >
                 {mapobj.gamesFont === "'Nightcore Demo'" && '('}
                 {player.username}
                 {mapobj.gamesFont === "'Nightcore Demo'" && ')'}
@@ -410,21 +341,23 @@ export default function Canvas() {
                 {Array.from({ length: game.conf.games }, (_, i) =>
                   history.length > i ? (
                     <FaCircle
-                      size="1.1rem"
+                      size="min(1vh, 1vw)"
                       style={{ marginInline: '.1rem' }}
                       fill={history[i] === game.role ? '#1dfc34' : '#ff5151'}
                     />
                   ) : (
                     <FaRegCircle
-                      size="1.1rem"
+                      size="min(1vh, 1vw)"
                       style={{ marginInline: '.1rem' }}
-                      fill={mapobj.fillColor + '75'}
+                      fill={
+                        mapobj.fillColor + (history.length === i ? '' : '75')
+                      }
                     />
                   )
                 )}
               </Box>
             </Flex>
-            <Avatar size="9rem" src={player.userImgProfile} />
+            <Avatar size="min(5vh, 5vw)" src={player.userImgProfile} />
           </Flex>
           <Flex
             gap=".7rem"
@@ -442,7 +375,17 @@ export default function Canvas() {
                 paddingBlock: '.5rem',
               }}
             >
-              <Text sx={classes.username} size="1rem" color={mapobj.color}>
+              <Text
+                sx={{
+                  background: mapobj.color,
+                  backgroundClip: 'text',
+                  fontSize: 'min(2vh, 2vw)',
+                  WebkitTextFillColor: 'transparent',
+                  fontFamily: mapobj.gamesFont,
+                }}
+                size="1rem"
+                color={mapobj.color}
+              >
                 {mapobj.gamesFont === "'Nightcore Demo'" && '('}
                 {game.opponent.username}
                 {mapobj.gamesFont === "'Nightcore Demo'" && ')'}
@@ -451,62 +394,290 @@ export default function Canvas() {
                 {Array.from({ length: game.conf.games }, (_, i) =>
                   history.length > i ? (
                     <FaCircle
-                      size="1.1rem"
+                      size="min(1vh, 1vw)"
                       style={{ marginInline: '.1rem' }}
                       fill={history[i] !== game.role ? '#1dfc34' : '#ff5151'}
                     />
                   ) : (
                     <FaRegCircle
-                      size="1.1rem"
+                      size="min(1vh, 1vw)"
                       style={{ marginInline: '.1rem' }}
-                      fill={mapobj.fillColor + '75'}
+                      fill={
+                        mapobj.fillColor + (history.length === i ? '' : '75')
+                      }
                     />
                   )
                 )}
               </Box>
             </Flex>
-            <Avatar size="9rem" src={game.opponent.userImgProfile} />
+            <Avatar size="min(5vh, 5vw)" src={game.opponent.userImgProfile} />
           </Flex>
         </Flex>
-        <Flex
-          align="center"
-          sx={classes.canvas}
-          miw={width + 2 * game.config.radius}
-          onMouseMove={handleMouseMove}
-          ref={canvas}
-          m="0 auto"
-          w="90%"
+        <Box
+          sx={{
+            ['@media (min-aspect-ratio: 5/4)']: {
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'start',
+              gap: '1em',
+              paddingInline: '1em',
+            },
+          }}
         >
           <Box
-            sx={classes.host}
-            ref={host}
-            style={{ height: (game.config.paddle * 100) / height + '%' }}
-          />
-          <Text sx={classes.hostScore} size="2rem">
-            {hostScore}
-          </Text>
-          <Box>
-            <Box sx={classes.divider} />
-            <Box
-              ref={ball}
-              mih={(game.config.radius * 2 * 100) / height + '%'}
-              miw={(game.config.radius * 2 * 100) / width + '%'}
-              sx={classes.ball}
-            />
+            display="none"
+            sx={{
+              ['@media (min-aspect-ratio: 5/4)']: {
+                display: 'block',
+                flexGrow: 1,
+                margin: '0 auto',
+                zIndex: 3,
+                paddingInline: '2rem',
+                paddingBlock: '1rem',
+                backdropFilter: 'blur(10px)',
+                boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+                borderRadius: '1rem',
+              },
+            }}
+          >
+            <Avatar size="10vh" m="0 auto" src={player.userImgProfile} />
+            <Flex
+              direction="column"
+              sx={{
+                justifyContent: 'space-between',
+                order: 1,
+                paddingBlock: '.5rem',
+                margin: '0 auto',
+              }}
+            >
+              <Text
+                sx={{
+                  background: mapobj.color,
+                  backgroundClip: 'text',
+                  fontSize: 'min(2vh, 2vw)',
+                  WebkitTextFillColor: 'transparent',
+                  fontFamily: mapobj.gamesFont,
+                }}
+                size="1rem"
+                color={mapobj.color}
+                m="0 auto"
+              >
+                {mapobj.gamesFont === "'Nightcore Demo'" && '('}
+                {player.username}
+                {mapobj.gamesFont === "'Nightcore Demo'" && ')'}
+              </Text>
+              <Box style={{ position: 'relative' }} m="0 auto">
+                {Array.from({ length: game.conf.games }, (_, i) =>
+                  history.length > i ? (
+                    <FaCircle
+                      size="min(1vh, 1vw)"
+                      style={{ marginInline: '.1rem' }}
+                      fill={history[i] === game.role ? '#1dfc34' : '#ff5151'}
+                    />
+                  ) : (
+                    <FaRegCircle
+                      size="min(1vh, 1vw)"
+                      style={{ marginInline: '.1rem' }}
+                      fill={
+                        mapobj.fillColor + (history.length === i ? '' : '75')
+                      }
+                    />
+                  )
+                )}
+              </Box>
+            </Flex>
           </Box>
-          <Text sx={classes.guestScore} size="2rem">
-            {guestScore}
-          </Text>
+          <Flex
+            align="center"
+            sx={{
+              aspectRatio: (width / height).toString(),
+              backdropFilter: 'blur(10px)',
+              borderBottom: '.1em solid',
+              color: mapobj.color,
+              borderImage: mapobj.color + ' 1',
+              borderTop: '.1em solid',
+              boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+              boxSizing: 'content-box',
+              justifyContent: 'space-between',
+              marginBlock: '0',
+              position: 'relative',
+              zIndex: 2,
+              flexBasis: '100%',
+            }}
+            miw={width + 2 * game.config.radius}
+            onMouseMove={handleMouseMove}
+            ref={canvas}
+            m="0 auto"
+            maw="min(90vh, 80vw)"
+          >
+            <Box
+              sx={{
+                '--player-y': '0px',
+                backgroundImage: mapobj.hostColor,
+                borderRadius: mapobj.playerRadius,
+                transform: 'translateY(calc(var(--player-y)))',
+                width: '0.5%',
+                translate: '-100%',
+              }}
+              ref={host}
+              style={{ height: (game.config.paddle * 100) / height + '%' }}
+            />
+            <Text
+              sx={{
+                background: mapobj.color,
+                backgroundClip: 'text',
+                fontFamily: mapobj.font,
+                fontSize: '2.5rem',
+                left: '15%',
+                position: 'absolute',
+                textAlign: 'left',
+                top: '1em',
+                WebkitTextFillColor: 'transparent',
+              }}
+              size="2rem"
+            >
+              {hostScore}
+            </Text>
+            <Box>
+              <Box
+                sx={{
+                  borderImage: mapobj.color + ' 1',
+                  borderLeft: '1px solid',
+                  borderRight: '1px solid',
+                  height: '100%',
+                  position: 'absolute',
+                  top: '0',
+                }}
+              />
+              <Box
+                ref={ball}
+                mih={(game.config.radius * 2 * 100) / height + '%'}
+                miw={(game.config.radius * 2 * 100) / width + '%'}
+                sx={{
+                  '--ball-x': '0px',
+                  '--ball-y': '0px',
+                  backgroundImage: mapobj.ballColor,
+                  borderRadius: mapobj.ballRadius,
+                  position: 'absolute',
+                  transform: 'translate(var(--ball-x), var(--ball-y))',
+                }}
+              />
+            </Box>
+            <Text
+              sx={{
+                background: mapobj.color,
+                backgroundClip: 'text',
+                fontFamily: mapobj.font,
+                fontSize: '2.5rem',
+                position: 'absolute',
+                right: '15%',
+                textAlign: 'left',
+                top: '1em',
+                WebkitTextFillColor: 'transparent',
+              }}
+              size="2rem"
+            >
+              {guestScore}
+            </Text>
+            <Box
+              sx={{
+                '--player-y': '0px',
+                backgroundImage: mapobj.guestColor,
+                backgroundPosition: 'center',
+                backgroundSize: 'cover',
+                borderRadius: mapobj.playerRadius,
+                transform: 'translateY(calc(var(--player-y)))',
+                width: '0.5%',
+                translate: '100%',
+              }}
+              ref={guest}
+              style={{ height: (game.config.paddle * 100) / height + '%' }}
+            />
+          </Flex>
           <Box
-            sx={classes.guest}
-            ref={guest}
-            style={{ height: (game.config.paddle * 100) / height + '%' }}
-          />
-        </Flex>
-        <Box sx={classes.chat} w="25rem">
+            display="none"
+            sx={{
+              ['@media (min-aspect-ratio: 5/4)']: {
+                display: 'block',
+                flexGrow: 1,
+                margin: '0 auto',
+                zIndex: 3,
+                paddingInline: '2rem',
+                paddingBlock: '1rem',
+                backdropFilter: 'blur(10px)',
+                boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+                borderRadius: '1rem',
+              },
+            }}
+          >
+            <Avatar m="0 auto" size="10vh" src={game.opponent.userImgProfile} />
+            <Flex
+              direction="column"
+              sx={{
+                justifyContent: 'space-between',
+                order: 1,
+                paddingBlock: '.5rem',
+              }}
+            >
+              <Text
+                sx={{
+                  background: mapobj.color,
+                  backgroundClip: 'text',
+                  fontSize: 'min(2vh, 2vw)',
+                  WebkitTextFillColor: 'transparent',
+                  fontFamily: mapobj.gamesFont,
+                }}
+                size="1rem"
+                color={mapobj.color}
+                m="0 auto"
+              >
+                {mapobj.gamesFont === "'Nightcore Demo'" && '('}
+                {game.opponent.username}
+                {mapobj.gamesFont === "'Nightcore Demo'" && ')'}
+              </Text>
+              <Box
+                style={{ position: 'relative', direction: 'rtl' }}
+                m="0 auto"
+              >
+                {Array.from({ length: game.conf.games }, (_, i) =>
+                  history.length > i ? (
+                    <FaCircle
+                      size="min(1vh, 1vw)"
+                      style={{ marginInline: '.1rem' }}
+                      fill={history[i] !== game.role ? '#1dfc34' : '#ff5151'}
+                    />
+                  ) : (
+                    <FaRegCircle
+                      size="min(1vh, 1vw)"
+                      style={{ marginInline: '.1rem' }}
+                      fill={
+                        mapobj.fillColor + (history.length === i ? '' : '75')
+                      }
+                    />
+                  )
+                )}
+              </Box>
+            </Flex>
+          </Box>
+        </Box>
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: '2%',
+            margin: '0 auto',
+            marginBottom: '1em',
+            marginInline: '4em',
+          }}
+          w="25rem"
+        >
           {opened && (
             <Box style={{ zIndex: 100 }}>
-              <ScrollArea h="10rem" sx={classes.chat_content}>
+              <ScrollArea
+                h="10rem"
+                sx={{
+                  zIndex: 2,
+                }}
+              >
                 {messages}
               </ScrollArea>
               <form
@@ -540,7 +711,16 @@ export default function Canvas() {
               >
                 <Input
                   name="message"
-                  sx={classes.chat_input}
+                  sx={{
+                    backgroundColor: '',
+                    '& input': {
+                      backgroundColor: 'transparent',
+                      border: '0',
+                    },
+                    boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+                    backdropFilter: 'blur(10px)',
+                    zIndex: 2,
+                  }}
                   rightSection={<IoSend />}
                   ref={msg}
                 />
@@ -550,7 +730,15 @@ export default function Canvas() {
           <ActionIcon
             variant="transparent"
             onClick={() => handlers.toggle()}
-            style={{ zIndex: 100 }}
+            style={{
+              zIndex: 2,
+              backdropFilter: 'blur(10px)',
+              boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+              borderRadius: '1rem',
+              width: '3rem',
+              height: '3rem',
+              color: mapobj.color,
+            }}
           >
             <BsChatLeftText size="1.5rem" />
             {!read.current && (

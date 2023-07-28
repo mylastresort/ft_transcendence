@@ -20,9 +20,6 @@ export const GameContext = createContext({
   winner: '',
   socket: null as Socket | null,
   gameStatus: '',
-  // leave : (gameid) => {
-  //   (socket as Socket).emit('leave', gameid)
-  // },
 });
 
 export type Player = {
@@ -59,15 +56,15 @@ export const MapsContext = createContext<
   {
     backgroundOpacity: '1',
     backgroundPosition: 'center',
-    ballColor: 'linear-gradient(#e9a852, #e9a852)',
+    ballColor: 'linear-gradient(whitesmoke, whitesmoke)',
     ballRadius: '50%',
-    color: '#e9a852',
-    fillColor: '#e9a852',
+    color: 'whitesmoke',
+    fillColor: 'whitesmoke',
     font: 'Distant Galaxy',
     fontSize: '1.1rem',
     gamesFont: 'Distant Galaxy',
-    guestColor: 'linear-gradient(#e9a852, #e9a852)',
-    hostColor: 'linear-gradient(#e9a852, #e9a852)',
+    guestColor: 'linear-gradient(whitesmoke, whitesmoke)',
+    hostColor: 'linear-gradient(whitesmoke, whitesmoke)',
     name: 'StarWars',
     playerRadius: '2px',
     preview: '/images/maps/starwars.png',
@@ -97,9 +94,9 @@ export const MapsContext = createContext<
     ballRadius: '50%',
     color: 'linear-gradient(whitesmoke, whitesmoke)',
     fillColor: '#f5f5f5',
-    font: "'Upheaval TT (BRK)'",
+    font: "upheavtt",
     fontSize: '1.1rem',
-    gamesFont: "'Upheaval TT (BRK)'",
+    gamesFont: "upheavtt",
     guestColor: 'linear-gradient(whitesmoke, whitesmoke)',
     hostColor: 'linear-gradient(whitesmoke, whitesmoke)',
     name: 'Classic',
@@ -133,7 +130,7 @@ export const MapsContext = createContext<
     fillColor: '#f5f5f5',
     font: 'GROBOLD',
     fontSize: '1.1rem',
-    gamesFont: "'Saiyan Sans'",
+    gamesFont: "Saiyan-Sans",
     guestColor: 'linear-gradient(whitesmoke, whitesmoke)',
     hostColor: 'linear-gradient(whitesmoke, whitesmoke)',
     name: 'DragonBall',

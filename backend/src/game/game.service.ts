@@ -45,8 +45,6 @@ export class GameService {
     .subscribe(async ({ host, guest, room: { id } }) => {
       await host.join(id);
       await guest.join(id);
-      host.data.currentGameId = id;
-      guest.data.currentGameId = id;
       host.to(id).emit('joined', id, host.data, host.data);
       guest.to(id).emit('joined', id, guest.data, host.data);
     });
@@ -200,6 +198,7 @@ export class GameService {
           speed: lazyRoom.speed,
           games: lazyRoom.maxGames,
           name: lazyRoom.name,
+          isInvite: lazyRoom.isInvite,
         },
         [lazyRoom.players[0].userId === lazyRoom.hostId ? 'host' : 'guest']: {
           username: lazyRoom.players[0].user.username,
@@ -228,6 +227,7 @@ export class GameService {
         speed: room.host.hostWishedGameSpeed,
         games: room.host.hostSettableGames,
         name: room.host.hostWishedGameName,
+        isInvite: room.isInvite,
       },
       host: room.host,
       guest: room.guest,
@@ -244,6 +244,7 @@ export class GameService {
     playerId: Player['data']['userId'],
     id: Player['data']['currentGameId'],
   ) {
+
     const room = this.rooms.get(id);
     if (room) {
       if (
@@ -254,6 +255,11 @@ export class GameService {
       if (room.status === 'playing')
         throw new HttpException('Room is playing', HttpStatus.FORBIDDEN);
       await this.prisma.room.delete({ where: { id } });
+      const hosts = this.players.get(room.host.userId);
+      const guests = this.players.get(room.guest.userId);
+      if (hosts) hosts[hosts.length - 1].emit('cancelled');
+      if (guests) guests[guests.length - 1].emit('cancelled');
+      this.rooms.delete(id);
     } else {
       const lazyRoom = await this.prisma.room.findUnique({
         where: { id },
@@ -269,6 +275,10 @@ export class GameService {
       if (lazyRoom.status === 'finished')
         throw new HttpException('Room is finished', HttpStatus.FORBIDDEN);
       await this.prisma.room.delete({ where: { id } });
+      const hosts = this.players.get(lazyRoom.players[0].userId);
+      const guests = this.players.get(lazyRoom.players[1].userId);
+      if (hosts) hosts[hosts.length - 1].emit('cancelled');
+      if (guests) guests[guests.length - 1].emit('cancelled');
     }
   }
 
@@ -334,34 +344,36 @@ export class GameService {
   }
 
   async invite(socket: Player, body) {
-    const guest = await this.getPlayer(Number(body.userId));
-    if (!guest)
-      throw new HttpException('Player is offline', HttpStatus.BAD_REQUEST);
-    socket.data.hostWishedGameSpeed = body.speed;
-    socket.data.hostSettableGames = body.games;
-    socket.data.hostWishedGameName = body.name;
-    socket.data.hostWishedGameMap = body.map;
-    const room = new Room(socket.data, guest);
-    room.isInvite = true;
-    await this.prisma.room.create({
-      data: {
-        id: room.id,
-        players: {
-          connect: [
-            { userId: room.host.userId },
-            { userId: room.guest.userId },
-          ],
+    if (socket.data.userId !== Number(body.userId)) {
+      const guest = await this.getPlayer(Number(body.userId));
+      if (!guest)
+        throw new HttpException('Player is offline', HttpStatus.BAD_REQUEST);
+      socket.data.hostWishedGameSpeed = body.speed;
+      socket.data.hostSettableGames = body.games;
+      socket.data.hostWishedGameName = body.name;
+      socket.data.hostWishedGameMap = body.map;
+      const room = new Room(socket.data, guest);
+      room.isInvite = true;
+      await this.prisma.room.create({
+        data: {
+          id: room.id,
+          players: {
+            connect: [
+              { userId: room.host.userId },
+              { userId: room.guest.userId },
+            ],
+          },
+          hostId: room.host.userId,
+          map: room.host.hostWishedGameMap,
+          maxGames: room.host.hostSettableGames,
+          name: room.host.hostWishedGameName,
+          speed: room.host.hostWishedGameSpeed,
+          status: 'waiting',
+          isInvite: room.isInvite,
         },
-        hostId: room.host.userId,
-        map: room.host.hostWishedGameMap,
-        maxGames: room.host.hostSettableGames,
-        name: room.host.hostWishedGameName,
-        speed: room.host.hostWishedGameSpeed,
-        status: 'waiting',
-        isInvite: room.isInvite,
-      },
-    });
-    return room.id;
+      });
+      return room.id;
+    }
   }
 
   async leave(socket: Player) {
@@ -410,6 +422,7 @@ export class GameService {
               winner: { connect: { userId: winner.userId } },
               loser: { connect: { userId: loser.userId } },
               winnerPostLevel: level.increment + winner.userLevel,
+              losserLevel: loser.userLevel,
             },
           });
           const winnerUpdates = await this.prisma.player.update({
@@ -473,17 +486,18 @@ export class GameService {
     return true;
   }
 
+  async currentGame(id: Player['data']['userId']) {
+    return (await this.getPlayer(id, false)).currentGameId;
+  }
+
   async ready(
     socket: Player,
     ready: boolean,
     id: Player['data']['currentGameId'],
   ) {
-    if (socket.data.currentGameId && socket.data.currentGameId !== id)
-      throw new WsException('Already in game');
-    let room;
-    if (socket.data.currentGameId)
-      room = this.rooms.get(socket.data.currentGameId);
-    else {
+    if (socket.data.currentGameId) throw new WsException('Already in game');
+    let room: any = this.rooms.get(id);
+    if (!room) {
       room = await this.prisma.room.findUnique({
         where: { id },
         select: {
@@ -525,8 +539,6 @@ export class GameService {
       room = new Room(host, guest);
       room.isInvite = true;
       room.id = id;
-      host.currentGameId = id;
-      guest.currentGameId = id;
       this.rooms.set(id, room);
     }
     if (!room) throw new WsException('Room not found');
@@ -535,6 +547,8 @@ export class GameService {
       room.guest.userId !== socket.data.userId
     )
       throw new WsException('You are not in this room');
+    socket.data =
+      room.host.userId === socket.data.userId ? room.host : room.guest;
     socket.data.ready = ready;
     if (room.guest.ready && room.host.ready) {
       const config = {
@@ -643,78 +657,80 @@ export class GameService {
             this.broadcast(socket, 'ping', ...values);
           }, 1000);
         }
-        const winnerId =
-          room.players.guest[2] > room.players.host[2]
-            ? room.guest.userId
-            : room.host.userId;
-        const player =
-          room.players.guest[2] > room.players.host[2] ? room.guest : room.host;
-        const currentStreak = {
-          increment:
-            Date.now() - new Date(player.userLastPlayed).valueOf() >= 86400000
-              ? 1
-              : 0,
-        };
-        const level = { increment: 0.2 * room.players[isOut[0]][2] };
-        const longestStreak =
-          currentStreak.increment + player.userCurrentStreak >
-          player.userLongestStreak
-            ? currentStreak.increment + player.userCurrentStreak
-            : player.userLongestStreak;
-        const data = {
-          achievements:
-            player.userLevel < 1 && level.increment + player.userLevel >= 1
-              ? { connect: { name: 'Level 1' } }
-              : {},
-          currentStreak,
-          longestStreak,
-        };
-        await this.prisma.player.update({
-          where: { userId: winnerId },
-          data: {
-            level,
-            ...data,
-          },
-        });
-        const endedAt = new Date();
-        await this.prisma.room.update({
-          where: { id: room.id },
-          data: {
-            status: room.status,
-            games: room.games,
-            endedAt,
-            winner:
-              room.status === 'finished'
-                ? { connect: { userId: winnerId } }
+        if (room.status === 'finished') {
+          const winnerId =
+            room.players.guest[2] > room.players.host[2]
+              ? room.guest.userId
+              : room.host.userId;
+          const player =
+            room.players.guest[2] > room.players.host[2]
+              ? room.guest
+              : room.host;
+          const currentStreak = {
+            increment:
+              Date.now() - new Date(player.userLastPlayed).valueOf() >= 86400000
+                ? 1
+                : 0,
+          };
+          const level = { increment: 0.2 * room.players[isOut[0]][2] };
+          const longestStreak =
+            currentStreak.increment + player.userCurrentStreak >
+            player.userLongestStreak
+              ? currentStreak.increment + player.userCurrentStreak
+              : player.userLongestStreak;
+          const data = {
+            achievements:
+              player.userLevel < 1 && level.increment + player.userLevel >= 1
+                ? { connect: { name: 'Level 1' } }
                 : {},
-            loser:
-              room.status === 'finished'
-                ? {
-                    connect: {
-                      userId:
-                        winnerId === room.host.userId
-                          ? room.guest.userId
-                          : room.host.userId,
-                    },
-                  }
-                : {},
-            winnerPostLevel: level.increment + player.userLevel,
-          },
-        });
-        await this.prisma.player.updateMany({
-          where: { userId: { in: [room.host.userId, room.guest.userId] } },
-          data: { lastPlayed: endedAt },
-        });
-        socket.data.userLastPlayed = endedAt;
-        const opponent = await this.getPlayer(room.host.userId, false);
-        if (opponent) opponent.userLastPlayed = endedAt;
-        const winner = socket.data.userId === winnerId ? socket.data : opponent;
-        winner.userLevel += level.increment;
-        winner.userCurrentStreak += currentStreak.increment;
-        winner.userLongestStreak = longestStreak;
-        winner.userWins++;
-        if (room.status === 'finished')
+            currentStreak,
+            longestStreak,
+          };
+          await this.prisma.player.update({
+            where: { userId: winnerId },
+            data: {
+              level,
+              ...data,
+            },
+          });
+          const endedAt = new Date();
+          await this.prisma.room.update({
+            where: { id: room.id },
+            data: {
+              status: room.status,
+              games: room.games,
+              endedAt,
+              winner: { connect: { userId: winnerId } },
+              loser: {
+                connect: {
+                  userId:
+                    winnerId === room.host.userId
+                      ? room.guest.userId
+                      : room.host.userId,
+                },
+              },
+              winnerPostLevel: level.increment + player.userLevel,
+              losserLevel:
+                winnerId === room.host.userId
+                  ? room.guest.userLevel
+                  : room.host.userLevel,
+            },
+          });
+          await this.prisma.player.updateMany({
+            where: { userId: { in: [room.host.userId, room.guest.userId] } },
+            data: { lastPlayed: endedAt },
+          });
+          socket.data.userLastPlayed = endedAt;
+          const opponent = await this.getPlayer(room.host.userId, false);
+          if (opponent) opponent.userLastPlayed = endedAt;
+          const winner =
+            socket.data.userId === winnerId ? socket.data : opponent;
+          winner.userLevel += level.increment;
+          winner.userCurrentStreak += currentStreak.increment;
+          winner.userLongestStreak = longestStreak;
+          winner.userWins++;
           this.rooms.delete(socket.data.currentGameId);
+        }
       } else {
         const values = room.pong(key);
         if (values) {

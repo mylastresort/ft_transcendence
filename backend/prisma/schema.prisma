@@ -118,6 +118,7 @@ model Room {
   isInvite        Boolean   @default(false)
   loser           Player?   @relation(fields: [loserUserId], references: [userId], name: "losses")
   loserUserId     Int?
+  losserLevel     Float?
   map             String
   maxGames        Int
   name            String
