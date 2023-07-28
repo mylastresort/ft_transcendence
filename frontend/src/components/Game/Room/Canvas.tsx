@@ -24,6 +24,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { BsChatLeftText, BsCircleFill } from 'react-icons/bs';
 import Lottie from 'lottie-react';
 import batAnimation from '@/../public/images/maps/bat-animation.json';
+import styles from './Canvas.module.css';
 
 export default function Canvas() {
   const rAFball = useRef(0);
