@@ -7,6 +7,7 @@ import { GameContext, PlayerContext } from '@/context/game';
 import { useRouter } from 'next/router';
 import Canvas from './Canvas';
 import request from 'superagent';
+import { WsContext } from '@/context/WsContext';
 
 export default function Accept() {
   const game = useContext(GameContext);
@@ -16,6 +17,7 @@ export default function Accept() {
   const [status, setStatus] = useState<{ gameStatus: string; error?: Error }>({
     gameStatus: game.gameStatus,
   });
+  const socket = useContext(WsContext);
 
   useEffect(() => {
     let started = false;

@@ -25,6 +25,7 @@ import { BsChatLeftText, BsCircleFill } from 'react-icons/bs';
 import Lottie from 'lottie-react';
 import batAnimation from '@/../public/images/maps/bat-animation.json';
 import styles from './Canvas.module.css';
+import { WsContext } from '@/context/WsContext';
 
 export default function Canvas() {
   const rAFball = useRef(0);
@@ -73,9 +74,26 @@ export default function Canvas() {
   });
   const [messages, setMessages] = useState<ReactNode[]>([]);
   const [history, setHistory] = useState<string[]>([]);
+  const socket = useContext(WsContext);
 
   useEffect(() => {
     let winner = 'opponent';
+    socket.emit('ClearNotification', {
+      gameid: game.gameId,
+      user1: player.userId,
+      user2: game.opponent.userId,
+    });
+    socket.emit('InGame', {
+      user1Id: player?.userId,
+      user2Id: game.opponent.userId,
+    });
+    function leave() {
+      socket.emit('GameEnded', {
+        user1Id: player.userId,
+        user2Id: game.opponent.userId,
+      });
+      router.push('/game/results');
+    }
     game.socket
       ?.on('scored', (role, score) =>
         role === 'host' ? setHostScore(score) : setGuestScore(score)
@@ -84,7 +102,7 @@ export default function Canvas() {
         finished.current = true;
         setHistory((history) => [...history, value]);
         winner = value === game.role ? 'self' : 'opponent';
-        router.push('/game/results');
+        leave();
       })
       .on('games:counter', (count, winner) => {
         setGamesCounter(count);
@@ -97,7 +115,7 @@ export default function Canvas() {
       .on('left', () => {
         game.winner = 'self';
         winner = game.winner;
-        router.push('/game/results');
+        leave();
       })
       .on('chat', (username, message) => {
         setMessages((messages) => [
@@ -129,7 +147,7 @@ export default function Canvas() {
         .off('games:counter')
         .off('left')
         .off('chat')
-        .emit('leave', () => router.push('/game/results'));
+        .emit('leave', leave);
     };
   }, []);
 
