@@ -97,6 +97,14 @@ export class GameController {
     });
   }
 
+  @Get('achievements')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async getAchievements() {
+    return await this.prisma.achievement.findMany();
+  }
+
   @Get(':id')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
@@ -107,14 +115,6 @@ export class GameController {
     } catch (err) {
       throw new HttpException(err.error, HttpStatus.BAD_REQUEST);
     }
-  }
-
-  @Get('achievements')
-  @UseGuards(AuthGuard('jwt'))
-  @HttpCode(HttpStatus.OK)
-  @ApiBearerAuth()
-  async getAchievements() {
-    return await this.prisma.achievement.findMany();
   }
 
   @Post('invite/cancel/:id')
