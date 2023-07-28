@@ -262,7 +262,7 @@ export default function Canvas() {
     username: {
       background: mapobj.color,
       backgroundClip: 'text',
-      fontSize: '1.6rem',
+      fontSize: 'min(2vh, 2vw)',
       WebkitTextFillColor: 'transparent',
       fontFamily: mapobj.gamesFont,
     },
@@ -270,7 +270,7 @@ export default function Canvas() {
       background: mapobj.color,
       backgroundClip: 'text',
       fontFamily: mapobj.font,
-      fontSize: '2vh',
+      fontSize: 'min(2vh, 2vw)',
       order: 2,
       WebkitTextFillColor: 'transparent',
       position: 'relative',
@@ -290,10 +290,10 @@ export default function Canvas() {
       zIndex: 1,
     },
     scoreboard: {
-      maxWidth: '1000px',
+      maxWidth: 'min(90vh, 90%)',
       justifyContent: 'space-between',
       margin: '0 auto',
-      marginBlock: '2rem',
+      marginBlock: 'min(1vh, 1vw)',
       paddingBlock: '.7rem',
       paddingInline: '1rem',
       zIndex: 2,
@@ -387,8 +387,8 @@ export default function Canvas() {
           w="90%"
           ta="center"
           m="0 auto"
-          my="1rem"
-          maw="1000px"
+          my="min(1vw, 1vh)"
+          maw="min(90vh, 90%)"
           color={mapobj.color}
           sx={classes.games}
         >
@@ -402,7 +402,7 @@ export default function Canvas() {
             : 'th'}{' '}
           Round
         </Text>
-        {/* <Flex w="90%" sx={classes.scoreboard}>
+        <Flex sx={classes.scoreboard}>
           <Flex
             gap=".7rem"
             sx={{
@@ -428,13 +428,13 @@ export default function Canvas() {
                 {Array.from({ length: game.conf.games }, (_, i) =>
                   history.length > i ? (
                     <FaCircle
-                      size="1.1rem"
+                      size="min(1vh, 1vw)"
                       style={{ marginInline: '.1rem' }}
                       fill={history[i] === game.role ? '#1dfc34' : '#ff5151'}
                     />
                   ) : (
                     <FaRegCircle
-                      size="1.1rem"
+                      size="min(1vh, 1vw)"
                       style={{ marginInline: '.1rem' }}
                       fill={mapobj.fillColor + '75'}
                     />
@@ -442,7 +442,7 @@ export default function Canvas() {
                 )}
               </Box>
             </Flex>
-            <Avatar size="9rem" src={player.userImgProfile} />
+            <Avatar size="min(5vh, 5vw)" src={player.userImgProfile} />
           </Flex>
           <Flex
             gap=".7rem"
@@ -469,13 +469,13 @@ export default function Canvas() {
                 {Array.from({ length: game.conf.games }, (_, i) =>
                   history.length > i ? (
                     <FaCircle
-                      size="1.1rem"
+                      size="min(1vh, 1vw)"
                       style={{ marginInline: '.1rem' }}
                       fill={history[i] !== game.role ? '#1dfc34' : '#ff5151'}
                     />
                   ) : (
                     <FaRegCircle
-                      size="1.1rem"
+                      size="min(1vh, 1vw)"
                       style={{ marginInline: '.1rem' }}
                       fill={mapobj.fillColor + '75'}
                     />
@@ -483,9 +483,9 @@ export default function Canvas() {
                 )}
               </Box>
             </Flex>
-            <Avatar size="9rem" src={game.opponent.userImgProfile} />
+            <Avatar size="min(5vh, 5vw)" src={game.opponent.userImgProfile} />
           </Flex>
-        </Flex> */}
+        </Flex>
         <Flex
           align="center"
           sx={classes.canvas}
@@ -493,7 +493,7 @@ export default function Canvas() {
           onMouseMove={handleMouseMove}
           ref={canvas}
           m="0 auto"
-          maw='min(90vh, 1000px)'
+          maw="min(90vh, 90%)"
         >
           <Box
             sx={classes.host}
