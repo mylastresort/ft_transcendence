@@ -200,7 +200,6 @@ export default function Canvas() {
       boxSizing: 'content-box',
       justifyContent: 'space-between',
       marginBlock: '0',
-      maxWidth: '1000px',
       position: 'relative',
       zIndex: 2,
     },
@@ -271,7 +270,7 @@ export default function Canvas() {
       background: mapobj.color,
       backgroundClip: 'text',
       fontFamily: mapobj.font,
-      fontSize: '2.5rem',
+      fontSize: '2vh',
       order: 2,
       WebkitTextFillColor: 'transparent',
       position: 'relative',
@@ -403,7 +402,7 @@ export default function Canvas() {
             : 'th'}{' '}
           Round
         </Text>
-        <Flex w="90%" sx={classes.scoreboard}>
+        {/* <Flex w="90%" sx={classes.scoreboard}>
           <Flex
             gap=".7rem"
             sx={{
@@ -486,7 +485,7 @@ export default function Canvas() {
             </Flex>
             <Avatar size="9rem" src={game.opponent.userImgProfile} />
           </Flex>
-        </Flex>
+        </Flex> */}
         <Flex
           align="center"
           sx={classes.canvas}
@@ -494,7 +493,7 @@ export default function Canvas() {
           onMouseMove={handleMouseMove}
           ref={canvas}
           m="0 auto"
-          w="90%"
+          maw='min(90vh, 1000px)'
         >
           <Box
             sx={classes.host}
