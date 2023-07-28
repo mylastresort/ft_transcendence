@@ -3,8 +3,10 @@ import Message from './Message';
 import { useContext, useEffect, useState } from 'react';
 import { ChatContext } from '@/context/chat';
 import request from 'superagent';
+import { ChatSocketContext, socket } from '@/context/chatSocketContext';
 
 export default function MsgList({ h, isChannel = false }) {
+  const chatSocket = useContext(ChatSocketContext);
   const route = isChannel ? 'channel' : 'private';
   interface MessageI {
     id: number;
@@ -35,6 +37,13 @@ export default function MsgList({ h, isChannel = false }) {
       .catch((err) => {
         console.log(err);
       });
+  }, [load, chatContext.data.id]);
+
+  useEffect(() => {
+    console.log('trying to connect!');
+    chatSocket.on('connect', () => {
+      console.log('connected!');
+    });
   }, [load, chatContext.data.id]);
   return (
     <Container

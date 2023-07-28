@@ -11,10 +11,11 @@ import {
 import { ChannelService } from './channel.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import ChannelGateway from './channel.gateway';
 
 @Controller('chat/channel')
 export class ChannelController {
-  constructor(private channelService: ChannelService) {}
+  constructor(private channelService: ChannelService, private channelGateway: ChannelGateway) {}
 
   //create
   @Post()
@@ -154,6 +155,7 @@ export class ChannelController {
   @ApiBearerAuth()
   async createMessage(@Req() req: any): Promise<any> {
     console.log('createMessage:', req.body);
+    // this.channelGateway.sendMessage(req.body.message.content);
     return this.channelService.createMessage(req.user, req.body);
   }
 }
