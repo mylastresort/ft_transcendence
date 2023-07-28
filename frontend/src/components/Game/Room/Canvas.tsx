@@ -59,7 +59,8 @@ export default function Canvas() {
     allow,
     canvas,
     width,
-    height
+    height,
+    game.config.radius
   );
   const [hostScore, setHostScore] = useState(0);
   const [guestScore, setGuestScore] = useState(0);
