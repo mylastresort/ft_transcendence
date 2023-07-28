@@ -151,11 +151,12 @@ export const PostUnblock = (body: any) => {
     });
 };
 
-export const GetPlayerStats = () => {
+export const GetPlayerStats = (data) => {
   const jwtToken = localStorage.getItem('jwtToken');
   return request
-    .get('http://localhost:4400/api/v1/game/me')
+    .post('http://localhost:4400/api/v1/game/player')
     .set('Authorization', `Bearer ${jwtToken}`)
+    .send(data)
     .then((res) => {
       return res;
     })
@@ -164,10 +165,24 @@ export const GetPlayerStats = () => {
     });
 };
 
-export const GetGameMatches = () => {
+export const GetGameMatches = (data) => {
   const jwtToken = localStorage.getItem('jwtToken');
   return request
-    .get('http://localhost:4400/api/v1/game/games')
+    .post('http://localhost:4400/api/v1/game/games')
+    .set('Authorization', `Bearer ${jwtToken}`)
+    .send(data)
+    .then((res) => {
+      return res;
+    })
+    .catch((err) => {
+      return err;
+    });
+};
+
+export const GetAchievements = () => {
+  const jwtToken = localStorage.getItem('jwtToken');
+  return request
+    .get('http://localhost:4400/api/v1/game/achievements')
     .set('Authorization', `Bearer ${jwtToken}`)
     .then((res) => {
       return res;

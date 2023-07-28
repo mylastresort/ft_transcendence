@@ -14,10 +14,8 @@ export const WsProvider = ({ children, token }) => {
     };
     UserSocket = io('http://localhost:4400/userws', socketOptions);
     UserSocket.on('connect', () => {
-      console.log('Socket connection successful');
       return;
     });
-    // console.log('xxxxxdfdfgdfgdfgdfgdf');
   };
 
   retrySocketConnection(UserSocket);

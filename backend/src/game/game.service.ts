@@ -12,6 +12,9 @@ import Ball from './ball.class';
 import { Room } from './room.class';
 import { GameGateway, Player } from './game.gateway';
 import { User } from '@prisma/client';
+import { S3 } from 'aws-sdk';
+import * as fs from 'fs';
+import { basename } from 'path';
 
 @Injectable()
 export class GameService {
@@ -52,16 +55,60 @@ export class GameService {
 
   constructor(private prisma: PrismaService) {}
 
+  private readonly achievments = [
+    {
+      name: 'New Comer',
+      description: 'Welcome to your second home',
+      icon: './Uploads/excited.png',
+    },
+    {
+      name: 'First Win',
+      description: 'You won your first game',
+      icon: './Uploads/medal.png',
+    },
+    {
+      name: 'First Game',
+      description: 'You played your first game',
+      icon: './Uploads/arcade-game.png',
+    },
+    {
+      name: 'Level 1',
+      description: 'You reached level 1',
+      icon: './Uploads/trophy.png',
+    },
+  ];
+
   async onModuleInit() {
-    await this.prisma.achievement.createMany({
-      data: [
-        { name: 'New Comer', description: 'Welcome to your second home' },
-        { name: 'First Win', description: 'You won your first game' },
-        { name: 'First Game', description: 'You played your first game' },
-        { name: 'Level 1', description: 'You reached level 1' },
-      ],
-      skipDuplicates: true,
+    const s3 = new S3({
+      region: process.env.AWS_S3_REGION,
+      signatureVersion: 'v4',
+      credentials: {
+        accessKeyId: process.env.ACCESS_KEY_ID,
+        secretAccessKey: process.env.SECRET_ACCESS_KEY,
+      },
     });
+    for (const achievement of this.achievments) {
+      try {
+        await this.prisma.achievement.create({ data: achievement });
+        await fs.readFile(achievement.icon, (err, data) => {
+          if (err) throw err;
+          s3.upload(
+            {
+              Bucket: process.env.AWS_DEFAULT_S3_BUCKET,
+              Key: basename(achievement.icon),
+              Body: data,
+            },
+            async (err, data) =>
+              err
+                ? console.warn(err)
+                : await this.prisma.achievement.update({
+                    where: { name: achievement.name },
+                    data: { icon: data.Location },
+                  }),
+          );
+        });
+      } catch (err) {}
+    }
     this.prisma.$use((params, next) => {
       switch (params.model) {
         case 'Room':
@@ -118,7 +165,9 @@ export class GameService {
           players: {
             select: {
               _count: { select: { wins: true, losses: true } },
-              achievements: { select: { name: true, description: true } },
+              achievements: {
+                select: { name: true, description: true, icon: true, id: true },
+              },
               currentStreak: true,
               lastPlayed: true,
               level: true,
@@ -191,6 +240,38 @@ export class GameService {
       socket.to(socket.data.currentGameId).emit('chat', ...message);
   }
 
+  async cancelInvite(
+    playerId: Player['data']['userId'],
+    id: Player['data']['currentGameId'],
+  ) {
+    const room = this.rooms.get(id);
+    if (room) {
+      if (
+        !room.isInvite ||
+        (room.host.userId !== playerId && room.guest.userId !== playerId)
+      )
+        throw new HttpException('Forbbidden', HttpStatus.FORBIDDEN);
+      if (room.status === 'playing')
+        throw new HttpException('Room is playing', HttpStatus.FORBIDDEN);
+      await this.prisma.room.delete({ where: { id } });
+    } else {
+      const lazyRoom = await this.prisma.room.findUnique({
+        where: { id },
+        select: { players: { select: { userId: true } }, status: true },
+      });
+      if (!lazyRoom)
+        throw new HttpException('Room not found', HttpStatus.NOT_FOUND);
+      if (!lazyRoom.players.some(({ userId }) => userId === playerId))
+        throw new HttpException(
+          'You are not in this room',
+          HttpStatus.FORBIDDEN,
+        );
+      if (lazyRoom.status === 'finished')
+        throw new HttpException('Room is finished', HttpStatus.FORBIDDEN);
+      await this.prisma.room.delete({ where: { id } });
+    }
+  }
+
   async getPlayer(id: Player['data']['userId'], createOnNotFound = true) {
     const sockets = this.players.get(id);
     if (sockets && sockets.length) return sockets[sockets.length - 1].data;
@@ -205,7 +286,9 @@ export class GameService {
         currentStreak: true,
         longestStreak: true,
         _count: { select: { wins: true, losses: true } },
-        achievements: { select: { name: true, description: true } },
+        achievements: {
+          select: { name: true, description: true, icon: true, id: true },
+        },
         lastPlayed: true,
       };
       const player =
@@ -333,7 +416,9 @@ export class GameService {
             where: { userId: winner.userId },
             data,
             select: {
-              achievements: { select: { name: true, description: true } },
+              achievements: {
+                select: { name: true, description: true, icon: true, id: true },
+              },
               currentStreak: true,
               level: true,
               longestStreak: true,
@@ -351,7 +436,9 @@ export class GameService {
             where: { userId: loser.userId },
             data: { lastPlayed: endedAt },
             select: {
-              achievements: { select: { name: true, description: true } },
+              achievements: {
+                select: { name: true, description: true, icon: true, id: true },
+              },
               currentStreak: true,
               level: true,
               longestStreak: true,

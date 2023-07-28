@@ -1,4 +1,4 @@
-import { Button, Text } from '@mantine/core';
+import { Button, Center, Text } from '@mantine/core';
 import { Box, Flex } from '@mantine/core';
 import React, { useContext, useEffect, useState } from 'react';
 import styles from '../Lobby/Lobby.module.css';
@@ -13,7 +13,9 @@ export default function Accept() {
   const router = useRouter();
   const [ready, setReady] = useState(false);
   const player = useContext(PlayerContext);
-  const [status, setStatus] = useState(game.gameStatus);
+  const [status, setStatus] = useState<{ gameStatus: string; error?: Error }>({
+    gameStatus: game.gameStatus,
+  });
 
   useEffect(() => {
     let started = false;
@@ -22,9 +24,9 @@ export default function Accept() {
         started = true;
         game.config = value;
         game.gameStatus = 'playing';
-        setStatus('playing');
+        setStatus({ gameStatus: 'playing' });
       })
-      .on('cancelled', () => router.push('/game'))
+      .on('cancelled', () => router.push('/game'));
     return () => {
       if (!started) game.socket?.emit('leave', () => router.push('/game'));
       game.socket?.off('started').off('cancelled');
@@ -44,13 +46,23 @@ export default function Accept() {
           game.opponent = game.role === 'host' ? res.body.guest : res.body.host;
           game.gameStatus = res.body.status;
           game.gameId = router.query.id as string;
-          router.push(`/game/${router.query.id}`);
+          setStatus({ gameStatus: res.body.status });
         })
-        .catch(console.error);
+        .catch((err) => setStatus({ gameStatus: 'invalid', error: err }));
     }
   }, [router.query.id]);
 
-  return status === 'playing' ? (
+  return status.gameStatus === 'invalid' ? (
+    <Flex justify="center" align="center" h="100%">
+      <Text>
+        Invalid room {!!status.error && `because: ${status.error.message}`}
+      </Text>
+    </Flex>
+  ) : !game.opponent.username ? (
+    <Flex align="center" justify="center" h="100%">
+      <Text>Loading game...</Text>
+    </Flex>
+  ) : status.gameStatus === 'playing' ? (
     <Canvas />
   ) : (
     <Flex align="center" h="100%">

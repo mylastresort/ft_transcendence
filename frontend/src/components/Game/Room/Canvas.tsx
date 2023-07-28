@@ -22,6 +22,8 @@ import { ScrollArea } from '@mantine/core';
 import { IoSend } from 'react-icons/io5';
 import { useDisclosure } from '@mantine/hooks';
 import { BsChatLeftText, BsCircleFill } from 'react-icons/bs';
+import Lottie from 'lottie-react';
+import batAnimation from '@/../public/images/maps/bat-animation.json';
 
 export default function Canvas() {
   const rAFball = useRef(0);
@@ -133,9 +135,19 @@ export default function Canvas() {
   useEffect(() => {
     if (!opened) read.current = false;
   }, [messages]);
-  const mapobj = maps[maps.findIndex(({ name }) => name === game.conf.map)];
 
   const msg = useRef<HTMLInputElement>(null);
+
+  const mapobj = maps[maps.findIndex(({ name }) => name === game.conf.map)];
+
+  if (!mapobj) {
+    console.log(game);
+    return (
+      <Flex h="100%" align="center" justify="center">
+        <Text>Map not found</Text>
+      </Flex>
+    );
+  }
 
   const classes: Record<string, Sx> = {
     canvas_container: {
@@ -159,10 +171,7 @@ export default function Canvas() {
       },
     },
     canvas: {
-      aspectRatio: (
-        (width + 2 * game.config.radius) /
-        (height + 2 * game.config.radius)
-      ).toString(),
+      aspectRatio: (width / height).toString(),
       backdropFilter: 'blur(10px)',
       borderBottom: '.1em solid',
       color: mapobj.color,
@@ -299,7 +308,57 @@ export default function Canvas() {
 
   return (
     <>
-      <Box sx={classes.overlay}></Box>
+      <Box sx={classes.overlay} />
+      {game.conf.map === 'WitchCraft' && (
+        <div style={{ height: '100%', position: 'absolute', width: '100%' }}>
+          <div
+            style={{
+              maxWidth: '1000px',
+              position: 'relative',
+              margin: '0 auto',
+              height: '100%',
+              zIndex: 1,
+            }}
+          >
+            <Lottie
+              animationData={batAnimation}
+              style={{
+                position: 'absolute',
+                zIndex: 2,
+                margin: '0 auto',
+                width: '200px',
+                opacity: 0.5,
+                right: '10%',
+                top: '30%',
+              }}
+            />
+            <Lottie
+              animationData={batAnimation}
+              style={{
+                position: 'absolute',
+                zIndex: 2,
+                margin: '0 auto',
+                width: '200px',
+                opacity: 0.5,
+                right: '20%',
+                left: '30%',
+              }}
+            />
+            <Lottie
+              animationData={batAnimation}
+              style={{
+                position: 'absolute',
+                zIndex: 2,
+                margin: '0 auto',
+                width: '200px',
+                opacity: 0.5,
+                left: '15%',
+                top: '20%',
+              }}
+            />
+          </div>
+        </div>
+      )}
       <Box
         component={motion.div}
         initial={{ opacity: 0, scale: 1.05 }}
