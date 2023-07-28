@@ -138,7 +138,6 @@ export class NotificationsGateway {
           await socket.emit('RerenderFriends', 'rerender');
 
           await socket.emit('NewRequestNotification', sendername.username);
-          console.log('NewRequestNotification', sendername.username);
         }
         await this.SendNotification(UserId);
       }
@@ -198,7 +197,6 @@ export class NotificationsGateway {
 
         for (const socket of sockets) {
           await socket.emit('CandelFriendReq', sendername.username);
-          console.log('CandelFriendReq', sendername.username);
         }
         await this.SendNotification(UserId);
       }
@@ -373,6 +371,7 @@ export class NotificationsGateway {
           },
         },
       });
+
       if (sockets) {
         for (const socket of sockets) {
           await socket.emit('GameInviteNotification', {
@@ -484,6 +483,74 @@ export class NotificationsGateway {
           await socket2.emit('InGame', 'InGame');
         }
       }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  @SubscribeMessage('GameEnded')
+  async GameEnded(
+    @MessageBody()
+    data: {
+      user1Id: number;
+      user2Id: number;
+    },
+  ) {
+    try {
+      const sockets = this.connectedSockets.get(data.user1Id);
+      const sockets2 = this.connectedSockets.get(data.user2Id);
+
+      await this.prisma.user.update({
+        where: {
+          id: data.user1Id,
+        },
+        data: {
+          status: 'online',
+        },
+      });
+
+      await this.prisma.user.update({
+        where: {
+          id: data.user2Id,
+        },
+        data: {
+          status: 'online',
+        },
+      });
+
+      if (sockets) {
+        for (const socket of sockets) {
+          await socket.emit('GameEnded', 'GameEnded');
+        }
+      }
+      if (sockets2) {
+        for (const socket2 of sockets2) {
+          await socket2.emit('GameEnded', 'GameEnded');
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  @SubscribeMessage('ClearNotification')
+  async ClearNotification(
+    @MessageBody()
+    data: {
+      gameid: string;
+      user1: number;
+      user2: number;
+    },
+  ) {
+    await this.prisma.notification.deleteMany({
+      where: {
+        gameid: data.gameid,
+      },
+    });
+
+    await this.SendNotification(data.user1);
+    await this.SendNotification(data.user2);
+    try {
     } catch (err) {
       console.log(err);
     }

@@ -50,7 +50,7 @@ export class GameController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async getPlayer(@Body('username') username: string) {
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findFirst({
       where: { username },
       select: { id: true },
     });
@@ -74,7 +74,7 @@ export class GameController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async getGames(@Body('username') username: string) {
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findFirst({
       where: { username },
       select: { id: true },
     });

@@ -63,13 +63,14 @@ function Pofile() {
 
   const fetchData = async () => {
     try {
-      const player = await GetPlayerStats();
+      const Username = window.location.pathname.split('/')[2];
+      const player = await GetPlayerStats({ username: Username });
+      console.log(player.body);
       setPlayerStats(player.body);
 
-      const matches = await GetGameMatches();
+      const matches = await GetGameMatches({ username: Username });
       setGameMatches(matches.body);
 
-      const Username = window.location.pathname.split('/')[2];
       setUsername(Username);
       setIsMe(false);
       // setIsLoaded(true);
@@ -516,15 +517,17 @@ function Pofile() {
                           </Group>
                         </UnstyledButton>
                         <Group spacing={10}>
-                          {[1, 2, 3, 4, 5].map((item, index) => (
-                            <Avatar
-                              src="/images/avatar1.jpg"
-                              radius="md"
-                              size={45}
-                              color="cyan"
-                              key={index}
-                            />
-                          ))}
+                          {PlayerStats?.userAchievements
+                            ?.slice(0, 4)
+                            .map((item, index) => (
+                              <Avatar
+                                src={item.icon}
+                                radius="md"
+                                size={45}
+                                color="cyan"
+                                key={index}
+                              />
+                            ))}
                         </Group>
                       </Flex>
                       <Spacer y={0.5} />
@@ -576,16 +579,18 @@ function Pofile() {
                   Achievements ({PlayerStats?.userAchievements?.length})
                 </Anchor>
                 <Group spacing="xs">
-                  {PlayerStats?.userAchievements?.map((item, index) => (
-                    <UnstyledButton key={index}>
-                      <Avatar
-                        src="/images/avatar1.jpg"
-                        size={60}
-                        color="cyan"
-                        variant="light"
-                      />
-                    </UnstyledButton>
-                  ))}
+                  {PlayerStats?.userAchievements
+                    ?.slice(0, 4)
+                    .map((item, index) => (
+                      <UnstyledButton key={index}>
+                        <Avatar
+                          src={item.icon}
+                          size={60}
+                          color="cyan"
+                          variant="light"
+                        />
+                      </UnstyledButton>
+                    ))}
                 </Group>
               </Stack>
               <Spacer y={2} />

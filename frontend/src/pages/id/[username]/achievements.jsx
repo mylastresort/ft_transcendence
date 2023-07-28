@@ -12,7 +12,7 @@ import {
   Center,
   Avatar,
 } from '@mantine/core';
-import { GetPlayerStats } from '@/pages/api/friends/friends';
+import { GetPlayerStats, GetAchievements } from '@/pages/api/friends/friends';
 import Styles from './achievements.module.css';
 import { AiFillCheckCircle } from 'react-icons/ai';
 
@@ -20,6 +20,13 @@ function Achievements() {
   const [PlayerAchievements, setPlayerAchievements] = useState([]);
 
   useEffect(() => {
+    GetAchievements()
+      .then((res) => {
+        console.log(res.body);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
     GetPlayerStats()
       .then((res) => {
         setPlayerAchievements(res.body.userAchievements);
@@ -34,7 +41,6 @@ function Achievements() {
       <Container size="xl">
         <SimpleGrid cols={3}>
           {PlayerAchievements?.map((item, index) => {
-            console.log(item.icon)
             return (
               <Stack className={Styles.css_div}>
                 <Flex justify="space-between" h="100%">
@@ -62,7 +68,7 @@ function Achievements() {
                   </Center>
                 </Flex>
               </Stack>
-            )
+            );
           })}
         </SimpleGrid>
       </Container>

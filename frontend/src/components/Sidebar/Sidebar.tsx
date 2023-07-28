@@ -59,7 +59,6 @@ export const User_Sidebar = (Show: any) => {
 
   useEffect(() => {
     UserSocket.on('GetNotifications', (data) => {
-      console.log(data);
       setNotifications(data);
     });
 
@@ -104,7 +103,8 @@ export const User_Sidebar = (Show: any) => {
               <Button
                 variant="light"
                 color="red"
-                onClick={() =>
+                onClick={() => {
+                  handleCleanNotifications();
                   request
                     .post(
                       `http://localhost:4400/api/v1/game/invite/cancel/${data.gameid}`
@@ -116,8 +116,8 @@ export const User_Sidebar = (Show: any) => {
                     .then((res) => {
                       console.log(res);
                     })
-                    .catch(console.error)
-                }
+                    .catch(console.error);
+                }}
               >
                 Cancel
               </Button>
