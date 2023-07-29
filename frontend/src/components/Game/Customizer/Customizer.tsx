@@ -20,7 +20,7 @@ import { GameContext } from '@/context/game';
 import { useRouter } from 'next/router';
 import { UserSocket } from '@/context/WsContext';
 
-export default function Customizer({ type = 'invite', userId }) {
+export default function Customizer({ type = 'create', userId }) {
   const game = useContext(GameContext);
   const maps = useContext(MapsContext);
   const form = useForm({
@@ -68,12 +68,12 @@ export default function Customizer({ type = 'invite', userId }) {
                 {
                   ...form.values,
                   map: maps[selected].name,
-                  userId: 2,
+                  userId,
                 },
                 (gameId) => {
                   UserSocket.emit('SendGameInvite', {
                     gameid: gameId,
-                    receiverId: 2,
+                    receiverId: Number(userId),
                     senderId: player?.userId,
                   });
                   router.push('/game');

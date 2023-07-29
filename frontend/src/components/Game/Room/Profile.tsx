@@ -1,5 +1,5 @@
 import { Box, Flex, Text } from '@mantine/core';
-import React from 'react';
+import React, { use, useEffect } from 'react';
 import styles from '../Lobby/Lobby.module.css';
 import { Player } from '@/context/game';
 import { BsCircleFill } from 'react-icons/bs';
@@ -11,6 +11,10 @@ export default function Profile({
   player: Player;
   status: string;
 }) {
+  useEffect(() => {
+    console.log(status);
+  }, [status]);
+
   return (
     <Flex
       className={styles.profile}
@@ -25,7 +29,13 @@ export default function Profile({
           sx={{ position: 'relative' }}
         />
         <BsCircleFill
-          fill={status}
+          fill={
+            status === 'online'
+              ? 'green'
+              : status === ' offline'
+              ? 'red'
+              : 'gray'
+          }
           size="1.3rem"
           style={{
             position: 'absolute',
