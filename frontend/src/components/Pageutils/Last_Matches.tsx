@@ -34,6 +34,7 @@ interface UsersTableProps {
 export function Last_Matches() {
   const [currentPage, setCurrentPage] = useState(1);
   const [GameMatches, setGameMatches] = useState<[]>([]);
+  const [username, setUsername] = useState<string>('');
 
   const itemsPerPage = 6;
 
@@ -46,8 +47,12 @@ export function Last_Matches() {
   };
 
   useEffect(() => {
+    const usernameUrl = window.location.pathname.split('/')[2];
+    setUsername(usernameUrl);
+
     GetGameMatches()
       .then((res) => {
+        console.log(res.body);
         setGameMatches(res.body.reverse());
       })
       .catch((err) => {
@@ -135,13 +140,19 @@ export function Last_Matches() {
                       </Stack>
                     </td>
                     <td>
-                      <Badge color="green" size="lg" radius="sm">
-                        {item?.status}
+                      <Badge
+                        color={item?.status === username ? 'green' : 'red'}
+                        size="lg"
+                        radius="sm"
+                      >
+                        {item?.status === username ? 'WINNER' : 'LOSER'}
                       </Badge>
                     </td>
                     <td>
                       <Avatar color="cyan" radius="xl">
-                        {item?.winnerPostLevel?.toFixed(1)}
+                        {item?.status === username
+                          ? item?.winnerPostLevel?.toFixed(1)
+                          : '-'}
                       </Avatar>
                     </td>
                     <td>

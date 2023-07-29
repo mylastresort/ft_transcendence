@@ -1,4 +1,4 @@
-import { Button, Center, Text } from '@mantine/core';
+import { Button, Text } from '@mantine/core';
 import { Box, Flex } from '@mantine/core';
 import React, { useContext, useEffect, useState } from 'react';
 import styles from '../Lobby/Lobby.module.css';
@@ -17,7 +17,8 @@ export default function Accept() {
   const [status, setStatus] = useState<{ gameStatus: string; error?: Error }>({
     gameStatus: game.gameStatus,
   });
-  const socket = useContext(WsContext);
+  const [self, setSelf] = useState('gray');
+  const [opponent, setOpponent] = useState('gray');
 
   useEffect(() => {
     let started = false;
@@ -35,7 +36,13 @@ export default function Accept() {
         game.gameStatus = 'playing';
         setStatus({ gameStatus: 'playing' });
       })
-      .on('cancelled', () => router.push('/game'));
+      .on('cancelled', () => {
+        console.log('cancelled');
+        setStatus({ gameStatus: 'cancelled' });
+        setTimeout(() => {
+          router.push('/game');
+        }, 2000);
+      });
     return () => {
       if (!started) game.socket?.emit('leave');
       game.socket?.off('started').off('cancelled');
@@ -61,6 +68,8 @@ export default function Accept() {
     }
   }, [router.query.id]);
 
+  const ws = useContext(WsContext);
+
   return status.gameStatus === 'invalid' ? (
     <Flex justify="center" align="center" h="100%">
       <Text>
@@ -71,6 +80,10 @@ export default function Accept() {
     <Flex align="center" justify="center" h="100%">
       <Text>Loading game...</Text>
     </Flex>
+  ) : status.gameStatus === 'cancelled' ? (
+    <Flex align="center" justify="center" h="100%">
+      <Text>The game is cancelled</Text>
+    </Flex>
   ) : status.gameStatus === 'playing' ? (
     <Canvas />
   ) : status.gameStatus === 'in-game' ? (
@@ -79,19 +92,14 @@ export default function Accept() {
     </Flex>
   ) : (
     <Flex align="center" wrap="wrap">
-      {game.conf.isInvite && (
-        <Text ta="center" display="block" style={{ flexBasis: '100%' }}>
-          This is an invite room
-        </Text>
-      )}
       <Box className={styles.lobby}>
         <Flex
           gap={0}
           direction={{ base: 'column', sm: 'row' }}
           className={styles.profiles}
         >
-          <Profile player={player!} />
-          <Profile player={game.opponent} />
+          <Profile player={player!} status={self} />
+          <Profile player={game.opponent} status={opponent} />
         </Flex>
         <Flex
           gap="1rem"
@@ -107,13 +115,37 @@ export default function Accept() {
             onClick={() =>
               game.socket?.emit(
                 'ready',
-                { ready: !ready, gameId: game.gameId }, 
+                { ready: !ready, gameId: game.gameId },
                 () => setReady(!ready)
               )
             }
           >
             Ready
           </Button>
+          {game.conf.isInvite && (
+            <Button
+              h="2.7em"
+              w="12rem"
+              onClick={() => {
+                request
+                  .post(
+                    `http://localhost:4400/api/v1/game/invite/cancel/${game.gameId}`
+                  )
+                  .set(
+                    'Authorization',
+                    `Bearer ${localStorage.getItem('jwtToken')}`
+                  )
+                  .catch(() => {});
+                ws.emit('ClearNotification', {
+                  gameid: game.gameId,
+                  receiverId: player?.userId,
+                  senderId: game.opponent.userId,
+                });
+              }}
+            >
+              Cancel Invite
+            </Button>
+          )}
           <Button
             h="2.7em"
             w="12rem"

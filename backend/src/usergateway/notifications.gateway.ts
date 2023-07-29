@@ -533,6 +533,32 @@ export class NotificationsGateway {
     }
   }
 
+  @SubscribeMessage('UserStatus')
+  async UserStatus(
+    @MessageBody()
+    data: {
+      userId: number;
+    },
+  ) {
+    try {
+      const sockets = this.connectedSockets.get(data.userId);
+      const status = await this.prisma.user.findUnique({
+        where: {
+          id: data.userId,
+        },
+        select: {
+          status: true,
+        },
+      });
+
+      for (const socket of sockets) {
+        await socket.emit('UserStatus', status.status);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   @SubscribeMessage('ClearNotification')
   async ClearNotification(
     @MessageBody()
@@ -542,6 +568,7 @@ export class NotificationsGateway {
       user2: number;
     },
   ) {
+    console.log('ClearNotification', data);
     await this.prisma.notification.deleteMany({
       where: {
         gameid: data.gameid,

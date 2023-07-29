@@ -99,7 +99,7 @@ export class GameController {
           minutes: Math.floor((duration % 3600000) / 60000),
           seconds: Math.floor(((duration % 3600000) % 60000) / 1000),
         },
-        status: game.winner.user.username === username ? 'WINNER' : 'LOSER',
+        status: game.winner.user.username,
         startedat: game.startedAt,
       };
     });
