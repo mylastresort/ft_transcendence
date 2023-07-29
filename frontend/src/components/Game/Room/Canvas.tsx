@@ -59,7 +59,8 @@ export default function Canvas() {
     allow,
     canvas,
     width,
-    height
+    height,
+    game.config.radius
   );
   const [hostScore, setHostScore] = useState(0);
   const [guestScore, setGuestScore] = useState(0);
@@ -559,7 +560,7 @@ export default function Canvas() {
                   backgroundImage: mapobj.ballColor,
                   borderRadius: mapobj.ballRadius,
                   position: 'absolute',
-                  transform: 'translate(var(--ball-x), var(--ball-y))',
+                  transform: 'translate(var(--ball-x), var(--ball-y)) translate(-50%, -50%)',
                 }}
               />
             </Box>
