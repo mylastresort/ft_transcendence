@@ -22,6 +22,8 @@ export default function Accept() {
   const ws = useContext(WsContext);
 
   useEffect(() => {
+    if (game.opponent.username)
+      game.socket?.emit('watch-user-status', game.opponent.userId);
     let started = false;
     request
       .get('http://localhost:4400/api/v1/game/player/me/currentGame')
@@ -39,16 +41,19 @@ export default function Accept() {
         setStatus({ gameStatus: 'playing' });
       })
       .on('cancelled', () => {
-        console.log('cancelled');
         setStatus({ gameStatus: 'cancelled' });
         setTimeout(() => {
           router.push('/game');
         }, 2000);
-      });
+      })
+      .on('user-status', (_, status) => setOpponent(status));
     return () => {
-      // if (!started) game.socket?.emit('leave');
-      game.socket?.off('started').off('cancelled');
-      ws.off('UserStatus');
+      if (!started) game.socket?.emit('leave');
+      game.socket
+        ?.emit('unwatch-user-status', game.opponent.userId)
+        .off('started')
+        .off('cancelled')
+        .off('user-status');
     };
   }, []);
 
@@ -63,6 +68,7 @@ export default function Accept() {
           game.role =
             player?.username === res.body.host.username ? 'host' : 'guest';
           game.opponent = game.role === 'host' ? res.body.guest : res.body.host;
+          game.socket?.emit('watch-user-status', game.opponent.userId);
           game.gameStatus = res.body.status;
           ws.emit('UserStatus', {
             user1: game.opponent.userId,
@@ -73,6 +79,11 @@ export default function Accept() {
         })
         .catch((err) => setStatus({ gameStatus: 'invalid', error: err }));
     }
+    return () => {
+      game.socket
+        ?.emit('unwatch-user-status', game.opponent.userId)
+        .off('user-status');
+    };
   }, [router.query.id]);
 
   return status.gameStatus === 'invalid' ? (
@@ -148,8 +159,12 @@ export default function Accept() {
           direction={{ base: 'column', sm: 'row' }}
           className={styles.profiles}
         >
-          <Profile player={player!} status={self} />
-          <Profile player={game.opponent} status={opponent} />
+          <Profile player={player!} status={self} ready={ready} />
+          <Profile
+            player={game.opponent}
+            status={opponent === 'ready' ? 'online' : opponent}
+            ready={opponent === 'ready'}
+          />
         </Flex>
         <Flex
           gap="1rem"

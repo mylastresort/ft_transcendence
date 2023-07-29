@@ -1,3 +1,6 @@
+import { basename } from 'path';
+import { GameGateway, Player } from './game.gateway';
+import { _Player } from './_player.class';
 import {
   HttpException,
   HttpStatus,
@@ -7,14 +10,12 @@ import {
 } from '@nestjs/common';
 import { interval, map, switchMap, zip } from 'rxjs';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { WsException } from '@nestjs/websockets';
-import Ball from './ball.class';
 import { Room } from './room.class';
-import { GameGateway, Player } from './game.gateway';
-import { User } from '@prisma/client';
 import { S3 } from 'aws-sdk';
+import { User } from '@prisma/client';
+import { WsException } from '@nestjs/websockets';
 import * as fs from 'fs';
-import { basename } from 'path';
+import Ball from './ball.class';
 
 @Injectable()
 export class GameService {
@@ -24,7 +25,7 @@ export class GameService {
 
   private rooms = new Map<Room['id'], Room>();
 
-  private players = new Map<User['id'], [Player]>();
+  private players = new Map<User['id'], Player[]>();
 
   private notifier$ = interval(3000)
     .pipe(
@@ -207,6 +208,22 @@ export class GameService {
     });
   }
 
+  async watchUserStatus(socket: Player, userId) {
+    const user = await this.getPlayer(userId, false);
+    if (user) {
+      user.userStatusWatchers.push(socket);
+      socket.emit('user-status', user.userId, user.userStatus);
+    }
+  }
+
+  async unwatchUserStatus(socket: Player, userId) {
+    const player = await this.getPlayer(userId, false);
+    if (player) {
+      const index = player.userStatusWatchers.indexOf(socket);
+      if (index !== -1) player.userStatusWatchers.splice(index, 1);
+    }
+  }
+
   addPlayerSocket(socket: Player) {
     const sockets = this.players.get(socket.data.userId);
     sockets
@@ -376,18 +393,20 @@ export class GameService {
           },
           select,
         }));
-      return {
-        userAchievements: player.achievements,
-        userCurrentStreak: player.currentStreak,
-        userId: user.id,
-        userImgProfile: user.imgProfile,
-        userLastPlayed: player.lastPlayed,
-        userLevel: player.level,
-        userLongestStreak: player.longestStreak,
-        userLosses: player._count.losses,
-        username: user.username,
-        userWins: player._count.wins,
-      } satisfies Player['data'];
+      return new _Player(
+        'online',
+        player.achievements,
+        player.currentStreak,
+        user.id,
+        user.imgProfile,
+        player.lastPlayed,
+        player.level,
+        player.longestStreak,
+        player._count.losses,
+        user.username,
+        [],
+        player._count.wins,
+      );
     } catch (err) {
       throw new WsException(err.message);
     }
@@ -530,14 +549,14 @@ export class GameService {
         delete room.guest.currentGameId;
         delete room.guest.currentUserRole;
         delete room.guest.hostSettableGames;
-        delete room.guest.ready;
+        room.guest.userStatus = 'online';
         delete room.host.currentGameId;
         delete room.host.currentUserRole;
         delete room.host.hostSettableGames;
         delete room.host.hostWishedGameMap;
         delete room.host.hostWishedGameName;
         delete room.host.hostWishedGameSpeed;
-        delete room.host.ready;
+        room.host.userStatus = 'online';
         this.rooms.delete(socket.data.currentGameId);
       }
     }
@@ -554,9 +573,9 @@ export class GameService {
     id: Player['data']['currentGameId'],
   ) {
     if (socket.data.currentGameId) throw new WsException('Already in game');
-    let room: any = this.rooms.get(id);
+    let room: Room = this.rooms.get(id);
     if (!room) {
-      room = await this.prisma.room.findUnique({
+      const lazyRoom = await this.prisma.room.findUnique({
         where: { id },
         select: {
           players: { select: { userId: true } },
@@ -569,30 +588,31 @@ export class GameService {
           hostId: true,
         },
       });
-      if (!room) throw new WsException('Room not found');
-      if (!room.players.some(({ userId }) => userId === socket.data.userId))
+      if (!lazyRoom) throw new WsException('Room not found');
+      if (!lazyRoom.players.some(({ userId }) => userId === socket.data.userId))
         throw new WsException('You are not in this room');
-      if (room.status === 'finished') throw new WsException('Room is finished');
+      if (lazyRoom.status === 'finished')
+        throw new WsException('Room is finished');
       const host = await this.getPlayer(
-        room.hostId === room.players[0].userId
-          ? room.players[0].userId
-          : room.players[1].userId,
+        lazyRoom.hostId === lazyRoom.players[0].userId
+          ? lazyRoom.players[0].userId
+          : lazyRoom.players[1].userId,
         false,
       );
       const guest = await this.getPlayer(
-        room.hostId !== room.players[0].userId
-          ? room.players[0].userId
-          : room.players[1].userId,
+        lazyRoom.hostId !== lazyRoom.players[0].userId
+          ? lazyRoom.players[0].userId
+          : lazyRoom.players[1].userId,
         false,
       );
       if (!host || !guest) throw new WsException('Player is offline');
       if (host.currentGameId || guest.currentGameId)
         throw new WsException('Player is already in game');
       host.currentUserRole = 'host';
-      host.hostSettableGames = room.maxGames;
-      host.hostWishedGameMap = room.map;
-      host.hostWishedGameName = room.name;
-      host.hostWishedGameSpeed = room.speed;
+      host.hostSettableGames = lazyRoom.maxGames;
+      host.hostWishedGameMap = lazyRoom.map;
+      host.hostWishedGameName = lazyRoom.name;
+      host.hostWishedGameSpeed = lazyRoom.speed;
       guest.currentUserRole = 'guest';
       room = new Room(host, guest);
       room.isInvite = true;
@@ -607,8 +627,8 @@ export class GameService {
       throw new WsException('You are not in this room');
     socket.data =
       room.host.userId === socket.data.userId ? room.host : room.guest;
-    socket.data.ready = ready;
-    if (room.guest.ready && room.host.ready) {
+    socket.data.userStatus = ready ? 'ready' : 'online';
+    if (room.guest.userStatus === 'ready' && room.host.userStatus === 'ready') {
       const config = {
         limit: Room.edges,
         paddle: Room.paddle,
@@ -686,7 +706,7 @@ export class GameService {
             delete room.guest.currentGameId;
             delete room.guest.currentUserRole;
             delete room.guest.hostSettableGames;
-            delete room.guest.ready;
+            room.guest.userStatus = 'online';
             delete room.host.currentGameId;
             delete room.host.currentGameId;
             delete room.host.currentUserRole;
@@ -694,7 +714,7 @@ export class GameService {
             delete room.host.hostWishedGameMap;
             delete room.host.hostWishedGameName;
             delete room.host.hostWishedGameSpeed;
-            delete room.host.ready;
+            room.host.userStatus = 'online';
           } else {
             this.broadcast(socket, 'games:counter', room.games, isOut[0]);
             room.resetPlayers();

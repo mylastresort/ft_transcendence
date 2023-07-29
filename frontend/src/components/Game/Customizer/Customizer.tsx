@@ -8,6 +8,9 @@ import {
   NumberInput,
   Box,
   Input,
+  Select,
+  Radio,
+  Group,
 } from '@mantine/core';
 import { MapsContext, PlayerContext } from '@/context/game';
 import { motion } from 'framer-motion';
@@ -138,7 +141,11 @@ export default function Customizer({ type = 'create', userId }) {
             />
           </Flex>
           <Stack sx={{}} spacing="3rem" w={{ base: '20rem', md: '26rem' }}>
-            <Input.Wrapper label="Speed" pb="1rem">
+            <Input.Wrapper
+              label="Ball speed"
+              description="How fast the ball moves"
+              pb="1rem"
+            >
               <Slider
                 {...form.getInputProps('speed')}
                 label={null}
@@ -155,13 +162,24 @@ export default function Customizer({ type = 'create', userId }) {
             </Input.Wrapper>
             <NumberInput
               {...form.getInputProps('games')}
-              label="How much do you wish to play?"
+              label="Rounds"
+              description="How many games to play"
               max={9}
               min={3}
               step={2}
               placeholder="Number of games"
               sx={{ '& label': { color: 'white' } }}
             />
+            <Radio.Group
+              defaultValue="human"
+              name="favoriteFramework"
+              label="Select your game mode"
+            >
+              <Group mt="xs">
+                <Radio value="human" label="Human" />
+                <Radio value="ai" label="Ai" />
+              </Group>
+            </Radio.Group>
             <div>
               <Button
                 mt="2rem"

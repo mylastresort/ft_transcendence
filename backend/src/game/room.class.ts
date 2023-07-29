@@ -27,9 +27,9 @@ export class Room {
   }
 
   markReady(player: Player['data'], isReady: boolean) {
-    player.ready = isReady;
+    player.userStatus = 'ready';
     return of(this.host, this.guest).pipe(
-      every(({ ready }) => Boolean(ready)),
+      every(({ userStatus }) => userStatus === 'ready'),
       map((areReady) => [areReady, this] as const),
     );
   }

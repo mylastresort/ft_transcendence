@@ -1,20 +1,9 @@
 import { Box, Flex, Text } from '@mantine/core';
 import React, { use, useEffect } from 'react';
 import styles from '../Lobby/Lobby.module.css';
-import { Player } from '@/context/game';
 import { BsCircleFill } from 'react-icons/bs';
 
-export default function Profile({
-  player,
-  status,
-}: {
-  player: Player;
-  status: string;
-}) {
-  useEffect(() => {
-    console.log(status);
-  }, [status]);
-
+export default function Profile({ player, status, ready }) {
   return (
     <Flex
       className={styles.profile}
@@ -48,6 +37,7 @@ export default function Profile({
         />
       </Box>
       <Text className={styles.text_profile}>{player.username || 'N/A'}</Text>
+      <Text fw="lighter">{ready ? 'ready' : 'waiting to accept...'}</Text>
     </Flex>
   );
 }
