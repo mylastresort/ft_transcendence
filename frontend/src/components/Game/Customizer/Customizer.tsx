@@ -20,17 +20,12 @@ import { GameContext } from '@/context/game';
 import { useRouter } from 'next/router';
 import { UserSocket } from '@/context/WsContext';
 
-export default function Customizer({ type = 'create', userId }) {
+export default function Customizer({ type = 'invite', userId }) {
   const game = useContext(GameContext);
   const maps = useContext(MapsContext);
   const form = useForm({
-    initialValues: { speed: 3, games: 3, name: '' },
+    initialValues: { speed: 3, games: 5, name: '' },
     validate: {
-      name: (value) => {
-        // if (!value) return 'Room name is required';
-        if (value.length > 20) return 'Room name is too long';
-        return null;
-      },
       speed: (value) => (value < 2 || value > 5 ? 'Invalid speed' : null),
       games: (value) =>
         value < 3 || value > 10 ? 'Invalid number of games' : null,
@@ -73,12 +68,12 @@ export default function Customizer({ type = 'create', userId }) {
                 {
                   ...form.values,
                   map: maps[selected].name,
-                  userId,
+                  userId: 2,
                 },
                 (gameId) => {
                   UserSocket.emit('SendGameInvite', {
                     gameid: gameId,
-                    receiverId: Number(userId),
+                    receiverId: 2,
                     senderId: player?.userId,
                   });
                   router.push('/game');
@@ -106,7 +101,7 @@ export default function Customizer({ type = 'create', userId }) {
               onClick={() => setSelected(Math.max(0, selected - 1))}
               variant="filled"
             />
-            <Flex w="20rem" mx="3rem" direction="column" align="center">
+            <Box w="20rem" mx="3rem">
               <Box className={styles.map_container} {...handlers}>
                 {maps.map((item, idx) => (
                   <Box
@@ -130,8 +125,7 @@ export default function Customizer({ type = 'create', userId }) {
                   />
                 ))}
               </Box>
-              <Text>{maps[selected].name}</Text>
-            </Flex>
+            </Box>
             <Button
               bg="cyan"
               className={styles.next_btn}

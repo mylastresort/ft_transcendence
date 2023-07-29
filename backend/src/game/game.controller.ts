@@ -45,6 +45,14 @@ export class GameController {
     };
   }
 
+  @Get('player/me/currentGame')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async currentGame(@Req() req) {
+    return await this.game.currentGame(req.user.id);
+  }
+
   @Post('player')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
@@ -91,10 +99,18 @@ export class GameController {
           minutes: Math.floor((duration % 3600000) / 60000),
           seconds: Math.floor(((duration % 3600000) % 60000) / 1000),
         },
-        status: game.winner.user.username === username ? 'WINNER' : 'LOSER',
+        status: game.winner.user.username,
         startedat: game.startedAt,
       };
     });
+  }
+
+  @Get('achievements')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async getAchievements() {
+    return await this.prisma.achievement.findMany();
   }
 
   @Get(':id')
@@ -107,14 +123,6 @@ export class GameController {
     } catch (err) {
       throw new HttpException(err.error, HttpStatus.BAD_REQUEST);
     }
-  }
-
-  @Get('achievements')
-  @UseGuards(AuthGuard('jwt'))
-  @HttpCode(HttpStatus.OK)
-  @ApiBearerAuth()
-  async getAchievements() {
-    return await this.prisma.achievement.findMany();
   }
 
   @Post('invite/cancel/:id')
