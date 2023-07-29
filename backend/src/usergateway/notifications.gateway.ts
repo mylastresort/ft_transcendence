@@ -537,22 +537,24 @@ export class NotificationsGateway {
   async UserStatus(
     @MessageBody()
     data: {
-      userId: number;
+      user1: number;
+      user2: number;
     },
   ) {
     try {
-      const sockets = this.connectedSockets.get(data.userId);
+      // const sockets = this.connectedSockets.get(data.user1);
+      const sockets2 = this.connectedSockets.get(data.user2);
       const status = await this.prisma.user.findUnique({
         where: {
-          id: data.userId,
+          id: data.user1,
         },
         select: {
           status: true,
         },
       });
 
-      for (const socket of sockets) {
-        await socket.emit('UserStatus', status.status);
+      for (const socket2 of sockets2) {
+        await socket2.emit('UserStatus', status.status);
       }
     } catch (err) {
       console.log(err);
