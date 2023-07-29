@@ -552,7 +552,7 @@ export class NotificationsGateway {
       });
 
       for (const socket of sockets) {
-        await socket.emit('UserStatus', status.status);
+        await socket.emit('UserStatus', status.status, data.userId);
       }
     } catch (err) {
       console.log(err);

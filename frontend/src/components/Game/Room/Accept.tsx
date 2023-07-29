@@ -17,8 +17,9 @@ export default function Accept() {
   const [status, setStatus] = useState<{ gameStatus: string; error?: Error }>({
     gameStatus: game.gameStatus,
   });
-  const [self, setSelf] = useState('gray');
-  const [opponent, setOpponent] = useState('gray');
+  const [self, setSelf] = useState('offline');
+  const [opponent, setOpponent] = useState('offline');
+  const ws = useContext(WsContext);
 
   useEffect(() => {
     let started = false;
@@ -29,6 +30,9 @@ export default function Accept() {
         if (res.status !== 200) return router.push('/game');
         if (res.body) setStatus({ gameStatus: 'in-game' });
       });
+    ws.on('UserStatus', (status, userId) =>
+      userId === player?.userId ? setSelf(status) : setOpponent(status)
+    );
     game.socket
       ?.on('started', (value) => {
         started = true;
@@ -43,9 +47,12 @@ export default function Accept() {
           router.push('/game');
         }, 2000);
       });
+    ws.emit('UserStatus', { userId: player?.userId });
+    ws.emit('UserStatus', { userId: game.opponent.userId });
     return () => {
       if (!started) game.socket?.emit('leave');
       game.socket?.off('started').off('cancelled');
+      ws.off('UserStatus');
     };
   }, []);
 
@@ -67,8 +74,6 @@ export default function Accept() {
         .catch((err) => setStatus({ gameStatus: 'invalid', error: err }));
     }
   }, [router.query.id]);
-
-  const ws = useContext(WsContext);
 
   return status.gameStatus === 'invalid' ? (
     <Flex justify="center" align="center" h="100%">

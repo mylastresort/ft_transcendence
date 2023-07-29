@@ -560,7 +560,7 @@ export default function Canvas() {
                   backgroundImage: mapobj.ballColor,
                   borderRadius: mapobj.ballRadius,
                   position: 'absolute',
-                  transform: 'translate(var(--ball-x), var(--ball-y))',
+                  transform: 'translate(var(--ball-x), var(--ball-y)) translate(-50%, -50%)',
                 }}
               />
             </Box>
