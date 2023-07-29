@@ -8,12 +8,17 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
+interface Message{
+  room: string;
+  msg: string;
+}
 @WebSocketGateway({
   namespace: 'chat',
   cors: {
     origin: 'http://localhost:3000',
   },
 })
+
 export default class ChannelGateway implements OnModuleInit {
   @WebSocketServer()
   server: Server;
@@ -21,16 +26,25 @@ export default class ChannelGateway implements OnModuleInit {
   onModuleInit() {
     this.server.on('connection', (socket) => {
       console.log('channel member connected: ', socket.id);
+
       socket.on('join-room', (room) => {
         console.log('joining => ', room);
-        // socket.to(room).emit('receive-message', message);
-      })
+        socket.join(room);
+
+        this.server.to(room).emit('msg', 'You joined the room: ' + room);
+      });
     });
   }
-//   @SubscribeMessage('')
-//   sendMessage(content) {
-//     console.log('content from server:', content);
-//     this.server.emit('onMessage', content);
-//     this.server.to
-//   }
+
+  @SubscribeMessage('join-room')
+  joinRoom(@MessageBody() room: any, @ConnectedSocket() client: Socket): void {
+    console.log('joinRoom: ', room);
+    client.join(room);
+  }
+
+  @SubscribeMessage('sendMsg')
+  SendMessage(@MessageBody() data: any): void {
+    console.log('sendMsg: ', data);
+    this.server.to(data.room).emit('newMsg', data.msg);
+  }
 }

@@ -10,6 +10,7 @@ import request from 'superagent';
 import { ChatContext } from '@/context/chat';
 import { UserContext } from '@/context/user';
 import { useForm } from '@mantine/form';
+import { ChatSocketContext } from '@/context/chatSocketContext';
 
 const useInputStyle = createStyles((theme: MantineTheme) => ({
   input: {
@@ -33,6 +34,7 @@ export default function ChatInput({ isChannel = false }) {
   const route = isChannel ? 'channel' : 'private';
   const chatContext = useContext(ChatContext);
   const userContext = useContext(UserContext);
+  const socketContext = useContext(ChatSocketContext);
   const jwtToken = localStorage.getItem('jwtToken');
   function sendMessage(value: String) {
     const req = {
@@ -47,6 +49,7 @@ export default function ChatInput({ isChannel = false }) {
       .send(req)
       .then((res) => {
         console.log('create message: ', res.body);
+        socketContext.emit('sendMsg', req.message.content);
       })
       .catch((err) => {
         console.log(err);

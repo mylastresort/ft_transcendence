@@ -155,7 +155,6 @@ export class ChannelController {
   @ApiBearerAuth()
   async createMessage(@Req() req: any): Promise<any> {
     console.log('createMessage:', req.body);
-    // this.channelGateway.sendMessage(req.body.message.content);
     return this.channelService.createMessage(req.user, req.body);
   }
 }

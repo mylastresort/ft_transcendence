@@ -37,14 +37,18 @@ export default function MsgList({ h, isChannel = false }) {
       .catch((err) => {
         console.log(err);
       });
-  }, [load, chatContext.data.id]);
+  }, [chatContext.data.id]);
 
   useEffect(() => {
-    console.log('trying to connect!');
-    chatSocket.on('connect', () => {
-      console.log('connected!');
+    chatSocket.emit('join-room', chatContext.data.id.toString());
+    chatSocket.on("msg", (data) => {
+      console.log(' =>>> ', data);
     });
-  }, [load, chatContext.data.id]);
+    chatSocket.on("rMsg", (data) => {
+      console.log('msg recieved =>', data);
+    });
+
+  }, []);
   return (
     <Container
       w={'95%'}

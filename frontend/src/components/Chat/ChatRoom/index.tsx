@@ -1,23 +1,31 @@
 import { Container, Text, Box, MediaQuery, Button, Modal } from '@mantine/core';
 import UserInfo from './UserInfo';
 import MsgList from './MsgList';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { ChatContext } from '@/context/chat';
 import ChatInput from './ChatInput';
 import ChannelInfo from './ChannelInfo';
 import { ListPublicChannels } from './ListPublicChannels';
 import { RoomHead } from './RoomHead';
 import { useMediaQuery } from '@mui/material';
+import { ChatSocketContext } from '@/context/chatSocketContext';
 
 interface Props {
   width: string | number | undefined;
 }
 
-function ChatRoom({ isChannel = false }) {
+function ChatRoomContent({ isChannel = false }) {
+  const chatSocket = useContext(ChatSocketContext);
   const matches = useMediaQuery('(min-width:1000px)');
   console.log(matches);
   const chatContext = useContext(ChatContext);
-  return chatContext.data ? (
+  useEffect(() => {
+    chatSocket.on('connect', () => {
+      console.log('connected!');
+      chatSocket.emit('join-room', chatContext.data.id.toString());
+    });
+  }, []);
+  return (
     <>
       <MediaQuery smallerThan={1000} styles={{ width: 'calc(100% - 77px)' }}>
         <Box
@@ -28,8 +36,7 @@ function ChatRoom({ isChannel = false }) {
         >
           <MediaQuery largerThan={1000} styles={{ display: 'none' }}>
             <div>
-
-            <RoomHead>{isChannel ? <ChannelInfo /> : <UserInfo />}</RoomHead>
+              <RoomHead>{isChannel ? <ChannelInfo /> : <UserInfo />}</RoomHead>
             </div>
           </MediaQuery>
           <MsgList
@@ -45,9 +52,16 @@ function ChatRoom({ isChannel = false }) {
         </Box>
       </MediaQuery>
     </>
-  ) : (
-    <ListPublicChannels />
   );
+}
+
+function ChatRoom({ isChannel = false }) {
+  const chatContext = useContext(ChatContext);
+  if (chatContext.data){
+    return <ChatRoomContent isChannel={isChannel} />;
+  } else {
+    return <ListPublicChannels />;
+  }
 }
 
 export default ChatRoom;
