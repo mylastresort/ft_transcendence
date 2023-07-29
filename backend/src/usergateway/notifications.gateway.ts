@@ -544,7 +544,7 @@ export class NotificationsGateway {
     try {
       // const sockets = this.connectedSockets.get(data.user1);
       const sockets2 = this.connectedSockets.get(data.user2);
-      const status = await this.prisma.user.findUnique({
+      const status = await this.prisma.user.findFirst({
         where: {
           id: data.user1,
         },

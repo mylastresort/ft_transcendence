@@ -17,7 +17,7 @@ export default function Accept() {
   const [status, setStatus] = useState<{ gameStatus: string; error?: Error }>({
     gameStatus: game.gameStatus,
   });
-  const [self, setSelf] = useState('offline');
+  const [self, setSelf] = useState('online');
   const [opponent, setOpponent] = useState('offline');
   const ws = useContext(WsContext);
 
@@ -30,9 +30,7 @@ export default function Accept() {
         if (res.status !== 200) return router.push('/game');
         if (res.body) setStatus({ gameStatus: 'in-game' });
       });
-    ws.on('UserStatus', (status, userId) =>
-      userId === player?.userId ? setSelf(status) : setOpponent(status)
-    );
+    ws.on('UserStatus', (status, userId) => setOpponent(status));
     game.socket
       ?.on('started', (value) => {
         started = true;
@@ -47,8 +45,6 @@ export default function Accept() {
           router.push('/game');
         }, 2000);
       });
-    ws.emit('UserStatus', { userId: player?.userId });
-    ws.emit('UserStatus', { userId: game.opponent.userId });
     return () => {
       if (!started) game.socket?.emit('leave');
       game.socket?.off('started').off('cancelled');
@@ -68,6 +64,10 @@ export default function Accept() {
             player?.username === res.body.host.username ? 'host' : 'guest';
           game.opponent = game.role === 'host' ? res.body.guest : res.body.host;
           game.gameStatus = res.body.status;
+          ws.emit('UserStatus', {
+            user1: game.opponent.userId,
+            user2: player?.userId,
+          });
           game.gameId = router.query.id as string;
           setStatus({ gameStatus: res.body.status });
         })
