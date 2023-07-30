@@ -26,7 +26,7 @@ import Lottie from 'lottie-react';
 import batAnimation from '@/../public/images/maps/bat-animation.json';
 import { WsContext } from '@/context/WsContext';
 
-export default function Canvas() {
+export default function Canvas({ mode = 'human' }) {
   const rAFball = useRef(0);
   const ball = useRef<HTMLDivElement>(null);
   const host = useRef<HTMLDivElement>(null);
@@ -50,6 +50,8 @@ export default function Canvas() {
     height,
     finished,
     playersCurrent,
+    mode === 'ai',
+    cord
   );
   useBall(
     ball,

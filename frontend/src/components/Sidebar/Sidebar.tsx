@@ -15,7 +15,7 @@ import {
 import { GiPingPongBat } from 'react-icons/gi';
 import { HiOutlineChatAlt2 } from 'react-icons/hi';
 import { FiUsers } from 'react-icons/fi';
-import { FaUserAlt } from 'react-icons/fa';
+import { FaRegCompass, FaUserAlt } from 'react-icons/fa';
 import { useRouter } from 'next/router';
 import { GetUserData } from '@/pages/api/user';
 import {
@@ -30,9 +30,10 @@ import {
 } from '@mantine/core';
 import { IoNotifications } from 'react-icons/io5';
 import { UserSocket } from '@/context/WsContext';
-import { MdLabelImportantOutline } from 'react-icons/md';
+import { MdExplore, MdLabelImportantOutline, MdOutlineExplore } from 'react-icons/md';
 import { notifications } from '@mantine/notifications';
 import request from 'superagent';
+import { AiOutlineCompass } from 'react-icons/ai';
 
 export const User_Sidebar = (Show: any) => {
   if (Show.Show) {
@@ -357,7 +358,7 @@ export const User_Sidebar = (Show: any) => {
                     className="text nav-text"
                     style={{ color: Clickedon === 1 ? '#fff' : '' }}
                   >
-                    Dashboard
+                    Game
                   </span>
                 </Link>
               </li>

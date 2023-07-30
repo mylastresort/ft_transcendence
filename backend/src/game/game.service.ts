@@ -25,6 +25,8 @@ export class GameService {
 
   private rooms = new Map<Room['id'], Room>();
 
+  private bot = {};
+
   private players = new Map<User['id'], Player[]>();
 
   private notifier$ = interval(3000)

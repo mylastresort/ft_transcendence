@@ -32,6 +32,9 @@ export default function Accept() {
         if (res.status !== 200) return router.push('/game');
         if (res.body) setStatus({ gameStatus: 'in-game' });
       });
+    function setOffline() {
+      setSelf('offline');
+    }
     game.socket
       ?.on('started', (value) => {
         started = true;
@@ -45,38 +48,43 @@ export default function Accept() {
           router.push('/game');
         }, 2000);
       })
-      .on('user-status', (_, status) => setOpponent(status));
+      .on('user-status', (_, status) => setOpponent(status))
+      .on('disconnect', setOffline);
     return () => {
       if (!started) game.socket?.emit('leave');
       game.socket
         ?.emit('unwatch-user-status', game.opponent.userId)
         .off('started')
         .off('cancelled')
-        .off('user-status');
+        .off('user-status')
+        .off('disconnect', setOffline);
     };
   }, []);
 
   useEffect(() => {
     if (game.socket && !game.gameStatus && router.query.id) {
-      request
-        .get(`http://localhost:4400/api/v1/game/${router.query.id}`)
-        .set('Authorization', `Bearer ${localStorage.getItem('jwtToken')}`)
-        .then((res) => {
-          if (res.status !== 200) return router.push('/game');
-          game.conf = res.body.conf;
-          game.role =
-            player?.username === res.body.host.username ? 'host' : 'guest';
-          game.opponent = game.role === 'host' ? res.body.guest : res.body.host;
-          game.socket?.emit('watch-user-status', game.opponent.userId);
-          game.gameStatus = res.body.status;
-          ws.emit('UserStatus', {
-            user1: game.opponent.userId,
-            user2: player?.userId,
-          });
-          game.gameId = router.query.id as string;
-          setStatus({ gameStatus: res.body.status });
-        })
-        .catch((err) => setStatus({ gameStatus: 'invalid', error: err }));
+      if (router.query.id === 'bot') setStatus({ gameStatus: 'playing' });
+      else
+        request
+          .get(`http://localhost:4400/api/v1/game/${router.query.id}`)
+          .set('Authorization', `Bearer ${localStorage.getItem('jwtToken')}`)
+          .then((res) => {
+            if (res.status !== 200) return router.push('/game');
+            game.conf = res.body.conf;
+            game.role =
+              player?.username === res.body.host.username ? 'host' : 'guest';
+            game.opponent =
+              game.role === 'host' ? res.body.guest : res.body.host;
+            game.socket?.emit('watch-user-status', game.opponent.userId);
+            game.gameStatus = res.body.status;
+            ws.emit('UserStatus', {
+              user1: game.opponent.userId,
+              user2: player?.userId,
+            });
+            game.gameId = router.query.id as string;
+            setStatus({ gameStatus: res.body.status });
+          })
+          .catch((err) => setStatus({ gameStatus: 'invalid', error: err }));
     }
     return () => {
       game.socket

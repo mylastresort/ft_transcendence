@@ -1,8 +1,8 @@
 import { Button, Group, Stack, Text, Title } from '@mantine/core';
-import { use, useContext } from 'react';
+import { useContext } from 'react';
 import styles from './Home.module.css';
 import Link from 'next/link';
-import { GameContext, PlayerContext } from '@/context/game';
+import { GameContext } from '@/context/game';
 import { useRouter } from 'next/router';
 
 export default function Home() {

@@ -2,17 +2,14 @@ import {
   Button,
   Stack,
   Flex,
-  TextInput,
   Slider,
-  Text,
   NumberInput,
   Box,
   Input,
-  Select,
   Radio,
   Group,
 } from '@mantine/core';
-import { MapsContext, PlayerContext } from '@/context/game';
+import { MapsContext, Player, PlayerContext } from '@/context/game';
 import { motion } from 'framer-motion';
 import { useForm } from '@mantine/form';
 import { useSwipeable } from 'react-swipeable';
@@ -27,7 +24,7 @@ export default function Customizer({ type = 'create', userId }) {
   const game = useContext(GameContext);
   const maps = useContext(MapsContext);
   const form = useForm({
-    initialValues: { speed: 3, games: 5, name: '' },
+    initialValues: { speed: 3, games: 5, name: '', mode: 'human' },
     validate: {
       speed: (value) => (value < 2 || value > 5 ? 'Invalid speed' : null),
       games: (value) =>
@@ -47,9 +44,10 @@ export default function Customizer({ type = 'create', userId }) {
     <Flex align="center" h="100%" maw="1500px" m="0 auto">
       <Box
         component="form"
-        onSubmit={form.onSubmit(() =>
-          type === 'create'
-            ? game.socket?.emit(
+        onSubmit={form.onSubmit(() => {
+          if (type === 'create') {
+            if (form.values.mode === 'human')
+              game.socket?.emit(
                 'join',
                 {
                   ...form.values,
@@ -65,24 +63,39 @@ export default function Customizer({ type = 'create', userId }) {
                   };
                   router.push('/game/lobby');
                 }
-              )
-            : game.socket?.emit(
-                'invite',
-                {
-                  ...form.values,
-                  map: maps[selected].name,
-                  userId,
-                },
-                (gameId) => {
-                  UserSocket.emit('SendGameInvite', {
-                    gameid: gameId,
-                    receiverId: Number(userId),
-                    senderId: player?.userId,
-                  });
-                  router.push('/game');
-                }
-              )
-        )}
+              );
+            else {
+              game.role = 'host';
+              game.conf = {
+                ...form.values,
+                map: maps[selected].name,
+                isInvite: false,
+              };
+              game.config = { limit: [180, 150], paddle: 30, radius: 2 };
+              game.opponent = {
+                username: 'Ai', 
+                userImgProfile: '',
+              } as Player;
+              router.push('/game/bot');
+            }
+          } else
+            game.socket?.emit(
+              'invite',
+              {
+                ...form.values,
+                map: maps[selected].name,
+                userId,
+              },
+              (gameId) => {
+                UserSocket.emit('SendGameInvite', {
+                  gameid: gameId,
+                  receiverId: Number(userId),
+                  senderId: player?.userId,
+                });
+                router.push('/game');
+              }
+            );
+        })}
         className={styles.customizer}
         h="100%"
         w="100%"
@@ -90,7 +103,7 @@ export default function Customizer({ type = 'create', userId }) {
         <Flex
           justify={{ base: 'center', md: 'space-around' }}
           align="center"
-          gap="6rem"
+          gap="3rem"
           w="100%"
           h="100%"
           direction={{ base: 'column', md: 'row' }}
@@ -140,7 +153,7 @@ export default function Customizer({ type = 'create', userId }) {
               variant="filled"
             />
           </Flex>
-          <Stack sx={{}} spacing="3rem" w={{ base: '20rem', md: '26rem' }}>
+          <Stack spacing="3rem" w={{ base: '20rem', md: '26rem' }}>
             <Input.Wrapper
               label="Ball speed"
               description="How fast the ball moves"
@@ -171,8 +184,7 @@ export default function Customizer({ type = 'create', userId }) {
               sx={{ '& label': { color: 'white' } }}
             />
             <Radio.Group
-              defaultValue="human"
-              name="favoriteFramework"
+              {...form.getInputProps('mode')}
               label="Select your game mode"
             >
               <Group mt="xs">
@@ -182,7 +194,7 @@ export default function Customizer({ type = 'create', userId }) {
             </Radio.Group>
             <div>
               <Button
-                mt="2rem"
+                mt="1rem"
                 mb="1rem"
                 m="0 auto"
                 w="100%"
