@@ -5,7 +5,7 @@ import { Player } from './game.gateway';
 
 export class _Player {
   constructor(
-    private _userStatus: 'online' | 'ingame' | 'ready',
+    private _userStatus: 'offline' | 'online' | 'ingame' | 'ready',
     public userAchievements: { name: string; description: string }[],
     public userCurrentStreak: number,
     public userId: User['id'],
@@ -37,7 +37,7 @@ export class _Player {
     return this._userStatus;
   }
 
-  set userStatus(status: 'online' | 'ingame' | 'ready') {
+  set userStatus(status: 'offline' | 'online' | 'ingame' | 'ready') {
     this.userStatusWatchers.forEach((watcher) =>
       watcher.emit('user-status', this.userId, status),
     );

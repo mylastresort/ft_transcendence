@@ -32,7 +32,6 @@ export default function Accept() {
         if (res.status !== 200) return router.push('/game');
         if (res.body) setStatus({ gameStatus: 'in-game' });
       });
-    ws.on('UserStatus', (status, userId) => setOpponent(status));
     game.socket
       ?.on('started', (value) => {
         started = true;

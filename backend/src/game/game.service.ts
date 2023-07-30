@@ -46,6 +46,8 @@ export class GameService {
     .subscribe(async ({ host, guest, room: { id } }) => {
       await host.join(id);
       await guest.join(id);
+      host.data.currentGameId = id;
+      guest.data.currentGameId = id;
       host.to(id).emit('joined', id, host.data, host.data);
       guest.to(id).emit('joined', id, guest.data, host.data);
     });
@@ -413,7 +415,10 @@ export class GameService {
   }
 
   async join(socket: Player, body) {
-    if ((await this.getPlayer(socket.data.userId)).currentGameId)
+    if (
+      socket.data.userStatus === 'ingame' ||
+      socket.data.userStatus === 'ready'
+    )
       throw new WsException('Already in game');
     socket.data.currentUserRole = body.role;
     socket.data.hostWishedGameSpeed = body.speed;
@@ -560,6 +565,7 @@ export class GameService {
         this.rooms.delete(socket.data.currentGameId);
       }
     }
+    socket.data.userStatus = 'offline';
     return true;
   }
 
@@ -572,7 +578,8 @@ export class GameService {
     ready: boolean,
     id: Player['data']['currentGameId'],
   ) {
-    if (socket.data.currentGameId) throw new WsException('Already in game');
+    if (socket.data.userStatus === 'ingame')
+      throw new WsException('Already in game');
     let room: Room = this.rooms.get(id);
     if (!room) {
       const lazyRoom = await this.prisma.room.findUnique({
@@ -605,8 +612,9 @@ export class GameService {
           : lazyRoom.players[1].userId,
         false,
       );
-      if (!host || !guest) throw new WsException('Player is offline');
-      if (host.currentGameId || guest.currentGameId)
+      const opponent = socket.data.userId === host.userId ? guest : host;
+      if (!opponent) throw new WsException('Player is offline');
+      if (opponent.userStatus === 'ingame')
         throw new WsException('Player is already in game');
       host.currentUserRole = 'host';
       host.hostSettableGames = lazyRoom.maxGames;
@@ -629,6 +637,8 @@ export class GameService {
       room.host.userId === socket.data.userId ? room.host : room.guest;
     socket.data.userStatus = ready ? 'ready' : 'online';
     if (room.guest.userStatus === 'ready' && room.host.userStatus === 'ready') {
+      room.guest.userStatus = 'ingame';
+      room.host.userStatus = 'ingame';
       const config = {
         limit: Room.edges,
         paddle: Room.paddle,
