@@ -39,16 +39,10 @@ export default function MsgList({ h, isChannel = false }) {
       });
   }, [chatContext.data.id]);
 
-  useEffect(() => {
-    chatSocket.emit('join-room', chatContext.data.id.toString());
-    chatSocket.on("msg", (data) => {
-      console.log(' =>>> ', data);
-    });
-    chatSocket.on("rMsg", (data) => {
-      console.log('msg recieved =>', data);
-    });
-
-  }, []);
+  const socket = useContext(ChatSocketContext);
+  useEffect(()=>{
+    socket.emit('join-room', chatContext.data.name);
+  }, [])
   return (
     <Container
       w={'95%'}

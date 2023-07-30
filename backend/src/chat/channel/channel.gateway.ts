@@ -1,4 +1,4 @@
-import { OnModuleInit } from '@nestjs/common';
+import { OnModuleInit, UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -7,6 +7,8 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { WsJwtGuard } from 'src/auth/ws-jwt/ws-jwt.guard';
+import { SocketAuthMiddleware } from 'src/auth/ws.middleware';
 
 interface Message{
   room: string;
@@ -19,26 +21,24 @@ interface Message{
   },
 })
 
-export default class ChannelGateway implements OnModuleInit {
+@UseGuards(WsJwtGuard)
+export default class ChannelGateway {
   @WebSocketServer()
   server: Server;
 
-  onModuleInit() {
-    this.server.on('connection', (socket) => {
+  afterInit(client: Socket) {
+    client.use(SocketAuthMiddleware() as any);
+    client.on('connection', (socket) => {
       console.log('channel member connected: ', socket.id);
-
-      socket.on('join-room', (room) => {
-        console.log('joining => ', room);
-        socket.join(room);
-
-        this.server.to(room).emit('msg', 'You joined the room: ' + room);
-      });
     });
   }
 
+  @UseGuards(WsJwtGuard)
   @SubscribeMessage('join-room')
   joinRoom(@MessageBody() room: any, @ConnectedSocket() client: Socket): void {
     console.log('joinRoom: ', room);
+    console.log(client.data);
+    // client.to(room)
     client.join(room);
   }
 

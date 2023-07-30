@@ -1,13 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 // import { WebsocketGateway } from 'src/gateway/websocket.gateway';
-import { NotificationsGateway } from 'src/usergateway/notifications.gateway';
+// import { NotificationsGateway } from 'src/usergateway/notifications.gateway';
 
 @Injectable()
 export class FriendsService {
   constructor(
     private Prisma: PrismaService,
-    private notificationsGateway: NotificationsGateway,
+    // // private notificationsGateway: NotificationsGateway,
   ) {}
 
   async getUsers(user: any) {
@@ -92,8 +92,8 @@ export class FriendsService {
           status: 'pending',
         },
       });
-      await this.notificationsGateway.NewFriendReq(receiverId, senderId);
-      await this.notificationsGateway.RerenderFriends(senderId, receiverId);
+      // await this.notificationsGateway.NewFriendReq(receiverId, senderId);
+      // await this.notificationsGateway.RerenderFriends(senderId, receiverId);
 
       return friendRequest;
     } catch (error) {
@@ -139,8 +139,8 @@ export class FriendsService {
         },
       });
 
-      await this.notificationsGateway.AcceptFriendReq(senderId, receiverId);
-      await this.notificationsGateway.RerenderFriends(senderId, receiverId);
+      // await this.notificationsGateway.AcceptFriendReq(senderId, receiverId);
+      // await this.notificationsGateway.RerenderFriends(senderId, receiverId);
 
       return friend;
     } catch (error) {
@@ -184,12 +184,12 @@ export class FriendsService {
       });
 
       if (UserId !== senderId) {
-        await this.notificationsGateway.CandelFriendReq(senderId, receiverId);
+        // await this.notificationsGateway.CandelFriendReq(senderId, receiverId);
       } else {
-        await this.notificationsGateway.CandelFriendReqNotif(receiverId);
+        // await this.notificationsGateway.CandelFriendReqNotif(receiverId);
       }
 
-      await this.notificationsGateway.RerenderFriends(senderId, receiverId);
+      // await this.notificationsGateway.RerenderFriends(senderId, receiverId);
 
       return { message: 'Friend request canceled' };
     } catch (error) {
@@ -311,7 +311,7 @@ export class FriendsService {
           },
         });
       }
-      await this.notificationsGateway.RerenderFriends(userId, friendId);
+      // await this.notificationsGateway.RerenderFriends(userId, friendId);
       return { message: 'Friend removed' };
     } catch (error) {
       throw new HttpException(
@@ -349,7 +349,7 @@ export class FriendsService {
             blockedBy: { connect: { id: userId } },
           },
         });
-        await this.notificationsGateway.RerenderFriends(userId, friendId);
+        // await this.notificationsGateway.RerenderFriends(userId, friendId);
         return { message: 'User blocked' };
       }
 
@@ -376,7 +376,7 @@ export class FriendsService {
           },
         });
       }
-      await this.notificationsGateway.RerenderFriends(userId, friendId);
+      // await this.notificationsGateway.RerenderFriends(userId, friendId);
       return { message: 'User blocked' };
     } catch (error) {
       throw new HttpException(
@@ -430,7 +430,7 @@ export class FriendsService {
           },
         });
       }
-      await this.notificationsGateway.RerenderFriends(userId, friendId);
+      // await this.notificationsGateway.RerenderFriends(userId, friendId);
       return { message: 'User unblocked' };
     } catch (error) {
       throw new HttpException(

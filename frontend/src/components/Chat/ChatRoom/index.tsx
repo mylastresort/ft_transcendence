@@ -7,6 +7,7 @@ import ChatInput from './ChatInput';
 import ChannelInfo from './ChannelInfo';
 import { ListPublicChannels } from './ListPublicChannels';
 import { RoomHead } from './RoomHead';
+import {io, Socket} from 'socket.io-client'
 import { useMediaQuery } from '@mui/material';
 import { ChatSocketContext } from '@/context/chatSocketContext';
 
@@ -15,16 +16,7 @@ interface Props {
 }
 
 function ChatRoomContent({ isChannel = false }) {
-  const chatSocket = useContext(ChatSocketContext);
   const matches = useMediaQuery('(min-width:1000px)');
-  console.log(matches);
-  const chatContext = useContext(ChatContext);
-  useEffect(() => {
-    chatSocket.on('connect', () => {
-      console.log('connected!');
-      chatSocket.emit('join-room', chatContext.data.id.toString());
-    });
-  }, []);
   return (
     <>
       <MediaQuery smallerThan={1000} styles={{ width: 'calc(100% - 77px)' }}>

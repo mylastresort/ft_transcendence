@@ -24,7 +24,7 @@ import { ChatModule } from './chat/chat.module';
     GameModule,
     ChatModule,
   ],
-  providers: [NotificationsGateway, ChatService],
+  providers: [ChatService],
   controllers: [ChatController],
 })
 export class AppModule {}
