@@ -1,4 +1,4 @@
- import { Button, Container } from '@mantine/core';
+ import { Button, Container, ScrollArea } from '@mantine/core';
 import Message from './Message';
 import { useContext, useEffect, useState } from 'react';
 import { ChatContext } from '@/context/chat';
@@ -40,17 +40,16 @@ export default function MsgList({ h, isChannel = false }) {
       .catch((err) => {
         console.log(err);
       });
+
+    
+      console.log('joining room');
+      socket.emit(`${route}/join-room`, isChannel ? chatContext.data.name : chatContext.data.id);
+      socket.on(`${route}/newMsg`, (newMessage)=>{
+        setMessages((prevMessages) => [...prevMessages, newMessage])
+        console.log("messages: ", newMessage);
+      });
   }, [chatContext.data.id]);
 
-  
-  useEffect(()=>{
-    console.log('joining room');
-    socket.emit(`${route}/join-room`, isChannel ? chatContext.data.name : chatContext.data.id);
-    socket.on('newMsg', (newMessage)=>{
-      setMessages((prevMessages) => [...prevMessages, newMessage])
-      console.log(messages);
-    });
-  }, [chatContext.data.id]);
   return (
     <Container
       w={'95%'}
@@ -59,13 +58,25 @@ export default function MsgList({ h, isChannel = false }) {
         height: h,
       }}
     >
+      <ScrollArea
+        w={'100%'}
+        maw={2000}
+        style={{
+          height: h,
+          display: 'flex',
+          flexDirection: 'column-reverse',
+          overflowY: 'auto',
+        }}
+      >
+
       {messages.map((message) => (
         <Message
-          key={message.id}
-          content={message.content}
-          sendBy={isChannel ? message.sender.user : message.sender}
+        key={message.id}
+        content={message.content}
+        sendBy={isChannel ? message.sender.user : message.sender}
         />
-      ))}
+        ))}
+        </ScrollArea>
     </Container>
   );
 }

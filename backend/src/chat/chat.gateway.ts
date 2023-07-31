@@ -50,6 +50,7 @@ export default class ChatGateway {
       client.leave(room);
     });
     client.join(room);
+    console.log(client.rooms);
   }
 
   @SubscribeMessage('private/sendMsg')
@@ -62,7 +63,7 @@ export default class ChatGateway {
       client.data,
       data,
     );
-    this.server.to(data.name).emit('newMsg', createdMessage);
+    this.server.to(data.id).emit('private/newMsg', createdMessage);
   }
 
   // channels chat
@@ -90,6 +91,6 @@ export default class ChatGateway {
       client.data,
       data,
     );
-    this.server.to(data.name).emit('newMsg', createdMessage);
+    this.server.to(data.name).emit('channel/newMsg', createdMessage);
   }
 }
