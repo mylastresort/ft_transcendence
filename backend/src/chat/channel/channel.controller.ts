@@ -11,11 +11,10 @@ import {
 import { ChannelService } from './channel.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import ChannelGateway from './channel.gateway';
 
 @Controller('chat/channel')
 export class ChannelController {
-  constructor(private channelService: ChannelService, private channelGateway: ChannelGateway) {}
+  constructor(private channelService: ChannelService) {}
 
   //create
   @Post()

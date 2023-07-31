@@ -11,11 +11,10 @@ import {
 import { PrivateChatService } from './privateChat.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import PriavteChatGateway from './privateChat.gateway';
 
 @Controller('chat/private')
 export class PriavteChatController {
-  constructor(private privateChatService: PrivateChatService, private privateChatGatway: PriavteChatGateway) {}
+  constructor(private privateChatService: PrivateChatService) {}
 
   //create
   @Post()

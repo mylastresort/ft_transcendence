@@ -1,13 +1,10 @@
-import { Button, Container } from '@mantine/core';
+ import { Button, Container } from '@mantine/core';
 import Message from './Message';
 import { useContext, useEffect, useState } from 'react';
 import { ChatContext } from '@/context/chat';
 import request from 'superagent';
 import { ChatSocketContext, socket } from '@/context/chatSocketContext';
 
-export default function MsgList({ h, isChannel = false }) {
-  const chatSocket = useContext(ChatSocketContext);
-  const route = isChannel ? 'channel' : 'private';
   interface MessageI {
     id: number;
     sendAt: string;
@@ -15,13 +12,19 @@ export default function MsgList({ h, isChannel = false }) {
     chatId: number;
     sendBy: any;
   }
+
+
+export default function MsgList({ h, isChannel = false }) {
+  const jwtToken = localStorage.getItem('jwtToken');
+  const socket = useContext(ChatSocketContext);
   const chatContext = useContext(ChatContext);
+
+  const route = isChannel ? 'channel' : 'private';
   const [messages, setMessages]: [
     { id: number; content: string; sender: any }[],
     any
   ] = useState([]);
-  const [load, setLoad] = useState(false);
-  const jwtToken = localStorage.getItem('jwtToken');
+
 
   useEffect(() => {
     request
@@ -39,10 +42,15 @@ export default function MsgList({ h, isChannel = false }) {
       });
   }, [chatContext.data.id]);
 
-  const socket = useContext(ChatSocketContext);
+  
   useEffect(()=>{
-    socket.emit('join-room', chatContext.data.name);
-  }, [])
+    console.log('joining room');
+    socket.emit(`${route}/join-room`, isChannel ? chatContext.data.name : chatContext.data.id);
+    socket.on('newMsg', (newMessage)=>{
+      setMessages((prevMessages) => [...prevMessages, newMessage])
+      console.log(messages);
+    });
+  }, [chatContext.data.id]);
   return (
     <Container
       w={'95%'}
@@ -58,9 +66,6 @@ export default function MsgList({ h, isChannel = false }) {
           sendBy={isChannel ? message.sender.user : message.sender}
         />
       ))}
-      <Button ml={55} onClick={() => setLoad(load ? false : true)}>
-        load messages
-      </Button>
     </Container>
   );
 }

@@ -14,12 +14,12 @@ export default function Chat(ChatRoom) {
         Authorization: `Bearer ${token}`,
       },
     };
-    let socket: Socket;
-    socket = io(`http://localhost:4400/chat`, socketOptions).on(
-      'connect',
-      () => {
-        console.log('chat socket connected...');
-      }
+    const socket = useMemo(
+      () =>
+        io(`http://localhost:4400/chat`, socketOptions).on('connect', () => {
+          console.log('chat socket connected...');
+        }),
+      []
     );
     return (
       <ChatSocketProvider value={socket}>

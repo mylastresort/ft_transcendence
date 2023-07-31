@@ -39,21 +39,17 @@ export default function ChatInput({ isChannel = false }) {
   function sendMessage(value: String) {
     const req = {
       id: chatContext.data.id,
+      name: chatContext.data.name,
       message: {
         content: value,
       },
     };
-    request
-      .post(`http://localhost:4400/api/chat/${route}/msgs`)
-      .set('Authorization', `Bearer ${jwtToken}`)
-      .send(req)
-      .then((res) => {
-        console.log('create message: ', res.body);
-        socketContext.emit('sendMsg', req.message.content);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+
+    try{
+      socketContext.emit(`${route}/sendMsg`, req);
+    }catch(err){
+      console.log(err);
+    }
   }
   const form = useForm({
     initialValues: {

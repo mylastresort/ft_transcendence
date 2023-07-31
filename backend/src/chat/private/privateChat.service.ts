@@ -157,6 +157,9 @@ export class PrivateChatService {
             },
           },
         },
+        include: {
+          sender: true,
+        }
       });
       return createdMessage;
     } catch (error) {

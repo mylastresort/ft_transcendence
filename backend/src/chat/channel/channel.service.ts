@@ -573,6 +573,13 @@ export class ChannelService {
             },
           },
         },
+        include: {
+          sender: {
+            include: {
+              user: true,
+            }
+          }
+        }
       });
       return createdMessage;
     } catch (error) {
