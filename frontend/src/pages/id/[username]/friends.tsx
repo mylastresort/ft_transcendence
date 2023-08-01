@@ -1,45 +1,23 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   Stack,
-  Button,
   Flex,
-  Grid,
-  Image,
   Group,
   Text,
-  Indicator,
-  ThemeIcon,
-  Center,
-  ActionIcon,
-  Menu,
   Avatar,
-  Tabs,
   UnstyledButton,
-  Anchor,
   Divider,
   NavLink,
-  Box,
-  Input,
-  Checkbox,
-  Select,
-  Textarea,
-  FileButton,
 } from '@mantine/core';
 import { Spacer } from '@nextui-org/react';
 import { useRouter } from 'next/router';
 import { GetMe } from '@/pages/api/auth/auth';
-import { HiEmojiSad } from 'react-icons/hi';
-import { GetUserData, PostUpdateProfile } from '@/pages/api/user';
 import { PostUserProfile } from '@/pages/api/user';
 import {
   GetFriendRequests,
-  PostAcceptFriendRequest,
   GetFriendsList,
-  PostUnfriend,
-  PostBlockFriend,
   GetBLockedFriends,
-  PostUnblock,
   Get_Not_Friends,
 } from '@/pages/api/friends/friends';
 import Styles from './friends.module.css';
@@ -53,7 +31,6 @@ function SideLink({ data, active, setActive }) {
     <NavLink
       style={{ borderRadius: '5px' }}
       color="cyan"
-      key={item.label}
       icon={item.icon}
       rightSection={item?.rightSection}
       active={index === active}
@@ -250,8 +227,6 @@ function Friends() {
   const [blockedFriends, setBlockedFriends] = useState<any>(null);
   const [Addfriends, setAddfriends] = useState<any>(null);
 
-  const [socketEvent, setSocketEvent] = useState(false);
-
   const router = useRouter();
   const { username } = router.query;
 
@@ -282,47 +257,44 @@ function Friends() {
     },
   ];
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        UserSocket.on('RerenderFriends', (data) => {
-          setSocketEvent((prevSocketEvent) => !prevSocketEvent);
-        });
+  const fetchData = async () => {
+    try {
+      const friendRequests = await GetFriendRequests();
+      setFriendReq(friendRequests.body);
 
-        const friendRequests = await GetFriendRequests();
-        setFriendReq(friendRequests.body);
+      const payload = {
+        username: username,
+      };
 
-        const payload = {
-          username: username,
-        };
-
-        const me = await GetMe();
-        if (me.body.username === username) {
-          setIsMe(true);
-        }
-
-        const userProfile = await PostUserProfile(payload);
-        const friendsList = await GetFriendsList({
-          username: userProfile.body.username,
-        });
-        setFriends(friendsList.body);
-
-        const blockedFriends = await GetBLockedFriends();
-        setBlockedFriends(blockedFriends.body);
-
-        const notFriends = await Get_Not_Friends();
-        setAddfriends(notFriends.body);
-      } catch (err) {
-        console.log(err);
+      const me = await GetMe();
+      if (me.body.username === username) {
+        setIsMe(true);
       }
-    };
 
+      const userProfile = await PostUserProfile(payload);
+      const friendsList = await GetFriendsList({
+        username: userProfile.body.username,
+      });
+      setFriends(friendsList.body);
+
+      const blockedFriends = await GetBLockedFriends();
+      setBlockedFriends(blockedFriends.body);
+
+      const notFriends = await Get_Not_Friends();
+      setAddfriends(notFriends.body);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
+    UserSocket.on('RerenderFriends', fetchData);
 
     return () => {
-      UserSocket.off('RerenderFriends');
+      UserSocket.off('RerenderFriends', fetchData);
     };
-  }, [username, socketEvent]);
+  }, [username]);
 
   return (
     <div className="dash_container">
@@ -346,7 +318,7 @@ function Friends() {
               }}
             >
               <SideLink
-                data={isMe ? data.slice(1) : data.slice(0, 1)}
+                data={isMe ? data?.slice(1) : data?.slice(0, 1)}
                 active={active}
                 setActive={setActive}
               />

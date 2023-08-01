@@ -38,6 +38,8 @@ import {
   PostAcceptFriendRequest,
   GetBLockedFriends,
   PostUnblock,
+  GetPlayerStats,
+  GetGameMatches,
 } from '@/pages/api/friends/friends';
 import { UserSocket } from '@/context/WsContext';
 import { BlockedPanel, ProfileNotFound } from '@/components/Pageutils/NotFound';
@@ -48,102 +50,109 @@ function Pofile() {
   const [friends, setFriends] = useState<[]>([]);
   const [PendingFriend, setPendingFriend] = useState<[]>([]);
   const [username, setUsername] = useState<string>('');
+  const [PlayerStats, setPlayerStats] = useState<[]>([]);
+  const [GameMatches, setGameMatches] = useState<[]>([]);
 
   const [isMe, setIsMe] = useState<boolean>(false);
-  const [socketEvent, setSocketEvent] = useState(false);
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
   const [isBlockedBy, setIsBlockedBy] = useState<boolean>(false);
   const [isLoaded, setIsLoaded] = useState<boolean>(true);
   const [isNotFound, setIsNotFound] = useState<boolean>(false);
 
-  // const UserSocket = useContext(WsContext);
-
   const router = useRouter();
-  // const { username } = router.query;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        UserSocket.on('RerenderFriends', (data) => {
-          setSocketEvent((prevSocketEvent) => !prevSocketEvent);
-        });
+  const fetchData = async () => {
+    try {
+      const Username = window.location.pathname.split('/')[2];
+      const player = await GetPlayerStats({ username: Username });
+      console.log(player.body);
+      setPlayerStats(player.body);
 
-        const Username = window.location.pathname.split('/')[2];
-        setUsername(Username);
-        setIsMe(false);
-        // setIsLoaded(true);
-        setIsBlocked(false);
-        setIsNotFound(false);
-        setIsBlockedBy(false);
-        setUsername;
-        const payload = {
-          username: Username,
+      const matches = await GetGameMatches({ username: Username });
+      setGameMatches(matches.body);
+
+      setUsername(Username);
+      setIsMe(false);
+      // setIsLoaded(true);
+      setIsBlocked(false);
+      setIsNotFound(false);
+      setIsBlockedBy(false);
+
+      const payload = {
+        username: Username,
+      };
+
+      const meResponse = await GetMe();
+      const me = meResponse.body;
+      setUserMe(me);
+      if (me.username === Username) {
+        setIsMe(true);
+      }
+
+      const userProfileResponse = await PostUserProfile(payload);
+      const UserProfile = userProfileResponse.body;
+      if (!UserProfile) {
+        setIsNotFound(true);
+        return () => {
+          // UserSocket.off('RerenderFriends');
+          router.events.off('routeChangeComplete', fetchData);
         };
+      }
+      setUserProfile(UserProfile);
 
-        const meResponse = await GetMe();
-        const me = meResponse.body;
-        setUserMe(me);
-        if (me.username === Username) {
-          setIsMe(true);
-        }
-        const userProfileResponse = await PostUserProfile(payload);
-        const UserProfile = userProfileResponse.body;
-        if (!UserProfile) {
-          setIsNotFound(true);
-          return () => {
-            UserSocket.off('RerenderFriends');
-            router.events.off('routeChangeComplete', fetchData);
-          };
-        }
-        setUserProfile(UserProfile);
-
-        const blockedFriendsResponse = await GetBLockedFriends();
-        const blockedFriends = blockedFriendsResponse.body;
-        const BlockedUsers = blockedFriends.find(
-          (item: any) => item.username === Username
-        );
-        if (BlockedUsers) {
-          setIsBlocked(true);
-        }
-        if (BlockedUsers?.blockedBy.length > 0) {
-          setIsBlockedBy(true);
-          setIsLoaded(false);
-
-          return () => {
-            UserSocket.off('RerenderFriends');
-            router.events.off('routeChangeComplete', fetchData);
-          };
-        }
-
+      const blockedFriendsResponse = await GetBLockedFriends();
+      const blockedFriends = blockedFriendsResponse.body;
+      const BlockedUsers = blockedFriends.find(
+        (item: any) => item.username === Username
+      );
+      if (BlockedUsers) {
+        setIsBlocked(true);
+      }
+      if (BlockedUsers?.blockedBy.length > 0) {
+        setIsBlockedBy(true);
         setIsLoaded(false);
 
-        const friendsPayload = {
-          username: UserProfile?.username,
+        return () => {
+          // UserSocket.off('RerenderFriends');
+          router.events.off('routeChangeComplete', fetchData);
         };
-        const friendsListResponse = await GetFriendsList(friendsPayload);
-        const friendsList = friendsListResponse.body;
-        setFriends(friendsList);
-
-        const notFriendsResponse = await Get_Not_Friends();
-        const notFriends = notFriendsResponse.body;
-        const PendingFriend = notFriends.find(
-          (item: any) => item.username === Username
-        );
-        setPendingFriend(PendingFriend);
-      } catch (err) {
-        console.log(err);
       }
-    };
 
-    fetchData();
+      setIsLoaded(false);
+
+      const friendsPayload = {
+        username: UserProfile?.username,
+      };
+      const friendsListResponse = await GetFriendsList(friendsPayload);
+      const friendsList = friendsListResponse.body;
+      setFriends(friendsList);
+
+      const notFriendsResponse = await Get_Not_Friends();
+      const notFriends = notFriendsResponse.body;
+      const PendingFriend = notFriends.find(
+        (item: any) => item.username === Username
+      );
+      setPendingFriend(PendingFriend);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    try {
+      fetchData();
+      UserSocket.on('RerenderFriends', fetchData);
+    } catch (err) {
+      console.log(err);
+    }
 
     router.events.on('routeChangeComplete', fetchData);
 
     return () => {
-      UserSocket.off('RerenderFriends');
+      UserSocket.off('RerenderFriends', fetchData);
       router.events.off('routeChangeComplete', fetchData);
     };
-  }, [username, socketEvent]);
+  }, [username]);
 
   const HandleUnfriend = (data: any) => () => {
     const payload = {
@@ -251,7 +260,9 @@ function Pofile() {
                     ? 'green'
                     : userProfile?.status === 'offline'
                     ? 'red'
-                    : 'yellow'
+                    : userProfile?.status === 'In Game'
+                    ? 'cyan'
+                    : 'red'
                 }
                 withBorder
               >
@@ -286,19 +297,21 @@ function Pofile() {
                 <ThemeIcon color="cyan" variant="light" size="xl">
                   <FaGamepad size="1.5rem" />
                 </ThemeIcon>
-                <Text>134 Games</Text>
+                <Text>
+                  {PlayerStats?.userWins + PlayerStats?.userLoses} Games
+                </Text>
               </Group>
               <Group spacing="xs">
                 <ThemeIcon color="green" variant="light" size="xl">
                   <FaSmileWink size="1.5rem" />
                 </ThemeIcon>
-                <Text>85 Wins</Text>
+                <Text>{PlayerStats?.userWins} Wins</Text>
               </Group>
               <Group spacing="xs">
                 <ThemeIcon color="red" variant="light" size="xl">
                   <HiEmojiSad size="1.5rem" />
                 </ThemeIcon>
-                <Text>21 Lost</Text>
+                <Text>{PlayerStats?.userLoses} Lost</Text>
               </Group>
             </Flex>
             <Flex
@@ -311,7 +324,7 @@ function Pofile() {
               <Group spacing="10px">
                 <Text size={25}>Level</Text>
                 <Avatar color="cyan" radius="xl">
-                  7
+                  {PlayerStats?.userLevel?.toFixed(1)}
                 </Avatar>
               </Group>
               <Group spacing="10px">
@@ -488,7 +501,7 @@ function Pofile() {
                               <FaSmileWink size="1.5rem" />
                             </ThemeIcon>
                             <Text size="1.2rem" weight={600}>
-                              85 Wins
+                              {PlayerStats?.userWins} Wins
                             </Text>
                           </Group>
                         </UnstyledButton>
@@ -499,21 +512,22 @@ function Pofile() {
                               <HiEmojiSad size="1.5rem" />
                             </ThemeIcon>
                             <Text size="1.2rem" weight={600}>
-                              21 Lost
+                              {PlayerStats?.userLoses} Lost
                             </Text>
                           </Group>
                         </UnstyledButton>
                         <Group spacing={10}>
-                          {[1, 2, 3, 4, 5].map((item, index) => (
-                            <Avatar
-                              radius="md"
-                              size={45}
-                              color="cyan"
-                              key={index}
-                            >
-                              BH
-                            </Avatar>
-                          ))}
+                          {PlayerStats?.userAchievements
+                            ?.slice(0, 4)
+                            .map((item, index) => (
+                              <Avatar
+                                src={item.icon}
+                                radius="md"
+                                size={45}
+                                color="cyan"
+                                key={index}
+                              />
+                            ))}
                         </Group>
                       </Flex>
                       <Spacer y={0.5} />
@@ -544,6 +558,10 @@ function Pofile() {
                 <Text size="1.3rem" weight={300} color="green">
                   Currently Online
                 </Text>
+              ) : userProfile?.status === 'In Game' ? (
+                <Text size="1.3rem" weight={300} color="blue">
+                  Currently in Game
+                </Text>
               ) : (
                 <Text size="1.3rem" weight={300}>
                   Currently Offline
@@ -554,19 +572,25 @@ function Pofile() {
                 <Anchor
                   size="1.1rem"
                   weight={300}
-                  href="https://mantine.dev/"
-                  target="_blank"
+                  onClick={() => {
+                    router.push(`/id/${userProfile?.username}/achievements`);
+                  }}
                 >
-                  Achievements (6)
+                  Achievements ({PlayerStats?.userAchievements?.length})
                 </Anchor>
                 <Group spacing="xs">
-                  {[1, 2, 3, 4].map((item, index) => (
-                    <UnstyledButton key={index}>
-                      <Avatar size={60} color="cyan" variant="light">
-                        BH
-                      </Avatar>
-                    </UnstyledButton>
-                  ))}
+                  {PlayerStats?.userAchievements
+                    ?.slice(0, 4)
+                    .map((item, index) => (
+                      <UnstyledButton key={index}>
+                        <Avatar
+                          src={item.icon}
+                          size={60}
+                          color="cyan"
+                          variant="light"
+                        />
+                      </UnstyledButton>
+                    ))}
                 </Group>
               </Stack>
               <Spacer y={2} />

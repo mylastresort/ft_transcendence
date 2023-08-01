@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useContext, use } from 'react';
+import React, { useEffect, useState } from 'react';
 // import './styles.css';
 import 'boxicons/css/boxicons.min.css';
 import Link from 'next/link';
 import {
   Text,
   Grid,
-  Input,
   Spacer,
   Image,
   Navbar,
@@ -13,18 +12,27 @@ import {
   Avatar,
   Badge,
 } from '@nextui-org/react';
-import { FiSearch } from 'react-icons/fi';
 import { GiPingPongBat } from 'react-icons/gi';
 import { HiOutlineChatAlt2 } from 'react-icons/hi';
 import { FiUsers } from 'react-icons/fi';
-import { BiBarChartAlt2 } from 'react-icons/bi';
 import { FaUserAlt } from 'react-icons/fa';
 import { useRouter } from 'next/router';
 import { GetUserData } from '@/pages/api/user';
-import { Burger, Group, ActionIcon, Menu, Divider } from '@mantine/core';
+import {
+  Burger,
+  Group,
+  Menu,
+  Divider,
+  Stack,
+  Button,
+  Center,
+  SimpleGrid,
+} from '@mantine/core';
 import { IoNotifications } from 'react-icons/io5';
 import { UserSocket } from '@/context/WsContext';
 import { MdLabelImportantOutline } from 'react-icons/md';
+import { notifications } from '@mantine/notifications';
+import request from 'superagent';
 
 export const User_Sidebar = (Show: any) => {
   if (Show.Show) {
@@ -45,13 +53,170 @@ export const User_Sidebar = (Show: any) => {
   const [Auth, setAuth] = useState(false);
   const [Notifications, setNotifications] = useState<any>([]);
 
+  const handleCleanNotifications = () => {
+    notifications.clean();
+  };
+
   useEffect(() => {
     UserSocket.on('GetNotifications', (data) => {
       setNotifications(data);
     });
 
+    UserSocket.on('GameInviteNotification', async (data) => {
+      await notifications.show({
+        id: 'GameInviteNotification',
+        title: 'Game Invite',
+        message: (
+          <Stack>
+            <Text
+              style={{
+                color: '#fff',
+              }}
+            >
+              You have a game invite from {data.username}
+            </Text>
+            <Group>
+              <Button
+                color="cyan"
+                onClick={() => {
+                  request
+                    .get(`http://localhost:4400/api/v1/game/${data.gameid}`)
+                    .set(
+                      'Authorization',
+                      `Bearer ${localStorage.getItem('jwtToken')}`
+                    )
+                    .then((res) => {
+                      const payload = {
+                        gameid: data.gameid,
+                        receiverId: data.receiverId,
+                        senderId: data.senderId,
+                      };
+                      handleCleanNotifications();
+                      UserSocket.emit('AcceptedGameInvite', payload);
+                      router.push(`/game/${data.gameid}`);
+                    })
+                    .catch(() => {});
+                }}
+              >
+                Accept
+              </Button>
+              <Button
+                variant="light"
+                color="red"
+                onClick={() => {
+                  handleCleanNotifications();
+                  request
+                    .post(
+                      `http://localhost:4400/api/v1/game/invite/cancel/${data.gameid}`
+                    )
+                    .set(
+                      'Authorization',
+                      `Bearer ${localStorage.getItem('jwtToken')}`
+                    )
+                    .then((res) => {
+                      console.log(res);
+                    })
+                    .catch(console.error);
+                  UserSocket.emit('ClearNotification', {
+                    gameid: data.gameid,
+                    receiverId: data.receiverId,
+                    senderId: data.senderId,
+                  });
+                }}
+              >
+                Cancel
+              </Button>
+            </Group>
+          </Stack>
+        ),
+        color: 'green',
+        radius: 'md',
+        bg: 'gray',
+
+        autoClose: 5000,
+      });
+    });
+
+    UserSocket.on('AcceptedGameInvite', async (data) => {
+      await notifications.show({
+        id: 'GameInviteNotification',
+        title: 'Game Invite Accepted',
+        message: (
+          <Stack>
+            <Text
+              style={{
+                color: '#fff',
+              }}
+            >
+              Your game invite was accepted by {data.username}
+            </Text>
+            <Group>
+              <Button
+                color="cyan"
+                onClick={() => {
+                  handleCleanNotifications();
+                  router.push(`/game/${data.gameid}`);
+                }}
+              >
+                Join
+              </Button>
+            </Group>
+          </Stack>
+        ),
+        color: 'green',
+        radius: 'md',
+        bg: 'gray',
+
+        autoClose: 5000,
+      });
+    });
+
+    UserSocket.on('NewRequestNotification', (name) => {
+      notifications.show({
+        id: 'NewRequestNotification',
+        title: 'New Request',
+        message: 'You have a new request from ' + name,
+        color: 'green',
+        bg: 'gray',
+        radius: 'md',
+        autoClose: 5000,
+      });
+    });
+
+    UserSocket.on('CandelFriendReq', (name) => {
+      if (name !== 'CanceledfrmSender') {
+        notifications.show({
+          id: 'CandelFriendReq',
+          title: 'Friend Request Canceled',
+          message: name + ' canceled your friend request',
+          color: 'red',
+          radius: 'md',
+          bg: 'gray',
+
+          autoClose: 5000,
+        });
+      }
+    });
+
+    UserSocket.on('AcceptFriendReq', (name) => {
+      notifications.show({
+        id: 'AcceptFriendReq',
+        title: 'Friend Request Accepted',
+        message: name + ' accepted your friend request',
+        color: 'green',
+        radius: 'md',
+        bg: 'gray',
+
+        autoClose: 5000,
+      });
+    });
+
     return () => {
       UserSocket.off('GetNotifications');
+      UserSocket.off('GameInviteNotification');
+      UserSocket.off('NewRequestNotification');
+      UserSocket.off('CandelFriendReq');
+      UserSocket.off('AcceptFriendReq');
     };
   }, []);
 
@@ -356,30 +521,155 @@ export const User_Sidebar = (Show: any) => {
               </Menu.Target>
 
               <Menu.Dropdown>
-                {Notifications.map((item: any, index: number) => (
-                  <div>
-                    <Menu.Item
-                      icon={
-                        item.read ? (
-                          ''
+                {Notifications.length === 0 ? (
+                  <Center
+                    p="xs"
+                    style={{
+                      width: '100%',
+                      // height: '79vh',
+                      backgroundColor: 'var(--sidebar-color)',
+                      borderRadius: '5px',
+                      flexDirection: 'column',
+                      // border: '1px solid #9DA4AE',
+                    }}
+                  >
+                    <Text className="Text_W500" style={{ fontSize: '0.9rem' }}>
+                      No Notifications Found
+                    </Text>
+                  </Center>
+                ) : (
+                  Notifications.map((item: any, index: number) => (
+                    <div>
+                      <Menu.Item
+                        icon={
+                          item.read ? (
+                            ''
+                          ) : (
+                            <MdLabelImportantOutline
+                              size={17}
+                              color="var(--secondary-color)"
+                            />
+                          )
+                        }
+                      >
+                        {item.gameid ? (
+                          item.message.includes(
+                            'Your game invite was accepted by'
+                          ) ? (
+                            <SimpleGrid cols={2}>
+                              <Text
+                                size="$sm"
+                                css={{
+                                  fontFamily: 'poppins',
+                                  color: 'var(--text-color)',
+                                  fontWeight: '500',
+                                }}
+                              >
+                                {item.message}
+                              </Text>
+                              <Button
+                                color="cyan"
+                                size="xs"
+                                variant="light"
+                                onClick={() => {
+                                  router.push(`/game/${item.gameid}`);
+                                }}
+                              >
+                                Join
+                              </Button>
+                            </SimpleGrid>
+                          ) : (
+                            <Stack>
+                              <SimpleGrid cols={2}>
+                                <Text
+                                  size="$sm"
+                                  css={{
+                                    fontFamily: 'poppins',
+                                    color: 'var(--text-color)',
+                                    fontWeight: '500',
+                                  }}
+                                >
+                                  {item.message}
+                                </Text>
+                                <Group>
+                                  <Button
+                                    color="cyan"
+                                    size="sm"
+                                    variant="light"
+                                    onClick={() => {
+                                      request
+                                        .get(
+                                          `http://localhost:4400/api/v1/game/${item.gameid}`
+                                        )
+                                        .set(
+                                          'Authorization',
+                                          `Bearer ${localStorage.getItem(
+                                            'jwtToken'
+                                          )}`
+                                        )
+                                        .then((res) => {
+                                          const payload = {
+                                            gameid: item.gameid,
+                                            receiverId: item.receiverId,
+                                            senderId: item.senderId,
+                                          };
+                                          handleCleanNotifications();
+                                          UserSocket.emit(
+                                            'AcceptedGameInvite',
+                                            payload
+                                          );
+                                          router.push(`/game/${item.gameid}`);
+                                        })
+                                        .catch(() => {});
+                                    }}
+                                  >
+                                    Accept
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="light"
+                                    color="red"
+                                    onClick={() => {
+                                      request
+                                        .post(
+                                          `http://localhost:4400/api/v1/game/invite/cancel/${item.gameid}`
+                                        )
+                                        .set(
+                                          'Authorization',
+                                          `Bearer ${localStorage.getItem(
+                                            'jwtToken'
+                                          )}`
+                                        )
+                                        .then((res) => {
+                                          console.log(res);
+                                        })
+                                        .catch(console.error);
+                                      UserSocket.emit('ClearNotification', {
+                                        gameid: item.gameid,
+                                        receiverId: item.receiverId,
+                                        senderId: item.senderId,
+                                      });
+                                    }}
+                                  >
+                                    Cancel
+                                  </Button>
+                                </Group>
+                              </SimpleGrid>
+                            </Stack>
+                          )
                         ) : (
-                          <MdLabelImportantOutline
-                            size={17}
-                            color="var(--secondary-color)"
-                          />
-                        )
-                      }
-                    >
-                      {item.message}
-                    </Menu.Item>
-                    <Divider
-                      style={{
-                        display:
-                          index === Notifications.length - 1 ? 'none' : '',
-                      }}
-                    />
-                  </div>
-                ))}
+                          <div>{item.message}</div>
+                        )}
+                      </Menu.Item>
+                      <Divider
+                        style={{
+                          display:
+                            index === Notifications.length - 1 ? 'none' : '',
+                        }}
+                      />
+                    </div>
+                  ))
+                )}
               </Menu.Dropdown>
             </Menu>
             <Dropdown placement="bottom-right">

@@ -12,6 +12,7 @@ import { User_Sidebar } from '../components/Sidebar/Sidebar';
 import { UserContext } from '@/context/user';
 import { WsProvider, UserSocket } from '@/context/WsContext';
 import { MantineProvider } from '@mantine/core';
+import { Button, Group, MantineProvider, Stack, Text } from '@mantine/core';
 import Theme from './styles/theme.json';
 import { Notifications, notifications } from '@mantine/notifications';
 import { BiSolidUserPlus } from 'react-icons/bi';
@@ -27,11 +28,11 @@ export default function App({ Component, pageProps }: AppProps) {
   const [isTwoFactorAuth, setIsTwoFactorAuth] = useState(false);
   const [Token, setToken] = useState<string | null>(null);
   const router = useRouter();
-  // const UserSocket = useContext(WsContext);
 
   useEffect(() => {
     const token = localStorage.getItem('jwtToken');
     setToken(token);
+    console.log('token', token);
     if (token) {
       setShow(false);
       GetMe()

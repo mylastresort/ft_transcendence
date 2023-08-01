@@ -4,6 +4,7 @@
   padding: 0;
   box-sizing: border-box;
   font-family: 'Poppins', sans-serif;
+  /* color: #fff; */
 }
 
 html,
@@ -374,6 +375,42 @@ body.dark .home .text {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+
+
+@font-face {
+  font-family: 'Distant Galaxy';
+  src: url('/fonts/DistantGalaxy.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Doctor Glitch';
+  src: url('/fonts/Doctor Glitch.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'GROBOLD';
+  src: url('/fonts/GROBOLD.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Nightcore Demo';
+  src: url('/fonts/Nightcore Demo.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Saiyan-Sans';
+  src: url('/fonts/Saiyan-Sans.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'upheavtt';
+  src: url('/fonts/upheavtt.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Witch Party';
+  src: url('/fonts/Witch Party.otf') format('opentype');
+}
 /* chat styles */
 .close-nav{
   width: 55px;

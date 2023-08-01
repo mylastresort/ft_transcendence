@@ -1,35 +1,32 @@
 import { randomUUID } from 'crypto';
-import { EMPTY, every, map, of } from 'rxjs';
+import { every, map, of } from 'rxjs';
 import Ball from './ball.class';
+import { Player } from './game.gateway';
 
 export class Room {
-  static readonly edges = [180, 150];
-
-  static readonly paddle = 100;
-
-  status = 'playing';
-
-  id = randomUUID();
-
   private ball: Ball;
 
-  maxGames;
+  public games = 1;
 
-  readonly players = { guest: [0, 0], host: [0, 0] };
+  public id = randomUUID();
 
-  games = 0;
+  public maxGames;
 
-  constructor(public host, public guest) {
-    this.maxGames = host.games;
-    host.gameId = this.id;
-    guest.gameId = this.id;
+  public status = 'waiting' as 'waiting' | 'playing' | 'finished';
+
+  readonly players = { guest: [0, 0, 0], host: [0, 0, 0] };
+
+  static readonly edges = [180, 150];
+
+  static readonly paddle = 30;
+
+  public isInvite = false;
+
+  constructor(public host: Player['data'], public guest: Player['data']) {
+    this.maxGames = host.hostSettableGames;
   }
 
-  leave() {
-    return EMPTY;
-  }
-
-  markReady(player, isReady: boolean) {
+  markReady(player: Player['data'], isReady: boolean) {
     player.ready = isReady;
     return of(this.host, this.guest).pipe(
       every(({ ready }) => Boolean(ready)),
@@ -75,8 +72,8 @@ export class Room {
     this.players.host[1] = 0;
   }
 
-  move(player, crd: number) {
+  move(player: Player['data'], crd: number) {
     if (crd > Math.abs(Room.edges[1])) throw new Error('Out of bounds');
-    this.players[player.role][0] = crd;
+    this.players[player.currentUserRole][0] = crd;
   }
 }

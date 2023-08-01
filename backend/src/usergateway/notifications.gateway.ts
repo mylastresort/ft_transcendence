@@ -15,14 +15,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
   cors: {
     origin: 'http://localhost:3000',
   },
-  // allowRequest: ({ headers: { Authorization } }, callback) => {
-  //   try {
-  //     WsJwtGuard.validateToken(Authorization);
-  //     callback(null, true);
-  //   } catch (err) {
-  //     callback(err, false);
-  //   }
-  // },
 })
 @UseGuards(WsJwtGuard)
 export class NotificationsGateway {
@@ -43,6 +35,17 @@ export class NotificationsGateway {
           this.connectedSockets.set(socket.data.id, [socket]);
         }
 
+        const user = await this.prisma.user.findUnique({
+          where: {
+            id: socket.data.id,
+          },
+        });
+
+        if (!user) {
+          socket.disconnect();
+          return;
+        }
+
         try {
           await this.prisma.user.update({
             where: {
@@ -56,9 +59,7 @@ export class NotificationsGateway {
           console.log('Error updating user status:', err);
         }
 
-        for (const esocket of this.connectedSockets.get(socket.data.id)) {
-          await this.SendNotification(esocket.data.id);
-        }
+        await this.SendNotification(socket.data.id);
 
         socket.on('disconnect', async () => {
           try {
@@ -134,13 +135,17 @@ export class NotificationsGateway {
         });
 
         for (const socket of sockets) {
-          socket.emit('RerenderFriends', 'rerender');
-          await this.SendNotification(socket.data.id);
+          await socket.emit('RerenderFriends', 'rerender');
+
+          await socket.emit('NewRequestNotification', sendername.username);
         }
+        await this.SendNotification(UserId);
       }
       if (sockets2) {
-        for (const socket2 of sockets2)
-          socket2.emit('RerenderFriends', 'rerender');
+        for (const socket2 of sockets2) {
+          await socket2.emit('RerenderFriends', 'rerender');
+        }
+        await this.SendNotification(senderId);
       }
     } catch (err) {
       console.log(err);
@@ -191,9 +196,9 @@ export class NotificationsGateway {
         });
 
         for (const socket of sockets) {
-          socket.emit('CandelFriendReq', sendername.username);
-          await this.SendNotification(socket.data.id);
+          await socket.emit('CandelFriendReq', sendername.username);
         }
+        await this.SendNotification(UserId);
       }
     } catch (err) {
       console.log(err);
@@ -206,9 +211,9 @@ export class NotificationsGateway {
 
       if (sockets) {
         for (const socket of sockets) {
-          socket.emit('CandelFriendReq', 'CanceledfrmSender');
-          await this.SendNotification(socket.data.id);
+          await socket.emit('CandelFriendReq', 'CanceledfrmSender');
         }
+        await this.SendNotification(receiverId);
       }
     } catch (err) {
       console.log(err);
@@ -229,7 +234,7 @@ export class NotificationsGateway {
       const sockets = this.connectedSockets.get(UserId);
       if (sockets) {
         for (const socket of sockets) {
-          socket.emit('GetNotifications', Notifications);
+          await socket.emit('GetNotifications', Notifications);
         }
       }
     } catch (err) {
@@ -281,9 +286,10 @@ export class NotificationsGateway {
         });
 
         for (const socket of sockets) {
-          socket.emit('AcceptFriendReq', sendername.username);
-          await this.SendNotification(socket.data.id);
+          await socket.emit('AcceptFriendReq', sendername.username);
         }
+
+        await this.SendNotification(UserId);
       }
       // if (socket2) {
       //   socket2.emit('AcceptFriendReq', 'Accepted');
@@ -299,10 +305,12 @@ export class NotificationsGateway {
       const sockets2 = this.connectedSockets.get(senderId);
 
       if (sockets) {
-        for (const socket of sockets) socket.emit('RerenderFriends', senderId);
+        for (const socket of sockets)
+          await socket.emit('RerenderFriends', senderId);
       }
       if (sockets2) {
-        for (const socket2 of sockets2) socket2.emit('RerenderFriends', UserId);
+        for (const socket2 of sockets2)
+          await socket2.emit('RerenderFriends', UserId);
       }
     } catch (err) {
       console.log(err);
@@ -321,6 +329,257 @@ export class NotificationsGateway {
         },
       });
       await this.SendNotification(client.data.id);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  @SubscribeMessage('SendGameInvite')
+  async SendGameInvite(
+    @MessageBody()
+    data: {
+      senderId: number;
+      receiverId: number;
+      gameid: string;
+    },
+  ) {
+    try {
+      const sockets = this.connectedSockets.get(data.receiverId);
+
+      const username = await this.prisma.user.findUnique({
+        where: {
+          id: data.senderId,
+        },
+        select: {
+          username: true,
+        },
+      });
+
+      await this.prisma.user.update({
+        where: {
+          id: data.receiverId,
+        },
+        data: {
+          notifications: {
+            create: {
+              message: 'You have a game invite from ' + username.username,
+              gameid: data.gameid,
+              receiverId: data.receiverId,
+              senderId: data.senderId,
+              read: false,
+            },
+          },
+        },
+      });
+
+      if (sockets) {
+        for (const socket of sockets) {
+          await socket.emit('GameInviteNotification', {
+            senderId: data.senderId,
+            receiverId: data.receiverId,
+            gameid: data.gameid,
+            username: username.username,
+          });
+        }
+        await this.SendNotification(data.receiverId);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  @SubscribeMessage('AcceptedGameInvite')
+  async AcceptedGameInvite(
+    @MessageBody()
+    data: {
+      senderId: number;
+      receiverId: number;
+      gameid: string;
+    },
+  ) {
+    try {
+      const sockets = this.connectedSockets.get(data.senderId);
+
+      const username = await this.prisma.user.findUnique({
+        where: {
+          id: data.receiverId,
+        },
+        select: {
+          username: true,
+        },
+      });
+
+      await this.prisma.user.update({
+        where: {
+          id: data.senderId,
+        },
+        data: {
+          notifications: {
+            create: {
+              message: 'Your game invite was accepted by ' + username.username,
+              gameid: data.gameid,
+              receiverId: data.receiverId,
+              senderId: data.senderId,
+              read: false,
+            },
+          },
+        },
+      });
+
+      if (sockets) {
+        for (const socket of sockets) {
+          await socket.emit('AcceptedGameInvite', {
+            senderId: data.senderId,
+            receiverId: data.receiverId,
+            gameid: data.gameid,
+            username: username.username,
+          });
+        }
+      }
+
+      await this.SendNotification(data.senderId);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  @SubscribeMessage('InGame')
+  async InGame(
+    @MessageBody()
+    data: {
+      user1Id: number;
+      user2Id: number;
+    },
+  ) {
+    try {
+      const sockets = this.connectedSockets.get(data.user1Id);
+      const sockets2 = this.connectedSockets.get(data.user2Id);
+
+      await this.prisma.user.update({
+        where: {
+          id: data.user1Id,
+        },
+        data: {
+          status: 'In Game',
+        },
+      });
+
+      await this.prisma.user.update({
+        where: {
+          id: data.user2Id,
+        },
+        data: {
+          status: 'In Game',
+        },
+      });
+
+      if (sockets) {
+        for (const socket of sockets) {
+          await socket.emit('InGame', 'InGame');
+        }
+      }
+      if (sockets2) {
+        for (const socket2 of sockets2) {
+          await socket2.emit('InGame', 'InGame');
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  @SubscribeMessage('GameEnded')
+  async GameEnded(
+    @MessageBody()
+    data: {
+      user1Id: number;
+      user2Id: number;
+    },
+  ) {
+    try {
+      const sockets = this.connectedSockets.get(data.user1Id);
+      const sockets2 = this.connectedSockets.get(data.user2Id);
+
+      await this.prisma.user.update({
+        where: {
+          id: data.user1Id,
+        },
+        data: {
+          status: 'online',
+        },
+      });
+
+      await this.prisma.user.update({
+        where: {
+          id: data.user2Id,
+        },
+        data: {
+          status: 'online',
+        },
+      });
+
+      if (sockets) {
+        for (const socket of sockets) {
+          await socket.emit('GameEnded', 'GameEnded');
+        }
+      }
+      if (sockets2) {
+        for (const socket2 of sockets2) {
+          await socket2.emit('GameEnded', 'GameEnded');
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  @SubscribeMessage('UserStatus')
+  async UserStatus(
+    @MessageBody()
+    data: {
+      user1: number;
+      user2: number;
+    },
+  ) {
+    try {
+      // const sockets = this.connectedSockets.get(data.user1);
+      const sockets2 = this.connectedSockets.get(data.user2);
+      const status = await this.prisma.user.findFirst({
+        where: {
+          id: data.user1,
+        },
+        select: {
+          status: true,
+        },
+      });
+
+      for (const socket2 of sockets2) {
+        await socket2.emit('UserStatus', status.status);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  @SubscribeMessage('ClearNotification')
+  async ClearNotification(
+    @MessageBody()
+    data: {
+      gameid: string;
+      user1: number;
+      user2: number;
+    },
+  ) {
+    console.log('ClearNotification', data);
+    await this.prisma.notification.deleteMany({
+      where: {
+        gameid: data.gameid,
+      },
+    });
+
+    await this.SendNotification(data.user1);
+    await this.SendNotification(data.user2);
+    try {
     } catch (err) {
       console.log(err);
     }

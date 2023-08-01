@@ -1,7 +1,7 @@
 {
   "colorScheme": "dark",
   "colors": {
-    "blue": [
+    "skyblue": [
       "#d5d7e0",
       "#acaebf",
       "#8c8fa3",
@@ -10,8 +10,8 @@
       "#34354a",
       "#2b2c3d",
       "#1d1e30",
-      "#99E9F2",
-      "#ad1046"
+      "#0C8599",
+      "#0a7182"
     ],
     "dark": [
       "#d5d7e0",
@@ -26,6 +26,8 @@
       "#fff"
     ]
   },
+  "fontFamily": "Inter, sans-serif",
+  "primaryColor": "skyblue",
   "theme": {
     "breakpoints": {
       "xs": "30em",
@@ -35,5 +37,5 @@
       "xl": "90em"
     }
   },
-  "fontFamily": "Inter, sans-serif"
+  }
 }
