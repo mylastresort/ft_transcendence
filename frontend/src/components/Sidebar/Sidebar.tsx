@@ -370,7 +370,7 @@ export const User_Sidebar = (Show: any) => {
                   HandleSelected(2);
                 }}
               >
-                <Link href="/Chat">
+                <Link href="/chat">
                   <i
                     className=" icon"
                     style={{

@@ -91,6 +91,7 @@ export class AuthService {
           id: Userid,
         },
         select: {
+          id: true,
           imgProfile: true,
           username: true,
           firstName: true,

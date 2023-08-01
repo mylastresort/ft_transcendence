@@ -1,7 +1,7 @@
-/* .redBg{
-    background-color: red;
-} */
-
-.InputRaduis{
-    border-radius: 50px;
+.chat{
+    position: absolute;
+    top: 76px;
+    left: 88px;
+    width: 100%;
+    height: calc(100vh - 78px);
 }

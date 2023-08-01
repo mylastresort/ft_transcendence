@@ -39,6 +39,10 @@ model User {
 
   notifications Notification[]
   player        Player?
+
+  chats    PrivateChat[]
+  messages PrivateMessage[]
+  Member   Member[]
 }
 
 model FriendRequest {
@@ -129,4 +133,68 @@ model Room {
   winner          Player?   @relation(fields: [winnerUserId], references: [userId], name: "wins")
   winnerPostLevel Float?
   winnerUserId    Int?
+  guestScore Int      @default(0)
+  hostScore  Int      @default(0)
+}
+
+// Private messages
+model PrivateMessage {
+  id       Int         @id @default(autoincrement())
+  sender   User        @relation(fields: [senderId], references: [id])
+  senderId Int
+  sendAt   DateTime    @default(now())
+  content  String
+  chat     PrivateChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId   Int
+}
+
+model PrivateChat {
+  id        Int              @id @default(autoincrement())
+  createdAt DateTime         @default(now())
+  updateAt  DateTime         @default(now())
+  members   User[]
+  Messages  PrivateMessage[]
+}
+
+// channels
+model ChannelMessage {
+  id        Int      @id @default(autoincrement())
+  sendAt    DateTime @default(now())
+  content   String
+  sender    Member   @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  senderId  Int
+  channel   Channel?  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channelId Int?
+}
+
+model Member {
+  id             Int              @id @default(autoincrement())
+  nickname       String
+  joinedAt       DateTime         @default(now())
+  isOwner        Boolean          @default(false)
+  isAdministator Boolean          @default(false)
+  isMember       Boolean          @default(true)
+  isBanned       Boolean          @default(false)
+  bannedTime     DateTime?
+  isMuted        Boolean          @default(false)
+  mutedTime      DateTime?
+  user           User             @relation(fields: [userId], references: [id])
+  userId         Int
+  channel        Channel?         @relation(fields: [channleId], references: [id])
+  channleId      Int?
+  messages       ChannelMessage[]
+}
+
+model Channel {
+  id          Int              @id @default(autoincrement())
+  createdAt   DateTime         @default(now())
+  updateAt    DateTime         @updatedAt
+  channelName String           @unique
+  image       String           @default("https://static.vecteezy.com/system/resources/thumbnails/000/426/510/small/Sports__28154_29.jpg")
+  description String?
+  password    String?
+  isProtected Boolean
+  isPrivate   Boolean
+  members     Member[]
+  messages    ChannelMessage[]
 }

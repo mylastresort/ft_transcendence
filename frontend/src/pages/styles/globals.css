@@ -28,6 +28,7 @@ body {
   --secondary-color: #87d1db;
   --white-color: #fff;
   --sky-blue-color: #18394a;
+  --chat-red-color: #F31260;
 
   --tran-03: all 0.2s ease;
   --tran-03: all 0.3s ease;
@@ -408,4 +409,14 @@ body.dark .home .text {
 @font-face {
   font-family: 'Witch Party';
   src: url('/fonts/Witch Party.otf') format('opentype');
+}
+/* chat styles */
+.close-nav{
+  width: 55px;
+  /* position: relative; */
+  transition: var(--tran-05);
+}
+.close-nav .nav-child{
+  display: none;
+  transition: var(--tran-05);
 }
