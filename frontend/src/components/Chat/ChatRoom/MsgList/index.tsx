@@ -40,15 +40,18 @@ export default function MsgList({ h, isChannel = false }) {
       .catch((err) => {
         console.log(err);
       });
-
-    
+      
       console.log('joining room');
       socket.emit(`${route}/join-room`, isChannel ? chatContext.data.name : chatContext.data.id);
-      socket.on(`${route}/newMsg`, (newMessage)=>{
-        setMessages((prevMessages) => [...prevMessages, newMessage])
-        console.log("messages: ", newMessage);
-      });
-  }, [chatContext.data.id]);
+    }, [chatContext.data.id]);
+
+  
+    useEffect(()=>{
+    socket.on(`${route}/newMsg`, (newMessage)=>{
+      setMessages((prevMessages) => [...prevMessages, newMessage])
+      console.log("messages: ", newMessage);
+    });
+  }, [route])
 
   return (
     <Container

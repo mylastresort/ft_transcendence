@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import './styles/globals.css';
 import './styles/layout.css';
 import './styles/fonts.css';
@@ -15,6 +15,11 @@ import { MantineProvider } from '@mantine/core';
 import Theme from './styles/theme.json';
 import { Notifications, notifications } from '@mantine/notifications';
 import { BiSolidUserPlus } from 'react-icons/bi';
+import {
+  ChatSocketContext,
+  ChatSocketProvider,
+} from '@/context/chatSocketContext';
+import { Socket, io } from 'socket.io-client';
 
 export default function App({ Component, pageProps }: AppProps) {
   let user = useContext(UserContext);
@@ -32,8 +37,7 @@ export default function App({ Component, pageProps }: AppProps) {
       GetMe()
         .then((res) => {
           user.data = res.body;
-          console.log("New User Data:", res.body);
-          // ya wald l9ahba wach zmal lik damir katsetti type dyal user.data lwa7d body li ma3arft ach fiha (had lblan dar liya error khlani wa7l fih 2h)
+          console.log('New User Data:', res.body);
           if (res.status !== 200) {
             UserSocket.disconnect();
             localStorage.removeItem('jwtToken');
@@ -128,18 +132,36 @@ export default function App({ Component, pageProps }: AppProps) {
     };
   }, []);
 
+  const [chatSocket, setChatSocket] = useState(useContext(ChatSocketContext));
+
+  useEffect(() => {
+    const socket = io(`http://localhost:4400/chat`, {
+      extraHeaders: {
+        Authorization: `Bearer ${localStorage.getItem('jwtToken')}`,
+      },
+    }).on('connect', () => {
+      console.log('chat socket connected...');
+    });
+    setChatSocket(socket);
+  }, []);
+
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS theme={Theme}>
       <Notifications position="top-right" />
       <WsProvider token={Token}>
-        <NextUIProvider>
-          <UserContext.Provider value={user}>
-            <MainNavbar Show={show} isTwoFactorAuth={isTwoFactorAuth} />
-            <User_Sidebar Show={show} />
-            <Component {...pageProps} setIsTwoFactorAuth={setIsTwoFactorAuth} />
-            <Footer Show={show} isTwoFactorAuth={isTwoFactorAuth} />
-          </UserContext.Provider>
-        </NextUIProvider>
+        <ChatSocketProvider value={chatSocket}>
+          <NextUIProvider>
+            <UserContext.Provider value={user}>
+              <MainNavbar Show={show} isTwoFactorAuth={isTwoFactorAuth} />
+              <User_Sidebar Show={show} />
+              <Component
+                {...pageProps}
+                setIsTwoFactorAuth={setIsTwoFactorAuth}
+              />
+              <Footer Show={show} isTwoFactorAuth={isTwoFactorAuth} />
+            </UserContext.Provider>
+          </NextUIProvider>
+        </ChatSocketProvider>
       </WsProvider>
     </MantineProvider>
   );

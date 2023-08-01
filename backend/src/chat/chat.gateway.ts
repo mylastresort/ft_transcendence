@@ -35,6 +35,9 @@ export default class ChatGateway {
     client.on('connection', (socket) => {
       console.log('chat member connected: ', socket.id);
     });
+    client.on('disconnect', ()=>{
+      console.log('disconnecting...');
+    })
   }
 
   // private chat
@@ -92,5 +95,6 @@ export default class ChatGateway {
       data,
     );
     this.server.to(data.name).emit('channel/newMsg', createdMessage);
+    console.log("rooms: ",client.rooms);
   }
 }
