@@ -1,4 +1,4 @@
- import { Button, Container, ScrollArea } from '@mantine/core';
+ import { Button, Container, Flex, ScrollArea } from '@mantine/core';
 import Message from './Message';
 import { useContext, useEffect, useState } from 'react';
 import { ChatContext } from '@/context/chat';
@@ -47,6 +47,7 @@ export default function MsgList({ h, isChannel = false }) {
 
   
     useEffect(()=>{
+      console.log('on newMsg...')
     socket.on(`${route}/newMsg`, (newMessage)=>{
       setMessages((prevMessages) => [...prevMessages, newMessage])
       console.log("messages: ", newMessage);
@@ -55,20 +56,19 @@ export default function MsgList({ h, isChannel = false }) {
 
   return (
     <Container
-      w={'95%'}
-      maw={2000}
       style={{
         height: h,
       }}
-    >
+      maw={'100%'}
+      >
       <ScrollArea
-        w={'100%'}
-        maw={2000}
-        style={{
-          height: h,
-          display: 'flex',
-          flexDirection: 'column-reverse',
-          overflowY: 'auto',
+        h={'100%'}
+        p={'0px 30px'}
+        styles={{
+          viewport: {
+            display: 'flex',
+            flexDirection:'column-reverse',
+          }
         }}
       >
 

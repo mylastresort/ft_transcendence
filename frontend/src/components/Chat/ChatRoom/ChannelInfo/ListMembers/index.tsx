@@ -16,6 +16,7 @@ interface Member {
   id: number;
   nickname: string;
   isOwner: boolean;
+  isAdministator: boolean;
   user: {
     id: number;
     imgProfile: string;
@@ -25,10 +26,15 @@ interface Member {
 export function ListMembers({ members }: { members: Member[] }) {
   return (
     <List h={'60%'} m={'auto'}>
-      <ScrollArea h={'100%'} w={300} p={10} style={{
+      <ScrollArea
+        h={'100%'}
+        w={300}
+        p={10}
+        style={{
           border: '1px solid var(--chat-red-color)',
           borderRadius: '10px',
-        }}>
+        }}
+      >
         {members.map((member) => (
           <List.Item key={member.id}>
             <Group
@@ -46,6 +52,8 @@ export function ListMembers({ members }: { members: Member[] }) {
               </Group>
               {member.isOwner ? (
                 <Badge color="red" bg={'red'} children="Owner" />
+              ) : member.isAdministator ? (
+                <Badge color="grape" bg={'grape'} children="Admin" />
               ) : (
                 <Badge color="blue" bg={'blue'} children="mumber" />
               )}

@@ -1,10 +1,4 @@
-import {
-  Navbar,
-  ScrollArea,
-  Burger,
-  Tabs,
-  Button,
-} from '@mantine/core';
+import { Navbar, ScrollArea, Burger, Tabs, Button } from '@mantine/core';
 import { useDisclosure, useClickOutside } from '@mantine/hooks';
 import { useContext, useEffect, useState } from 'react';
 import request from 'superagent';
@@ -49,7 +43,7 @@ export function RoomsList({ closeNav, load }: any) {
       </Tabs.List>
 
       <Tabs.Panel value="channels" pt="xs">
-        <ScrollArea h={'calc(100% - 200px)'} mt={20}>
+        <ScrollArea h={'calc(100vh - 200px)'} mt={20}>
           <CreateChannel />
           {channelsList.map((channel: any) => (
             <div key={channel.id}>
@@ -64,7 +58,7 @@ export function RoomsList({ closeNav, load }: any) {
       </Tabs.Panel>
 
       <Tabs.Panel value="messages" pt="xs">
-        <ScrollArea h={'calc(100% - 200px)'} mt={20}>
+        <ScrollArea h={'calc(100vh - 200px)'} mt={20}>
           <SearchUser />
           {privateChatList.map((chat: any) => (
             <div key={chat.id}>
@@ -111,16 +105,13 @@ function ChatNav() {
             aria-label={'burger'}
           />
         </Navbar.Section>
-        <Navbar.Section className="nav-child">
+        <Navbar.Section className="nav-child" grow>
           <RoomsList closeNav={toogleNav} load={load}></RoomsList>
         </Navbar.Section>
-        <Navbar.Section grow className="nav-child">
-          <Button onClick={() => setLoad(!load)}>load channels</Button>
-        </Navbar.Section>
-        <Navbar.Section className="nav-child">
-          <Link href={'/chat/'}>
+        <Navbar.Section pos={'absolute'} right={5} bottom={10}>
+          <Link href={'/chat'}>
             <Button
-              variant="gradient"
+              color="var(--chat-red-color)"
               h={45}
               w={45}
               p={0}

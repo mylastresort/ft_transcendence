@@ -7,7 +7,7 @@ export default function Message({content, sendBy}) {
   if (!userContext.data){return (<></>)}
   return (
      sendBy.username != userContext.data.username ?
-    <Group pt={15} >
+    <Group pb={15} >
       <Avatar radius={50} size={40} src={sendBy.imgProfile} />
       <Text
         size="sm"
@@ -22,7 +22,7 @@ export default function Message({content, sendBy}) {
         {content}
       </Text>
     </Group> :
-        <Group pt={15}w={'100%'}
+        <Group pb={15}w={'100%'}
         style={{
           display: 'flex',
           justifyContent: 'end'
