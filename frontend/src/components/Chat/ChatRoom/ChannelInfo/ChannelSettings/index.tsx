@@ -88,7 +88,6 @@ export function ChannelSettings({
                 Owner settings:
               </Text>
               <PasswordSettings channel={channel} />
-              <AddMember/>
             </>
           )}
         </Flex>

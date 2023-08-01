@@ -17,6 +17,7 @@ interface Member {
   nickname: string;
   isOwner: boolean;
   isAdministator: boolean;
+  isMuted: boolean;
   user: {
     id: number;
     imgProfile: string;
@@ -52,6 +53,8 @@ export function ListMembers({ members }: { members: Member[] }) {
               </Group>
               {member.isOwner ? (
                 <Badge color="red" bg={'red'} children="Owner" />
+                ) : member.isMuted ? (
+                  <Badge color="gray" bg={'gray'} children="Muted" />
               ) : member.isAdministator ? (
                 <Badge color="grape" bg={'grape'} children="Admin" />
               ) : (

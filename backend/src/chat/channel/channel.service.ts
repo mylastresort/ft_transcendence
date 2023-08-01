@@ -131,6 +131,9 @@ export class ChannelService {
             },
           },
         },
+        orderBy: {
+          updateAt: 'asc'
+        }
       });
     } catch (error) {
       throw new HttpException(
@@ -222,6 +225,7 @@ export class ChannelService {
   //create
   async createMember(channel: CreateMember) {
     try {
+      this.updateMemberState(channel.newMember.id);
       const member = await this.prisma.member.findFirst({
         where: {
           user: {
@@ -251,8 +255,8 @@ export class ChannelService {
           },
         });
       } else if (member.isBanned) {
-        throw 'This member is banned'
-      }  else if (!member.isMember) {
+        throw 'This member is banned';
+      } else if (!member.isMember) {
         return this.prisma.member.update({
           where: {
             id: member.id,
@@ -275,6 +279,7 @@ export class ChannelService {
 
   async joinChanned(me: Me, channel: any) {
     try {
+      this.updateMemberState(me.id);
       const getCh = await this.prisma.channel.findFirst({
         where: {
           id: channel.id,
@@ -551,6 +556,7 @@ export class ChannelService {
   // create
   async createMessage(me: Me, channel: any) {
     try {
+      this.updateMemberState(me.id);
       const sender = await this.prisma.member.findFirst({
         where: {
           userId: me.id,
@@ -567,20 +573,27 @@ export class ChannelService {
               id: sender.id,
             },
           },
-          channel: {
-            connect: {
-              id: channel.id,
-            },
-          },
         },
         include: {
           sender: {
             include: {
               user: true,
+            },
+          },
+        },
+      });
+      await this.prisma.channel.update({
+        where: {
+          id: channel.id,
+        },
+        data: {
+          messages: {
+            connect: {
+              id: createdMessage.id,
             }
           }
         }
-      });
+      })
       return createdMessage;
     } catch (error) {
       throw new HttpException(
@@ -590,6 +603,35 @@ export class ChannelService {
         },
         HttpStatus.BAD_REQUEST,
       );
+    }
+  }
+
+  async updateMemberState(userId: number) {
+    try {
+      await this.prisma.member.updateMany({
+        where: {
+          userId: userId,
+          isMuted: true,
+          mutedTime: { lt: new Date() },
+        },
+        data:{
+          isMuted: false,
+          mutedTime: null,
+        }
+      });
+      await this.prisma.member.updateMany({
+        where: {
+          userId: userId,
+          isBanned: true,
+          bannedTime: { lt: new Date() },
+        },
+        data:{
+          isBanned: false,
+          bannedTime: null,
+        }
+      });
+    } catch (error) {
+      console.error('Error updating isMuted status:', error);
     }
   }
 }

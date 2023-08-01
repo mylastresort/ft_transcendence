@@ -26,7 +26,7 @@ export function MemberSettings({ members }) {
   function manageMember({ member }) {
     console.log('member: ', member, 'setuation: ', value, 'time: ', time);
     const date = new Date();
-    const inputTime = date.getTime() + Number(time) * 3600000;
+    const inputTime = date.getTime() + (Number(time) * 3600000);
     const data = {
       nickname: member,
       isKick: value == 'kick',

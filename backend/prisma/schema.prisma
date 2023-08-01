@@ -146,8 +146,8 @@ model ChannelMessage {
   content   String
   sender    Member   @relation(fields: [senderId], references: [id], onDelete: Cascade)
   senderId  Int
-  channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
-  channelId Int
+  channel   Channel?  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channelId Int?
 }
 
 model Member {
