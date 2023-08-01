@@ -11,6 +11,7 @@ import { useRouter } from 'next/router';
 import { User_Sidebar } from '../components/Sidebar/Sidebar';
 import { UserContext } from '@/context/user';
 import { WsProvider, UserSocket } from '@/context/WsContext';
+import { MantineProvider } from '@mantine/core';
 import { Button, Group, MantineProvider, Stack, Text } from '@mantine/core';
 import Theme from './styles/theme.json';
 import { Notifications, notifications } from '@mantine/notifications';
