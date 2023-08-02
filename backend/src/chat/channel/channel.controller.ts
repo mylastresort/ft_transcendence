@@ -103,8 +103,13 @@ export class ChannelController {
   @ApiBearerAuth()
   async membersSettings(@Req() req: any): Promise<any> {
     console.log('membersSettings=>', req.body);
-    return this.channelService.membersSettings(req.user, req.body);
+    const res = await this.channelService.membersSettings(req.user, req.body);
+    this.channelGateway.notifyMember(res, req.body);
+
+    return res;
   }
+
+  
   @Post('settings/admin')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
@@ -113,6 +118,8 @@ export class ChannelController {
     console.log('adminSettings=>', req.body);
     return this.channelService.adminSettings(req.user, req.body);
   }
+
+
   @Post('settings/password')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)

@@ -6,6 +6,7 @@ import { useContext, useState } from 'react';
 import { useDisclosure } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
 import request from 'superagent';
+import { ChatSocketContext } from '@/context/chatSocketContext';
 
 export function MemberSettings({ members }) {
   const [opened, { open, close }] = useDisclosure(false);
@@ -14,6 +15,7 @@ export function MemberSettings({ members }) {
   const jwtToken = localStorage.getItem('jwtToken');
   const [value, setValue] = useState('mute');
   const [time, setTime] = useState('1');
+  const socket = useContext(ChatSocketContext);
 
   const form = useForm({
     initialValues: {

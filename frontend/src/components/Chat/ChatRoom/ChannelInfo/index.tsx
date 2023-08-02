@@ -14,11 +14,13 @@ import request from 'superagent';
 import { AddMember } from './ChannelSettings/AddMember';
 import { ListMembers } from './ListMembers';
 import { ChannelSettings } from './ChannelSettings';
+
 interface Member {
   id: number;
   nickname: string;
   isOwner: boolean;
   isAdministator: boolean;
+  isMuted: boolean;
   user: {
     id: number;
     imgProfile: string;

@@ -472,7 +472,7 @@ export class ChannelService {
       ) {
         throw "you're not an administrator";
       }
-      return await this.prisma.member.updateMany({
+      await this.prisma.member.updateMany({
         where: {
           nickname: member.nickname,
           isOwner: false,
@@ -494,6 +494,18 @@ export class ChannelService {
             }
           : {},
       });
+      return await this.prisma.member.findFirst({
+        where:{
+          nickname: member.nickname,
+        },
+        select: {
+          user:{
+            select:{
+              ChatSocketId: true,
+            }
+          }
+        }
+      })
     } catch (error) {
       console.log(error);
       throw new HttpException(
