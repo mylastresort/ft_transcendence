@@ -59,7 +59,15 @@ export class ChannelService {
           },
         },
         include: {
-          members: true,
+          members: {
+            include: {
+              user: {
+                select: {
+                  ChatSocketId: true,
+                },
+              },
+            },
+          },
         },
       });
     } catch (error) {
@@ -132,8 +140,8 @@ export class ChannelService {
           },
         },
         orderBy: {
-          updateAt: 'asc'
-        }
+          updateAt: 'asc',
+        },
       });
     } catch (error) {
       throw new HttpException(
@@ -253,6 +261,13 @@ export class ChannelService {
               },
             },
           },
+          include: {
+            user: {
+              select: {
+                ChatSocketId: true,
+              },
+            },
+          },
         });
       } else if (member.isBanned) {
         throw 'This member is banned';
@@ -263,6 +278,13 @@ export class ChannelService {
           },
           data: {
             isMember: true,
+          },
+          include: {
+            user: {
+              select: {
+                ChatSocketId: true,
+              },
+            },
           },
         });
       } else throw 'Member already exists';
@@ -326,7 +348,19 @@ export class ChannelService {
               },
             },
             select: {
-              channel: true,
+              channel: {
+                include: {
+                  members: {
+                    include: {
+                      user: {
+                        select: {
+                          ChatSocketId: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
             },
           });
         } else if (member.isBanned) {
@@ -342,7 +376,19 @@ export class ChannelService {
               isMember: true,
             },
             select: {
-              channel: true,
+              channel: {
+                include: {
+                  members: {
+                    include: {
+                      user: {
+                        select: {
+                          ChatSocketId: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
             },
           });
         }
@@ -526,18 +572,19 @@ export class ChannelService {
   // read
   async getMessages(channelId: any) {
     try {
-      const messages = await this.prisma.channel.findFirst({
+      const messages = await this.prisma.channelMessage.findMany({
         where: {
-          id: channelId,
+          channelId: channelId,
+          AND: {
+            sender: {
+              isMember: true,
+            },
+          },
         },
-        select: {
-          messages: {
+        include: {
+          sender: {
             include: {
-              sender: {
-                include: {
-                  user: true,
-                },
-              },
+              user: true,
             },
           },
         },
@@ -590,10 +637,10 @@ export class ChannelService {
           messages: {
             connect: {
               id: createdMessage.id,
-            }
-          }
-        }
-      })
+            },
+          },
+        },
+      });
       return createdMessage;
     } catch (error) {
       throw new HttpException(
@@ -614,10 +661,10 @@ export class ChannelService {
           isMuted: true,
           mutedTime: { lt: new Date() },
         },
-        data:{
+        data: {
           isMuted: false,
           mutedTime: null,
-        }
+        },
       });
       await this.prisma.member.updateMany({
         where: {
@@ -625,10 +672,10 @@ export class ChannelService {
           isBanned: true,
           bannedTime: { lt: new Date() },
         },
-        data:{
+        data: {
           isBanned: false,
           bannedTime: null,
-        }
+        },
       });
     } catch (error) {
       console.error('Error updating isMuted status:', error);

@@ -43,6 +43,7 @@ model User {
   chats    PrivateChat[]
   messages PrivateMessage[]
   Member   Member[]
+  ChatSocketId String?
 }
 
 model FriendRequest {

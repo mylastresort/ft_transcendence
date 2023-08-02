@@ -10,6 +10,7 @@ import {
   Input,
   Modal,
   PasswordInput,
+  ScrollArea,
   Text,
   TextInput,
 } from '@mantine/core';
@@ -45,11 +46,11 @@ export function ListPublicChannels() {
       });
   }, []);
 
-  function joinChannel(channel, password: string='') {
+  function joinChannel(channel, password: string = '') {
     request
       .post('http://localhost:4400/api/chat/channel/join')
       .set('Authorization', `Bearer ${jwtToken}`)
-      .send({ id: channel.id, password: password})
+      .send({ id: channel.id, password: password })
       .then((res) => {
         console.log(res.body);
         chatContext.data = {
@@ -71,7 +72,8 @@ export function ListPublicChannels() {
   const passwordForm = useForm({
     initialValues: { password: '' },
     validate: {
-      password: (value) => (value.trim() == '' ? 'Please fill the password input' : null),
+      password: (value) =>
+        value.trim() == '' ? 'Please fill the password input' : null,
     },
   });
 
@@ -82,72 +84,84 @@ export function ListPublicChannels() {
       styles={{ width: 'calc(100% - 77px)' }}
       bg={'#EAEAEA'}
     >
-      <Group>
-        {channels.map((channel) => (
-          <Card
-            key={channel.id}
-            w={300}
-            bg={'white'}
-            m={30}
-            style={{
-              borderRadius: '15px',
-            }}
-            shadow="xl"
-          >
-            <Card.Section>
-              <img
-                src={channel.image}
-                alt=""
-                style={{
-                  width: '200px',
-                  margin: '0px 50px',
-                }}
-              />
-            </Card.Section>
-            <Group position="apart" p={'20px 0px'}>
-              <Text color="black">{channel.channelName}</Text>
-              {channel.isProtected ? (
-                <Badge color="red" bg={'red'} children="Protected" />
-              ) : (
-                <></>
-              )}
-            </Group>
-            <Text size={'sm'} color="dimmed">
-              {channel.description}
-            </Text>
-            <Button
-              w={'100%'}
-              onClick={(event) =>
-                channel.isProtected ? open() : joinChannel(channel)
-              }
-            >
-              Join Channel
-            </Button>
-            <Modal
-              opened={opened}
-              onClose={() => {close(); passwordForm.reset();}}
-              title="Authentication"
-              overlayProps={{
-                opacity: 0.1,
-                blur: 3,
+      <ScrollArea h={'calc(100vh - 77px)'} w={'calc(100% - 77px)'}>
+        <Group>
+          {channels.map((channel) => (
+            <Card
+              key={channel.id}
+              w={300}
+              bg={'white'}
+              m={30}
+              style={{
+                borderRadius: '15px',
               }}
-              centered
+              shadow="xl"
             >
-              <Box w={400}>
-
-              <form onSubmit={passwordForm.onSubmit((val)=>{joinChannel(channel, val.password); passwordForm.reset(); close()})}>
-                <PasswordInput
-                  withAsterisk
-                  placeholder="Channel Password"
-                  {...passwordForm.getInputProps('password')}
-                  />
-                <Button mt={20} type="submit" w={'100%'}>Join Channel</Button>
-              </form>
-                  </Box>
-            </Modal>
-          </Card>
-        ))}
-      </Group>
+              <Card.Section>
+                <img
+                  src={channel.image}
+                  alt=""
+                  style={{
+                    width: '200px',
+                    margin: '0px 50px',
+                  }}
+                />
+              </Card.Section>
+              <Group position="apart" p={'20px 0px'}>
+                <Text color="black">{channel.channelName}</Text>
+                {channel.isProtected ? (
+                  <Badge color="red" bg={'red'} children="Protected" />
+                ) : (
+                  <></>
+                )}
+              </Group>
+              <Text size={'sm'} color="dimmed">
+                {channel.description}
+              </Text>
+              <Button
+                w={'100%'}
+                onClick={(event) =>
+                  channel.isProtected ? open() : joinChannel(channel)
+                }
+              >
+                Join Channel
+              </Button>
+              <Modal
+                opened={opened}
+                onClose={() => {
+                  close();
+                  passwordForm.reset();
+                }}
+                title="Authentication"
+                overlayProps={{
+                  opacity: 0.1,
+                  blur: 3,
+                }}
+                centered
+              >
+                <Box w={400}>
+                  <form
+                    onSubmit={passwordForm.onSubmit((val) => {
+                      joinChannel(channel, val.password);
+                      passwordForm.reset();
+                      close();
+                    })}
+                  >
+                    <PasswordInput
+                      withAsterisk
+                      placeholder="Channel Password"
+                      {...passwordForm.getInputProps('password')}
+                    />
+                    <Button mt={20} type="submit" w={'100%'}>
+                      Join Channel
+                    </Button>
+                  </form>
+                </Box>
+              </Modal>
+            </Card>
+          ))}
+        </Group>
+      </ScrollArea>
     </Box>
   );
 }
