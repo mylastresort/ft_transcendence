@@ -11,10 +11,11 @@ import {
 import { ChannelService } from './channel.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import ChannelGateway from './channel.gateway';
 
 @Controller('chat/channel')
 export class ChannelController {
-  constructor(private channelService: ChannelService) {}
+  constructor(private channelService: ChannelService, private channelGateway: ChannelGateway) {}
 
   //create
   @Post()
@@ -23,7 +24,9 @@ export class ChannelController {
   @ApiBearerAuth()
   async createChannel(@Req() req: any): Promise<any> {
     console.log('createChannel=>', req.user, req.body);
-    return this.channelService.createChannel(req.user, req.body);
+    const res = await this.channelService.createChannel(req.user, req.body);
+    await this.channelGateway.updateChannel(res.members);
+    return res;
   }
 
   //read
@@ -75,6 +78,7 @@ export class ChannelController {
     console.log('getMembers req:', +id);
     return await this.channelService.getMembers(+id);
   }
+
   @Get('members/me')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
@@ -106,7 +110,7 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async adminSettings(@Req() req: any): Promise<any> {
-    console.log('membersSettings=>', req.body);
+    console.log('adminSettings=>', req.body);
     return this.channelService.adminSettings(req.user, req.body);
   }
   @Post('settings/password')
@@ -125,15 +129,20 @@ export class ChannelController {
   @ApiBearerAuth()
   async createMember(@Req() req: any): Promise<any> {
     console.log('createMember=>', req.body);
-    return this.channelService.createMember(req.body);
+    const res = await this.channelService.createMember(req.body);
+    await this.channelGateway.updateChannel([res]);
+    return res;
   }
+
   @Post('join')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async joinChanned(@Req() req: any): Promise<any> {
     console.log('joinChanned=>', req.body);
-    return this.channelService.joinChanned(req.user, req.body);
+    const res = await this.channelService.joinChanned(req.user, req.body);
+    await this.channelGateway.updateChannel(res.channel.members);
+    return res;
   }
 
   // *messages
