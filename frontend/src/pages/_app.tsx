@@ -14,7 +14,7 @@ import { WsProvider, UserSocket } from '@/context/WsContext';
 import { MantineProvider } from '@mantine/core';
 import Theme from './styles/theme.json';
 import { Notifications, notifications } from '@mantine/notifications';
-import { BiSolidUserPlus } from 'react-icons/bi';
+
 import {
   ChatSocketContext,
   ChatSocketProvider,

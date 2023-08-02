@@ -26,18 +26,19 @@ export default class ChannelGateway {
   @WebSocketServer()
   server: Server;
 
-
   updateChannel(members) {
     console.log('updated: ', members);
-    members.forEach(member => {
-      this.server.to(member.user.ChatSocketId).emit('updateChannel', member.nickname);
+    members.forEach((member) => {
+      this.server
+        .to(member.user.ChatSocketId)
+        .emit('updateChannel', member.nickname);
     });
   }
 
-  @UseGuards(WsJwtGuard)
-  @SubscribeMessage('kick')
-  kick(member, reason){
+  notifyMember(member, reason) {
     console.log('kick', member);
-    this.server.to(member.user.ChatSocketId).emit('removeMember', reason);
+    reason.isKick || reason.isBan
+      ? this.server.to(member.user.ChatSocketId).emit('kick')
+      : this.server.to(member.user.ChatSocketId).emit('mute');
   }
 }

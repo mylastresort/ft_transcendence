@@ -16,7 +16,9 @@ interface Props {
 }
 
 function ChatRoomContent({ isChannel = false }) {
+  const socket = useContext(ChatSocketContext);
   const matches = useMediaQuery('(min-width:1000px)');
+
   return (
     <>
       <MediaQuery smallerThan={1000} styles={{ width: 'calc(100% - 77px)' }}>
