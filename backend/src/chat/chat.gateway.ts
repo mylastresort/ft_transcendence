@@ -113,7 +113,6 @@ export default class ChatGateway {
   ) {
     console.log('SendChannelMessage: ', data);
     try{
-
       const createdMessage = await this.channelService.createMessage(
         client.data,
         data,
