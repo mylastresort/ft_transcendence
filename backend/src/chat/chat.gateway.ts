@@ -91,9 +91,6 @@ export default class ChatGateway {
   ): void {
     console.log('joinChannelRoom: ', room);
     client.join(room);
-    // client.rooms.forEach((room) => {
-    //   client.leave(room);
-    // });
   }
 
 
@@ -115,11 +112,15 @@ export default class ChatGateway {
     @ConnectedSocket() client: Socket,
   ) {
     console.log('SendChannelMessage: ', data);
-    const createdMessage = await this.channelService.createMessage(
-      client.data,
-      data,
-    );
-    this.server.to(data.name).emit('channel/newMsg', createdMessage);
-    console.log("rooms: ",client.rooms);
+    try{
+
+      const createdMessage = await this.channelService.createMessage(
+        client.data,
+        data,
+        );
+        this.server.to(data.name).emit('channel/newMsg', createdMessage);
+      }catch(err){
+        console.log('message not sent!');
+      }
   }
 }

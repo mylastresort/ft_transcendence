@@ -29,8 +29,7 @@ export class ChatService {
 
   async updateSocketId(socketId : string, userId : number){
     try {
-      console.log('updating chat socket id ...');
-      return await this.prisma.user.update({
+      const res = await this.prisma.user.update({
         where: {
           id: userId,
         },
@@ -38,14 +37,10 @@ export class ChatService {
           ChatSocketId: socketId,
         }
       })
+      console.log('updating chat socket id ...');
+      return res;
     }catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: 'Chats not found',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      console.log('update socketId error!');
     }
   }
 }

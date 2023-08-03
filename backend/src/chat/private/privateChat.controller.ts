@@ -65,7 +65,6 @@ export class PriavteChatController {
   @ApiBearerAuth()
   async createMessage(@Req() req: any): Promise<any> {
     console.log('createMessage:', req.body);
-    // this.privateChatGatway.sendMessage(req.body.message.content);
     return this.privateChatService.createMessage(req.user, req.body);
   }
 }

@@ -30,27 +30,22 @@ export default function MsgList({ h, isChannel = false }) {
       .set('Authorization', `Bearer ${jwtToken}`)
       .query({ id: chatContext.data.id })
       .then((res) => {
-        console.log(res.body);
-        isChannel ? setMessages(res.body) : setMessages(res.body);
+        setMessages(res.body);
+        console.log(messages);
       })
       .catch((err) => {
         console.log(err);
       });
 
-    const roomName = isChannel ? chatContext.data.name : chatContext.data.id;
-
-    socket.emit(`${route}/join-room`, roomName);
-
-    return () => {
-      socket.emit(`${route}/leave-room`, roomName);
-    };
   }, [chatContext.data.id]);
 
   useEffect(() => {
     socket.on(`${route}/newMsg`, (newMessage) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
-      console.log('messages: ', newMessage);
     });
+    return ()=>{
+      socket.off(`${route}/newMsg`);
+    }
   }, [route]);
 
   return (

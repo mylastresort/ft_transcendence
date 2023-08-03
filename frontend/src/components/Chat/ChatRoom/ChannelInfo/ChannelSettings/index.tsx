@@ -58,7 +58,7 @@ export function ChannelSettings({
     return members
       .map(
         (m) =>
-          userContext.data.id != m.user.id &&
+          userContext.data && userContext.data.id != m.user.id &&
           !m.isOwner && { label: m.nickname, value: m.nickname }
       )
       .filter((e) => e);

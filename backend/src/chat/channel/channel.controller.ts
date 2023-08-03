@@ -104,6 +104,7 @@ export class ChannelController {
   async membersSettings(@Req() req: any): Promise<any> {
     console.log('membersSettings=>', req.body);
     const res = await this.channelService.membersSettings(req.user, req.body);
+    
     this.channelGateway.notifyMember(res, req.body);
 
     return res;

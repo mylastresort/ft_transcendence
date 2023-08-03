@@ -475,6 +475,9 @@ export class ChannelService {
       await this.prisma.member.updateMany({
         where: {
           nickname: member.nickname,
+          channel: {
+            channelName: member.channelName,
+          },
           isOwner: false,
         },
         data: member.isKick
@@ -497,8 +500,17 @@ export class ChannelService {
       return await this.prisma.member.findFirst({
         where:{
           nickname: member.nickname,
+          channel: {
+            channelName: member.channelName,
+          },
         },
         select: {
+          nickname: true,
+          channel: {
+            select: {
+              channelName: true,
+            }
+          },
           user:{
             select:{
               ChatSocketId: true,
