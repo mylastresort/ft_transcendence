@@ -10,14 +10,56 @@ import { RoomHead } from './RoomHead';
 import {io, Socket} from 'socket.io-client'
 import { useMediaQuery } from '@mui/material';
 import { ChatSocketContext } from '@/context/chatSocketContext';
+import { useRouter } from 'next/router';
+import { notifications } from '@mantine/notifications';
+import { UserContext } from '@/context/user';
 
 interface Props {
   width: string | number | undefined;
 }
 
 function ChatRoomContent({ isChannel = false }) {
-  const socket = useContext(ChatSocketContext);
   const matches = useMediaQuery('(min-width:1000px)');
+  const socket = useContext(ChatSocketContext);
+  const chatContext = useContext(ChatContext);
+  const userContext = useContext(UserContext);
+  const route = isChannel ? 'channel' : 'private';
+
+  useEffect(()=>{
+    const roomName = isChannel ? chatContext.data.name : chatContext.data.id;
+
+    socket.emit(`${route}/join-room`, roomName);
+
+    return () => {
+      socket.emit(`${route}/leave-room`, roomName);
+    };
+  }, [chatContext.data.id])
+
+  const router = useRouter();
+  useEffect(()=>{
+    console.log('listning to a kick...')
+    socket.on('action', (res)=>{
+      console.log('action ...', res.action);
+      if (res.target == userContext.data.username){
+        chatContext.data = undefined!;
+        router.push('/chat');
+        notifications.show({
+          title: `You have been ${res.action}!`,
+          message: '',
+          color: 'red',
+        });
+      }else{
+        notifications.show({
+          title: `${res.target} has been ${res.action}!`,
+          message: '',
+          color: 'red',
+        });
+      }
+    });
+    return ()=>{
+      socket.off('action');
+    };
+  }, [route])
 
   return (
     <>

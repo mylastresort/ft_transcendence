@@ -35,10 +35,18 @@ export default class ChannelGateway {
     });
   }
 
-  notifyMember(member, reason) {
-    console.log('kick', member);
-    reason.isKick || reason.isBan
-      ? this.server.to(member.user.ChatSocketId).emit('kick')
-      : this.server.to(member.user.ChatSocketId).emit('mute');
+  notifyMember(member, event) {
+    console.log('kick/banned', member);
+    const action = event.isKick
+      ? 'kicked'
+      : event.isBan
+      ? 'banned'
+      : event.isMute
+      ? 'muted'
+      : '';
+
+    this.server
+      .to(member.channel.channelName)
+      .emit('action', { target: member.nickname, action: action });
   }
 }

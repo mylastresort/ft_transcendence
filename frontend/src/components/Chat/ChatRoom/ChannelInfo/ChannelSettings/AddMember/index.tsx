@@ -23,7 +23,7 @@ export function AddMember() {
       .send(newMember)
       .then((res) => {
         notifications.show({
-          title: 'New Member ha been Added',
+          title: 'New Member has been Added',
           message: '',
           color: 'green',
         });

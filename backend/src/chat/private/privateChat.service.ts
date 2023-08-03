@@ -127,7 +127,7 @@ export class PrivateChatService {
           }
         },
       });
-      return messages;
+      return messages.Messages;
     } catch (error) {
       console.log(error);
       throw new HttpException(
