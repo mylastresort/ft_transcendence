@@ -9,7 +9,7 @@ import {
   useMantineTheme,
 } from '@mantine/core';
 import Link from 'next/link';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import request from 'superagent';
 
 function UserInfo() {
@@ -26,9 +26,16 @@ function UserInfo() {
         return err;
       });
   }
+
+  useEffect(()=>{
+    
+  }, [])
   return (
     <Box w={'100%'} h={'100%'} bg={theme.colors.dark[6]} pt={100}>
-      <Flex direction={'column'} gap={10}>
+      <Flex direction={'column'} gap={10} style={{
+        border: '1px solid var(--secondary-color)',
+        borderRadius: '20px'
+      }}>
         <Avatar
           m={'auto'}
           radius={500}
@@ -45,6 +52,11 @@ function UserInfo() {
         <Link href={'/chat'} style={{
           margin:'auto'
         }}>
+          <Link href={`/profile/${chatContext.data.name}`}>
+          <Button color="blue">
+            View Profile
+          </Button>
+          </Link>
           <Button
             color="red"
             
