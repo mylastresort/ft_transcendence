@@ -49,4 +49,16 @@ export default class ChannelGateway {
       .to(member.channel.channelName)
       .emit('action', { target: member.nickname, action: action });
   }
+
+  @UseGuards(WsJwtGuard)
+  @SubscribeMessage('addMember')
+  leavehannelRoom(
+    @MessageBody() room: any,
+    @ConnectedSocket() client: Socket,
+  ): void {
+    console.log('addMember: ', room);
+    this.server
+      .to(room.name)
+      .emit('action', { target: room.target, action: 'added to channel' });
+  }
 }

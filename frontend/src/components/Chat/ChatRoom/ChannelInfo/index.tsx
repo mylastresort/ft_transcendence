@@ -27,7 +27,7 @@ interface Member {
   };
 }
 
-function ChannelInfo() {
+function ChannelInfo({action}) {
   const chatContext = useContext(ChatContext);
   const userContext = useContext(UserContext);
   const jwtToken = localStorage.getItem('jwtToken');
@@ -35,7 +35,6 @@ function ChannelInfo() {
   const [members, setMembers]: [Member[], any] = useState([]);
   const [channel, setChannel] = useState();
   useEffect(() => {
-    console.log('chat contesxt', chatContext.data);
     request
       .get('http://localhost:4400/api/chat/channel')
       .set('Authorization', `Bearer ${jwtToken}`)
@@ -48,6 +47,19 @@ function ChannelInfo() {
         console.log(err);
       });
   }, [chatContext.data]);
+
+  useEffect(() => {
+    request
+      .get('http://localhost:4400/api/chat/channel/members')
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .query({ id: chatContext.data.id })
+      .then((res) => {
+        setMembers(res.body);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [action]);
   function leaveChannel() {
     request
       .post('http://localhost:4400/api/chat/channel/leave')
@@ -110,8 +122,8 @@ function ChannelInfo() {
       </Link>
       {chatContext.data.me?.isAdministator && (
         <>
-        <AddMember/>
-        <ChannelSettings channel={channel} members={members} />
+          <AddMember />
+          <ChannelSettings channel={channel} members={members} />
         </>
       )}
     </Flex>

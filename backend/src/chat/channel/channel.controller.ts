@@ -8,10 +8,10 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ChannelService } from './channel.service';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import ChannelGateway from './channel.gateway';
+import { ChannelService } from './channel.service';
 
 @Controller('chat/channel')
 export class ChannelController {

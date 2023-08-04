@@ -1,4 +1,5 @@
 import { ChatContext } from '@/context/chat';
+import { ChatSocketContext } from '@/context/chatSocketContext';
 import { Avatar, Button, Group, Text } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { SpotlightProvider, spotlight } from '@mantine/spotlight';
@@ -9,6 +10,7 @@ import request from 'superagent';
 
 export function AddMember() {
   const chatContext = useContext(ChatContext);
+  const socket = useContext(ChatSocketContext);
   function createMember(data: any) {
     const newMember = {
       id: chatContext.data.id,
@@ -22,6 +24,7 @@ export function AddMember() {
       .set('Authorization', `Bearer ${jwtToken}`)
       .send(newMember)
       .then((res) => {
+        socket.emit('addMember', {name: chatContext.data.name, target: data.nickname});
         notifications.show({
           title: 'New Member has been Added',
           message: '',

@@ -24,6 +24,7 @@ function ChatRoomContent({ isChannel = false }) {
   const chatContext = useContext(ChatContext);
   const userContext = useContext(UserContext);
   const route = isChannel ? 'channel' : 'private';
+  const [action, setAction] = useState('');
 
   useEffect(()=>{
     const roomName = isChannel ? chatContext.data.name : chatContext.data.id;
@@ -33,14 +34,13 @@ function ChatRoomContent({ isChannel = false }) {
     return () => {
       socket.emit(`${route}/leave-room`, roomName);
     };
-  }, [chatContext.data.id])
+  }, [chatContext.data])
 
   const router = useRouter();
   useEffect(()=>{
-    console.log('listning to a kick...')
     socket.on('action', (res)=>{
       console.log('action ...', res.action);
-      if (res.target == userContext.data.username){
+      if (res.target == userContext.data.username && res.action != 'added to channel'){
         chatContext.data = undefined!;
         router.push('/chat');
         notifications.show({
@@ -49,6 +49,7 @@ function ChatRoomContent({ isChannel = false }) {
           color: 'red',
         });
       }else{
+        setAction(res.action);
         notifications.show({
           title: `${res.target} has been ${res.action}!`,
           message: '',
@@ -72,7 +73,7 @@ function ChatRoomContent({ isChannel = false }) {
         >
           <MediaQuery largerThan={1000} styles={{ display: 'none' }}>
             <div>
-              <RoomHead>{isChannel ? <ChannelInfo /> : <UserInfo />}</RoomHead>
+              <RoomHead>{isChannel ? <ChannelInfo action={action} /> : <UserInfo />}</RoomHead>
             </div>
           </MediaQuery>
           <MsgList
@@ -84,7 +85,7 @@ function ChatRoomContent({ isChannel = false }) {
       </MediaQuery>
       <MediaQuery smallerThan={1000} styles={{ display: 'none' }}>
         <Box bg={'#EAEAEA'} w={'calc(30% - 33px)'}>
-          {isChannel ? <ChannelInfo /> : <UserInfo />}
+          {isChannel ? <ChannelInfo action={action} /> : <UserInfo />}
         </Box>
       </MediaQuery>
     </>
