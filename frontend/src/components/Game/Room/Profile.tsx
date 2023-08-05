@@ -18,7 +18,6 @@ export default function Profile({ player, status, ready }) {
           sx={{ position: 'relative' }}
         />
         <BsCircleFill
-          display={status === 'online' ? 'block' : 'none'}
           fill={
             status === 'online'
               ? 'green'

@@ -26,7 +26,7 @@ import Lottie from 'lottie-react';
 import batAnimation from '@/../public/images/maps/bat-animation.json';
 import { WsContext } from '@/context/WsContext';
 
-export default function Canvas({ mode = 'human' }) {
+export default function Canvas() {
   const rAFball = useRef(0);
   const ball = useRef<HTMLDivElement>(null);
   const host = useRef<HTMLDivElement>(null);
@@ -49,9 +49,7 @@ export default function Canvas({ mode = 'human' }) {
     canvas,
     height,
     finished,
-    playersCurrent,
-    mode === 'ai',
-    cord
+    playersCurrent
   );
   useBall(
     ball,
@@ -174,7 +172,7 @@ export default function Canvas({ mode = 'human' }) {
   }
 
   return (
-    <>
+    <Box onMouseMove={handleMouseMove}>
       <Box
         sx={{
           backgroundColor: '#141b26',
@@ -484,7 +482,7 @@ export default function Canvas({ mode = 'human' }) {
               },
             }}
           >
-            <Box style={{ position: 'relative' }} w="10vh" h="10vh">
+            <Box m="0 auto" style={{ position: 'relative' }} w="10vh" h="10vh">
               <Avatar m="0 auto" size="10vh" src={player.userImgProfile} />
               <BsCircleFill
                 fill={'green'}
@@ -563,7 +561,6 @@ export default function Canvas({ mode = 'human' }) {
               flexBasis: '100%',
             }}
             miw={width + 2 * game.config.radius}
-            onMouseMove={handleMouseMove}
             ref={canvas}
             m="0 auto"
             maw="min(90vh, 80vw)"
@@ -669,7 +666,7 @@ export default function Canvas({ mode = 'human' }) {
               },
             }}
           >
-            <Box style={{ position: 'relative' }} w="10vh" h="10vh">
+            <Box m="0 auto" style={{ position: 'relative' }} w="10vh" h="10vh">
               <Avatar
                 m="0 auto"
                 size="10vh"
@@ -828,6 +825,6 @@ export default function Canvas({ mode = 'human' }) {
           </ActionIcon>
         </Box>
       </Box>
-    </>
+    </Box>
   );
 }

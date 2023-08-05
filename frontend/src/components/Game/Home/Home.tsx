@@ -15,7 +15,7 @@ export default function Home() {
         Join the game now!
       </Title>
       <Text color="white" className={styles.description}>
-        Get ready for some exciting gameplay! To join a game, simply select an
+        Get ready for some exciting gameplay! To join a game, simply join an
         open game lobby or create your own. Ready to play? Let the games begin!
       </Text>
       <Group w="100%" className={styles.actions} display="flex">

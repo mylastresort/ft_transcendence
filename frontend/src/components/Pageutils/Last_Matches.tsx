@@ -152,7 +152,7 @@ export function Last_Matches() {
                       <Avatar color="cyan" radius="xl">
                         {item?.status === username
                           ? item?.winnerPostLevel?.toFixed(1)
-                          : '-'}
+                          : item?.losserLevel?.toFixed(1)}
                       </Avatar>
                     </td>
                     <td>

@@ -45,6 +45,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleDisconnect(socket: Player) {
     this.game.leave(socket);
+    socket.data.userStatus = 'offline';
+    this.game.removePlayerSocket(socket);
   }
 
   async handleConnection(socket: Player) {
@@ -57,6 +59,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       if (!user) throw new Error('Invalid token');
       socket.data = await this.game.getPlayer(user.id);
       socket.data.currentUserSocketId = socket.id;
+      socket.data.userStatus = 'online';
       this.game.addPlayerSocket(socket);
     } catch (err) {
       console.error(err);

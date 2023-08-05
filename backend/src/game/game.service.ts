@@ -25,8 +25,6 @@ export class GameService {
 
   private rooms = new Map<Room['id'], Room>();
 
-  private bot = {};
-
   private players = new Map<User['id'], Player[]>();
 
   private notifier$ = interval(3000)
@@ -233,6 +231,15 @@ export class GameService {
     sockets
       ? sockets.push(socket)
       : this.players.set(socket.data.userId, [socket]);
+  }
+
+  removePlayerSocket(socket: Player) {
+    const sockets = this.players.get(socket.data.userId);
+    if (sockets) {
+      const index = sockets.indexOf(socket);
+      if (index !== -1) sockets.splice(index, 1);
+      if (!sockets.length) this.players.delete(socket.data.userId);
+    }
   }
 
   async getGameConf(
@@ -567,7 +574,6 @@ export class GameService {
         this.rooms.delete(socket.data.currentGameId);
       }
     }
-    socket.data.userStatus = 'offline';
     return true;
   }
 
@@ -861,6 +867,7 @@ export class GameService {
               startedAt: true,
               endedAt: true,
               winnerPostLevel: true,
+              losserLevel: true,
             },
           },
         },

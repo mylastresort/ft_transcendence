@@ -17,7 +17,7 @@ export default function Accept() {
   const [status, setStatus] = useState<{ gameStatus: string; error?: Error }>({
     gameStatus: game.gameStatus,
   });
-  const [self, setSelf] = useState('offline');
+  const [self, setSelf] = useState('online');
   const [opponent, setOpponent] = useState('offline');
   const ws = useContext(WsContext);
 
@@ -44,9 +44,7 @@ export default function Accept() {
       })
       .on('cancelled', () => {
         setStatus({ gameStatus: 'cancelled' });
-        setTimeout(() => {
-          router.push('/game');
-        }, 2000);
+        setTimeout(() => router.push('/game'), 2000);
       })
       .on('user-status', (_, status) => setOpponent(status))
       .on('disconnect', setOffline);
@@ -63,28 +61,25 @@ export default function Accept() {
 
   useEffect(() => {
     if (game.socket && !game.gameStatus && router.query.id) {
-      if (router.query.id === 'bot') setStatus({ gameStatus: 'playing' });
-      else
-        request
-          .get(`http://localhost:4400/api/v1/game/${router.query.id}`)
-          .set('Authorization', `Bearer ${localStorage.getItem('jwtToken')}`)
-          .then((res) => {
-            if (res.status !== 200) return router.push('/game');
-            game.conf = res.body.conf;
-            game.role =
-              player?.username === res.body.host.username ? 'host' : 'guest';
-            game.opponent =
-              game.role === 'host' ? res.body.guest : res.body.host;
-            game.socket?.emit('watch-user-status', game.opponent.userId);
-            game.gameStatus = res.body.status;
-            ws.emit('UserStatus', {
-              user1: game.opponent.userId,
-              user2: player?.userId,
-            });
-            game.gameId = router.query.id as string;
-            setStatus({ gameStatus: res.body.status });
-          })
-          .catch((err) => setStatus({ gameStatus: 'invalid', error: err }));
+      request
+        .get(`http://localhost:4400/api/v1/game/${router.query.id}`)
+        .set('Authorization', `Bearer ${localStorage.getItem('jwtToken')}`)
+        .then((res) => {
+          if (res.status !== 200) return router.push('/game');
+          game.conf = res.body.conf;
+          game.role =
+            player?.username === res.body.host.username ? 'host' : 'guest';
+          game.opponent = game.role === 'host' ? res.body.guest : res.body.host;
+          game.socket?.emit('watch-user-status', game.opponent.userId);
+          game.gameStatus = res.body.status;
+          ws.emit('UserStatus', {
+            user1: game.opponent.userId,
+            user2: player?.userId,
+          });
+          game.gameId = router.query.id as string;
+          setStatus({ gameStatus: res.body.status });
+        })
+        .catch((err) => setStatus({ gameStatus: 'invalid', error: err }));
     }
     return () => {
       game.socket
@@ -160,7 +155,7 @@ export default function Accept() {
           Stay Sharp!
         </Box>
       </Box>
-      <Box className={styles.lobby} style={{ flexBasis: '1000px' }}>
+      <Box className={styles.lobby} style={{ flexBasis: '800px' }}>
         <Flex
           gap={0}
           direction={{ base: 'column', sm: 'row' }}

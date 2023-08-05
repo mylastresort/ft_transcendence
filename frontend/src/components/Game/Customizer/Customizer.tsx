@@ -6,10 +6,8 @@ import {
   NumberInput,
   Box,
   Input,
-  Radio,
-  Group,
 } from '@mantine/core';
-import { MapsContext, Player, PlayerContext } from '@/context/game';
+import { MapsContext, PlayerContext } from '@/context/game';
 import { motion } from 'framer-motion';
 import { useForm } from '@mantine/form';
 import { useSwipeable } from 'react-swipeable';
@@ -24,7 +22,7 @@ export default function Customizer({ type = 'create', userId }) {
   const game = useContext(GameContext);
   const maps = useContext(MapsContext);
   const form = useForm({
-    initialValues: { speed: 3, games: 5, name: '', mode: 'human' },
+    initialValues: { speed: 3, games: 5, name: '' },
     validate: {
       speed: (value) => (value < 2 || value > 5 ? 'Invalid speed' : null),
       games: (value) =>
@@ -44,10 +42,9 @@ export default function Customizer({ type = 'create', userId }) {
     <Flex align="center" h="100%" maw="1500px" m="0 auto">
       <Box
         component="form"
-        onSubmit={form.onSubmit(() => {
-          if (type === 'create') {
-            if (form.values.mode === 'human')
-              game.socket?.emit(
+        onSubmit={form.onSubmit(() =>
+          type === 'create'
+            ? game.socket?.emit(
                 'join',
                 {
                   ...form.values,
@@ -63,39 +60,24 @@ export default function Customizer({ type = 'create', userId }) {
                   };
                   router.push('/game/lobby');
                 }
-              );
-            else {
-              game.role = 'host';
-              game.conf = {
-                ...form.values,
-                map: maps[selected].name,
-                isInvite: false,
-              };
-              game.config = { limit: [180, 150], paddle: 30, radius: 2 };
-              game.opponent = {
-                username: 'Ai', 
-                userImgProfile: '',
-              } as Player;
-              router.push('/game/bot');
-            }
-          } else
-            game.socket?.emit(
-              'invite',
-              {
-                ...form.values,
-                map: maps[selected].name,
-                userId,
-              },
-              (gameId) => {
-                UserSocket.emit('SendGameInvite', {
-                  gameid: gameId,
-                  receiverId: Number(userId),
-                  senderId: player?.userId,
-                });
-                router.push('/game');
-              }
-            );
-        })}
+              )
+            : game.socket?.emit(
+                'invite',
+                {
+                  ...form.values,
+                  map: maps[selected].name,
+                  userId,
+                },
+                (gameId) => {
+                  UserSocket.emit('SendGameInvite', {
+                    gameid: gameId,
+                    receiverId: Number(userId),
+                    senderId: player?.userId,
+                  });
+                  router.push('/game');
+                }
+              )
+        )}
         className={styles.customizer}
         h="100%"
         w="100%"
@@ -183,15 +165,6 @@ export default function Customizer({ type = 'create', userId }) {
               placeholder="Number of games"
               sx={{ '& label': { color: 'white' } }}
             />
-            <Radio.Group
-              {...form.getInputProps('mode')}
-              label="Select your game mode"
-            >
-              <Group mt="xs">
-                <Radio value="human" label="Human" />
-                <Radio value="ai" label="Ai" />
-              </Group>
-            </Radio.Group>
             <div>
               <Button
                 mt="1rem"
