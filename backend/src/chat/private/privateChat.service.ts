@@ -91,11 +91,11 @@ export class PrivateChatService {
   }
 
   //delete
-  async deletePrivateChat(pChat: any) {
+  async deletePrivateChat(chatId: any) {
     try {
       return await this.prisma.privateChat.delete({
         where: {
-          id: pChat.id,
+          id: chatId,
         },
       });
     } catch (error) {

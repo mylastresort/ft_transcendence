@@ -43,4 +43,30 @@ export class ChatService {
       console.log('update socketId error!');
     }
   }
+
+  async getUser(username: string){
+    try{
+      const res = await this.prisma.user.findFirst({
+        where:{
+          username: username,
+        },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          sammary: true,
+          status: true,
+        }
+      })
+      return res;
+    }catch(error){
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'user not found',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
 }

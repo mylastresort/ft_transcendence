@@ -8,12 +8,8 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { WsJwtGuard } from 'src/auth/ws-jwt/ws-jwt.guard';
-import { SocketAuthMiddleware } from 'src/auth/ws.middleware';
 import { ChannelService } from './channel.service';
-interface Message {
-  room: string;
-  msg: string;
-}
+
 @WebSocketGateway({
   namespace: 'chat',
   cors: {
@@ -52,13 +48,50 @@ export default class ChannelGateway {
 
   @UseGuards(WsJwtGuard)
   @SubscribeMessage('addMember')
-  leavehannelRoom(
-    @MessageBody() room: any,
-    @ConnectedSocket() client: Socket,
-  ): void {
+  addMember(@MessageBody() room: any, @ConnectedSocket() client: Socket): void {
     console.log('addMember: ', room);
     this.server
       .to(room.name)
       .emit('action', { target: room.target, action: 'added to channel' });
+  }
+
+
+
+
+  @UseGuards(WsJwtGuard)
+  @SubscribeMessage('channel/join-room')
+  joinChannelRoom(
+    @MessageBody() room: any,
+    @ConnectedSocket() client: Socket,
+  ): void {
+    console.log('joinChannelRoom: ', room);
+    client.join(room);
+  }
+
+  @UseGuards(WsJwtGuard)
+  @SubscribeMessage('channel/leave-room')
+  leavehannelRoom(
+    @MessageBody() room: any,
+    @ConnectedSocket() client: Socket,
+  ): void {
+    console.log('leavehannelRoom: ', room);
+    client.leave(room);
+  }
+
+  @SubscribeMessage('channel/sendMsg')
+  async SendChannelMessage(
+    @MessageBody() data: any,
+    @ConnectedSocket() client: Socket,
+  ) {
+    console.log('SendChannelMessage: ', data);
+    try {
+      const createdMessage = await this.channelService.createMessage(
+        client.data,
+        data,
+      );
+      this.server.to(data.name).emit('channel/newMsg', createdMessage);
+    } catch (err) {
+      console.log('message not sent!');
+    }
   }
 }
