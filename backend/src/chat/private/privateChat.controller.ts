@@ -43,7 +43,7 @@ export class PriavteChatController {
   @ApiBearerAuth()
   async deletePrivateChat(@Req() req: any): Promise<any> {
     console.log('deletePrivateChat=>', req.body);
-    return this.privateChatService.deletePrivateChat(req.body);
+    return this.privateChatService.deletePrivateChat(req.body.id);
   }
 
   // messages
