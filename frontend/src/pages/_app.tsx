@@ -148,7 +148,7 @@ export default function App({ Component, pageProps }: AppProps) {
         console.log('chat socket disconnecting...');
       });
     };
-  }, []);
+  }, [Token]);
 
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS theme={Theme}>

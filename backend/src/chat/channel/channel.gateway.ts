@@ -33,13 +33,16 @@ export default class ChannelGateway {
 
   notifyMember(member, event) {
     console.log('kick/banned', member);
-    const action = event.isKick
-      ? 'kicked'
-      : event.isBan
-      ? 'banned'
-      : event.isMute
-      ? 'muted'
-      : '';
+    const action =
+      event == 'left'
+        ? 'left'
+        : event.isKick
+        ? 'kicked'
+        : event.isBan
+        ? 'banned'
+        : event.isMute
+        ? 'muted'
+        : '';
 
     this.server
       .to(member.channel.channelName)
@@ -54,9 +57,6 @@ export default class ChannelGateway {
       .to(room.name)
       .emit('action', { target: room.target, action: 'added to channel' });
   }
-
-
-
 
   @UseGuards(WsJwtGuard)
   @SubscribeMessage('channel/join-room')

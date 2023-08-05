@@ -38,9 +38,7 @@ export function RoomsList({ closeNav }: any) {
       });
   }, [update]);
   useEffect(()=>{
-    console.log("on updated channel...");
     socket.on('updateChannel', (data)=>{
-      console.log('updated...');
       setUpdate((state)=>!state);
     });
     return ()=>{

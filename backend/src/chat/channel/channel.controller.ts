@@ -94,7 +94,10 @@ export class ChannelController {
   @ApiBearerAuth()
   async leaveChannel(@Req() req: any): Promise<any> {
     console.log('leaveChannel=>', req.body);
-    return this.channelService.leaveChannel(req.user, req.body);
+    const res = await this.channelService.leaveChannel(req.user, req.body);
+
+    this.channelGateway.notifyMember(res, 'left');
+    return res;
   }
 
   @Post('settings/members')

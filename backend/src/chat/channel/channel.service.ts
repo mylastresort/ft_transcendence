@@ -404,10 +404,25 @@ export class ChannelService {
       );
     }
   }
+  
   //leave
   async leaveChannel(me: Me, channel: any) {
     try {
-      return await this.prisma.member.updateMany({
+      const res =  await this.prisma.member.findFirst({
+        where: {
+          userId: me.id,
+          channleId: channel.id,
+        },
+        select: {
+          nickname: true,
+          channel: {
+            select: {
+              channelName: true,
+            }
+          }
+        }
+      })
+      await this.prisma.member.updateMany({
         where: {
           userId: me.id,
           channleId: channel.id,
@@ -418,6 +433,7 @@ export class ChannelService {
           isAdministator: false,
         },
       });
+      return res;
     } catch (error) {
       console.log(error);
       throw new HttpException(
