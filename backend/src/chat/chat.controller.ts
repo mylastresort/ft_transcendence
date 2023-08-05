@@ -3,6 +3,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Query,
   Req,
@@ -24,5 +25,13 @@ export class ChatController {
     @Query('username') username: any,
   ): Promise<any> {
     return await this.chatService.getUsers(username, req.user);
+  }
+
+  @Get('user/:username')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async getUser(@Param() params: any){
+    return await this.chatService.getUser(params.username);
   }
 }

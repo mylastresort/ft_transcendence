@@ -155,6 +155,11 @@ export default function App({ Component, pageProps }: AppProps) {
       console.log('chat socket connected...');
     });
     setChatSocket(socket);
+    return () => {
+      socket.off('disconnect', () => {
+        console.log('chat socket disconnecting...');
+      });
+    };
   }, []);
 
   return (
