@@ -28,7 +28,6 @@ function ChatRoomContent({ isChannel = false }) {
 
   useEffect(()=>{
     const roomName = isChannel ? chatContext.data.name : chatContext.data.id;
-    console.log('joining room: ', roomName);
 
     socket.emit(`${route}/join-room`, roomName);
 

@@ -14,6 +14,7 @@ import request from 'superagent';
 import { AddMember } from './ChannelSettings/AddMember';
 import { ListMembers } from './ListMembers';
 import { ChannelSettings } from './ChannelSettings';
+import { useRouter } from 'next/router';
 
 interface Member {
   id: number;
@@ -27,13 +28,14 @@ interface Member {
   };
 }
 
-function ChannelInfo({action}) {
+function ChannelInfo({ action }) {
   const chatContext = useContext(ChatContext);
   const userContext = useContext(UserContext);
   const jwtToken = localStorage.getItem('jwtToken');
   const theme = useMantineTheme();
   const [members, setMembers]: [Member[], any] = useState([]);
   const [channel, setChannel] = useState();
+  const router = useRouter();
   useEffect(() => {
     request
       .get('http://localhost:4400/api/chat/channel')
@@ -67,6 +69,7 @@ function ChannelInfo({action}) {
       .send({ id: chatContext.data.id })
       .then((res) => {
         chatContext.data = undefined!;
+        router.push('/chat');
       })
       .catch((err) => {
         return err;
@@ -103,23 +106,16 @@ function ChannelInfo({action}) {
         </Text>
       </Flex>
       <ListMembers members={members} />
-      <Link
-        href={'/chat'}
-        style={{
-          margin: 'auto',
+      <Button
+        m={'auto'}
+        w={300}
+        onClick={() => {
+          leaveChannel();
         }}
+        color="red"
       >
-        <Button
-          m={'auto'}
-          w={300}
-          onClick={() => {
-            leaveChannel();
-          }}
-          color="red"
-        >
-          Leave Channel
-        </Button>
-      </Link>
+        Leave Channel
+      </Button>
       {chatContext.data.me?.isAdministator && (
         <>
           <AddMember />
