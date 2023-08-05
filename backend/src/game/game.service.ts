@@ -56,21 +56,56 @@ export class GameService {
   private readonly achievments = [
     {
       name: 'New Comer',
-      description: 'Welcome to your second home',
+      description: 'Welcome to your second home.',
       icon: './Uploads/excited.png',
     },
     {
       name: 'First Win',
-      description: 'You won your first game',
+      description: 'You won your first game.',
       icon: './Uploads/medal.png',
     },
     {
-      name: 'First Game',
-      description: 'You played your first game',
+      name: 'Nostalgic',
+      description: 'You played 1972 Pong.',
       icon: './Uploads/arcade-game.png',
+      mapKey: 'Classic',
+    },
+    {
+      description: 'You played Star Wars Pong.',
+      icon: './Uploads/personal-droid.png',
+      mapKey: 'StarWars',
+      name: 'Wrrrp bleep.',
+    },
+    {
+      description: 'You played Cyberpunk Pong.',
+      icon: './Uploads/cyberpunk.png',
+      mapKey: 'Cyberpunk',
+      name: 'Draw The Line',
+    },
+    {
+      description: 'You played at Dracula House.',
+      icon: './Uploads/murderer.png',
+      mapKey: 'WitchCraft',
+      name: 'Fearless Vampire Hunter',
+    },
+    {
+      description: 'You fought in Dragon Ball palace.',
+      icon: './Uploads/dragon.png',
+      mapKey: 'DragonBall',
+      name: "Z-Warrior's Key",
     },
     {
       name: 'Level 1',
+      description: 'You reached level 1',
+      icon: './Uploads/trophy.png',
+    },
+    {
+      name: 'Level 5',
+      description: 'You reached level 1',
+      icon: './Uploads/trophy.png',
+    },
+    {
+      name: 'Level 10',
       description: 'You reached level 1',
       icon: './Uploads/trophy.png',
     },
@@ -87,7 +122,13 @@ export class GameService {
     });
     for (const achievement of this.achievments) {
       try {
-        await this.prisma.achievement.create({ data: achievement });
+        await this.prisma.achievement.create({
+          data: {
+            name: achievement.name,
+            icon: achievement.icon,
+            description: achievement.description,
+          },
+        });
         await fs.readFile(achievement.icon, (err, data) => {
           if (err) throw err;
           s3.upload(
@@ -110,35 +151,57 @@ export class GameService {
     this.prisma.$use((params, next) => {
       switch (params.model) {
         case 'Room':
-          if (params.action === 'update')
-            setImmediate(async () => {
-              const room = await this.prisma.room.findUnique({
-                where: params.args.where,
-                select: {
-                  players: {
-                    select: {
-                      _count: { select: { rooms: true, wins: true } },
-                      userId: true,
+          if (
+            params.action === 'update' &&
+            params.args.data.status === 'finished'
+          ) {
+            const achievement = this.achievments.find(
+              ({ mapKey }) => params.args.data.map === mapKey,
+            );
+            if (achievement)
+              setImmediate(async () => {
+                await this.prisma.achievement
+                  .update({
+                    where: { name: achievement.name },
+                    data: {
+                      players: {
+                        connect: [
+                          { userId: params.args.data.winner.connect.userId },
+                          { userId: params.args.data.loser.connect.userId },
+                        ],
+                      },
                     },
-                  },
-                },
+                  })
+                  .catch(() => {});
+                await this.prisma.achievement
+                  .update({
+                    where: { name: 'First Win' },
+                    data: {
+                      players: {
+                        connect: {
+                          userId: params.args.data.winner.connect.userId,
+                        },
+                      },
+                    },
+                  })
+                  .catch(() => {});
               });
-              room?.players.forEach(
-                async ({ _count: { rooms, wins }, userId }) => {
-                  const achievement: { name: string }[] = [];
-                  if (params.args.data.status === 'finished' && !wins)
-                    achievement.push({ name: 'First Win' });
-                  if (rooms === 1) achievement.push({ name: 'First Game' });
-                  if (achievement.length) {
-                    await this.prisma.player.update({
-                      where: { userId },
-                      data: { achievements: { connect: achievement } },
-                    });
-                  }
-                },
-              );
-            });
+          }
           break;
+        case 'Player':
+          if (params.action === 'update') {
+            if (params.args.data.level >= 1)
+              params.args.data.achievements = {
+                connect: {
+                  name:
+                    params.args.data.level >= 10
+                      ? 'Level 10'
+                      : params.args.data.level >= 5
+                      ? 'Level 5'
+                      : 'Level 1',
+                },
+              };
+          }
       }
       return next(params);
     });
@@ -244,7 +307,6 @@ export class GameService {
     playerId: Player['data']['userId'],
     id: Player['data']['currentGameId'],
   ) {
-
     const room = this.rooms.get(id);
     if (room) {
       if (
@@ -393,18 +455,13 @@ export class GameService {
               ? 1
               : 0,
         };
-        const level = {
-          increment: 0.2 * room.players[winner.currentUserRole][2],
-        };
+        const level =
+          2 * room.players[winner.currentUserRole][2] + winner.userLevel;
         const longestStreak = Math.max(
           winner.userLongestStreak,
           currentStreak.increment + winner.userCurrentStreak,
         );
         const data = {
-          achievements:
-            winner.userLevel < 1 && level.increment + winner.userLevel >= 1
-              ? { connect: { name: 'Level 1' } }
-              : {},
           currentStreak,
           lastPlayed: endedAt,
           level,
@@ -421,8 +478,9 @@ export class GameService {
               endedAt,
               winner: { connect: { userId: winner.userId } },
               loser: { connect: { userId: loser.userId } },
-              winnerPostLevel: level.increment + winner.userLevel,
+              winnerPostLevel: level + winner.userLevel,
               losserLevel: loser.userLevel,
+              map: room.host.hostWishedGameMap,
             },
           });
           const winnerUpdates = await this.prisma.player.update({
@@ -672,17 +730,14 @@ export class GameService {
                 ? 1
                 : 0,
           };
-          const level = { increment: 0.2 * room.players[isOut[0]][2] };
+          const level =
+            2 * room.players[isOut[0]][2] + room[isOut[0]].userLevel;
           const longestStreak =
             currentStreak.increment + player.userCurrentStreak >
             player.userLongestStreak
               ? currentStreak.increment + player.userCurrentStreak
               : player.userLongestStreak;
           const data = {
-            achievements:
-              player.userLevel < 1 && level.increment + player.userLevel >= 1
-                ? { connect: { name: 'Level 1' } }
-                : {},
             currentStreak,
             longestStreak,
           };
@@ -709,11 +764,12 @@ export class GameService {
                       : room.host.userId,
                 },
               },
-              winnerPostLevel: level.increment + player.userLevel,
+              winnerPostLevel: level,
               losserLevel:
                 winnerId === room.host.userId
                   ? room.guest.userLevel
                   : room.host.userLevel,
+              map: room.host.hostWishedGameMap,
             },
           });
           await this.prisma.player.updateMany({
@@ -725,7 +781,7 @@ export class GameService {
           if (opponent) opponent.userLastPlayed = endedAt;
           const winner =
             socket.data.userId === winnerId ? socket.data : opponent;
-          winner.userLevel += level.increment;
+          winner.userLevel = level;
           winner.userCurrentStreak += currentStreak.increment;
           winner.userLongestStreak = longestStreak;
           winner.userWins++;
