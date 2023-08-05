@@ -1,4 +1,4 @@
-import { Button, Text } from '@mantine/core';
+import { Button, Space, Text, Title } from '@mantine/core';
 import { Box, Flex } from '@mantine/core';
 import React, { useContext, useEffect, useState } from 'react';
 import styles from '../Lobby/Lobby.module.css';
@@ -17,7 +17,7 @@ export default function Accept() {
   const [status, setStatus] = useState<{ gameStatus: string; error?: Error }>({
     gameStatus: game.gameStatus,
   });
-  const [self, setSelf] = useState('online');
+  const [self, setSelf] = useState('offline');
   const [opponent, setOpponent] = useState('offline');
   const ws = useContext(WsContext);
 
@@ -46,7 +46,7 @@ export default function Accept() {
         }, 2000);
       });
     return () => {
-      if (!started) game.socket?.emit('leave');
+      // if (!started) game.socket?.emit('leave');
       game.socket?.off('started').off('cancelled');
       ws.off('UserStatus');
     };
@@ -96,8 +96,53 @@ export default function Accept() {
       <Text>Already in game</Text>
     </Flex>
   ) : (
-    <Flex align="center" wrap="wrap">
-      <Box className={styles.lobby}>
+    <Flex
+      h="100%"
+      justify="center"
+      gap="3rem"
+      wrap="wrap-reverse"
+      style={{ alignContent: 'center' }}
+    >
+      <Box style={{ flexBasis: '500px' }} p="1rem">
+        <Title my="1rem" color="cyan">
+          Customization Included
+        </Title>
+        <Box>
+          <b>
+            Ball Speed:{' '}
+            {game.conf.speed >= 5
+              ? 'Very fast'
+              : game.conf.speed >= 4
+              ? 'Fast'
+              : game.conf.speed >= 3
+              ? 'Normal'
+              : game.conf.speed >= 2
+              ? 'Slow'
+              : 'Very slow'}
+          </b>
+          <Space h="1em" />
+          <b>No Rounds: {game.conf.games}</b>
+        </Box>
+        <Space h="2em" />
+        <Title my="1rem" color="cyan">
+          Gameplay Instructions
+        </Title>
+        <Box>
+          <b>Press Ready</b> to start the game. Wait for the opponent to be
+          ready to launch the game. You both will receive the ball at 1 second
+          delay.
+          <Space h="1em" />
+          You can <b>leave</b> at anytime, only then the game will be canceled.
+          Leaving the current page also cancels the game. You will be count as
+          loser and the opponent wins.
+          <Space h="1em" />
+          Score <b>11 points</b> to win a round. The winner dominates the total
+          playable rounds. (win 2/3 rounds to win the whole game with 3 rounds)
+          <Space h="1em" />
+          Stay Sharp!
+        </Box>
+      </Box>
+      <Box className={styles.lobby} style={{ flexBasis: '1000px' }}>
         <Flex
           gap={0}
           direction={{ base: 'column', sm: 'row' }}

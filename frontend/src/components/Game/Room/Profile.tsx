@@ -29,6 +29,7 @@ export default function Profile({
           sx={{ position: 'relative' }}
         />
         <BsCircleFill
+          display={status === 'online' ? 'block' : 'none'}
           fill={
             status === 'online'
               ? 'green'
