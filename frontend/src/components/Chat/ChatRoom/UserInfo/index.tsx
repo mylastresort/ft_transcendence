@@ -67,8 +67,9 @@ function UserInfo() {
           {chatContext.data.name}
         </Text>
         <Box
-         w={'90%'}
+         w={'80%'}
          m={'auto'}
+         mt={40}
          mih={100}
          p={10}
           style={{
@@ -80,6 +81,11 @@ function UserInfo() {
             {userInfo.sammary}
           </Text>
         </Box>
+        <Box
+         w={'80%'}
+         m={'auto'}
+         mt={50}
+        >
         <Link
           href={'/chat'}
           style={{
@@ -87,14 +93,15 @@ function UserInfo() {
           }}
         >
           <Link href={`/profile/${chatContext.data.name}`}>
-            <Button color="blue">View Profile</Button>
+            <Button mr={'10%'} w={'45%'} color="blue">View Profile</Button>
           </Link>
           <Link href={`/game/invite?userId=${userInfo.id}`}>
-            <Button color="blue">Invite to Play</Button>
+            <Button w={'45%'} color="blue">Invite to Play</Button>
           </Link>
           <Button
             color="red"
-            w={300}
+            mt={40}
+            w={'100%'}
             onClick={() => {
               deleteUser();
             }}
