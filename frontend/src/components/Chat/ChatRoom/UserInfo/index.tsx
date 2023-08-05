@@ -50,10 +50,7 @@ function UserInfo() {
 
   return (
     <Box w={'100%'} h={'100%'} bg={theme.colors.dark[6]} pt={100}>
-      <Flex direction={'column'} gap={10} style={{
-        border: '1px solid var(--secondary-color)',
-        borderRadius: '20px'
-      }}>
+      <Flex direction={'column'} gap={10}>
         <Avatar
           m={'auto'}
           radius={500}
