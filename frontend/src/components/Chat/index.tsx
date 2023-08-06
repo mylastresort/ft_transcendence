@@ -1,6 +1,5 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { Button, Container, Flex, Grid } from '@mantine/core';
-import { useElementSize, useMediaQuery } from '@mantine/hooks';
+import { Flex } from '@mantine/core';
 import ChatNav from '@/components/Chat/ChatNav';
 import { User, UserContext } from '@/context/user';
 import { GetMe } from '@/pages/api/auth/auth';
