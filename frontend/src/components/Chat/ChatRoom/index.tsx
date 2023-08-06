@@ -16,10 +16,10 @@ import { UserContext } from '@/context/user';
 import { UserSocket } from '@/context/WsContext';
 
 function ChatRoomContent({ isChannel = false }) {
+  const userContext = useContext(UserContext);
   const matches = useMediaQuery('(min-width:1000px)');
   const socket = useContext(ChatSocketContext);
   const chatContext = useContext(ChatContext);
-  const userContext = useContext(UserContext);
   const route = isChannel ? 'channel' : 'private';
   const [action, setAction] = useState('');
 
