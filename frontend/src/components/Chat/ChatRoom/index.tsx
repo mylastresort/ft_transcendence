@@ -19,10 +19,10 @@ interface Props {
 }
 
 function ChatRoomContent({ isChannel = false }) {
+  const userContext = useContext(UserContext);
   const matches = useMediaQuery('(min-width:1000px)');
   const socket = useContext(ChatSocketContext);
   const chatContext = useContext(ChatContext);
-  const userContext = useContext(UserContext);
   const route = isChannel ? 'channel' : 'private';
   const [action, setAction] = useState('');
 
@@ -40,7 +40,11 @@ function ChatRoomContent({ isChannel = false }) {
   useEffect(()=>{
     socket.on('action', (res)=>{
       console.log('action ...', res.action);
-      if (res.target == userContext.data.username && res.action != 'added to channel'){
+      if (!userContext.data){
+        chatContext.data = undefined!;
+        router.push('/chat');
+      }
+      else if (res.target == userContext.data.username){
         chatContext.data = undefined!;
         router.push('/chat');
         notifications.show({
