@@ -615,11 +615,6 @@ export class ChannelService {
       const messages = await this.prisma.channelMessage.findMany({
         where: {
           channelId: channelId,
-          AND: {
-            sender: {
-              isMember: true,
-            },
-          },
         },
         include: {
           sender: {
