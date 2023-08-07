@@ -33,7 +33,9 @@ export default class ChannelGateway {
   notifyMember(member, event) {
     console.log('kick/banned', member);
     const action =
-      event == 'left'
+      event == 'join'
+        ? 'joined'
+        : event == 'left'
         ? 'left'
         : event.isKick
         ? 'kicked'
