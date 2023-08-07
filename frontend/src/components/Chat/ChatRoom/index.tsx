@@ -42,10 +42,12 @@ function ChatRoomContent({ isChannel = false }) {
     });
     socket.on('action', (res) => {
       console.log('action ...', res.action);
-      if (!userContext.data) {
+      if (!userContext.data)
+      {
         chatContext.data = undefined!;
         router.push('/chat');
-      } else if (res.target == userContext.data.username) {
+      }
+      else if (res.target == userContext.data.username){
         chatContext.data = undefined!;
         router.push('/chat');
         notifications.show({
