@@ -85,6 +85,7 @@ export class ChannelService {
   //read
   async getChannel(me: Me, channelId: number) {
     try {
+      await this.updateMemberState();
       return await this.prisma.channel.findFirst({
         where: {
           id: channelId,
@@ -190,6 +191,7 @@ export class ChannelService {
   //read
   async getMembers(channelId: number) {
     try {
+      await this.updateMemberState();
       return await this.prisma.member.findMany({
         where: {
           channleId: channelId,
@@ -301,7 +303,7 @@ export class ChannelService {
 
   async joinChanned(me: Me, channel: any) {
     try {
-      this.updateMemberState(me.id);
+      await this.updateMemberState(me.id);
       const getCh = await this.prisma.channel.findFirst({
         where: {
           id: channel.id,
@@ -638,7 +640,7 @@ export class ChannelService {
   // create
   async createMessage(me: Me, channel: any) {
     try {
-      this.updateMemberState(me.id);
+      await this.updateMemberState(me.id);
       const sender = await this.prisma.member.findFirst({
         where: {
           userId: me.id,
@@ -688,11 +690,10 @@ export class ChannelService {
     }
   }
 
-  async updateMemberState(userId: number) {
+  async updateMemberState(userId = 0) {
     try {
       await this.prisma.member.updateMany({
         where: {
-          userId: userId,
           isMuted: true,
           mutedTime: { lt: new Date() },
         },
@@ -703,7 +704,6 @@ export class ChannelService {
       });
       await this.prisma.member.updateMany({
         where: {
-          userId: userId,
           isBanned: true,
           bannedTime: { lt: new Date() },
         },
