@@ -154,8 +154,6 @@ export class ChannelController {
     console.log('joinChanned=>', req.body);
     const res = await this.channelService.joinChanned(req.user, req.body);
     await this.channelGateway.updateChannel(res.channel.members);
-    await this .channelGateway.notifyMember({channel: res.channel, nickname: req.user.username}, 'join');
-    // console.log('res: ', res);
     return res;
   }
 
