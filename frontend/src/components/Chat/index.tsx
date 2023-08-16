@@ -1,9 +1,10 @@
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { Button, Container, Flex, Grid } from '@mantine/core';
+import { Box, Button, Container, Flex, Grid } from '@mantine/core';
 import { useElementSize, useMediaQuery } from '@mantine/hooks';
 import ChatNav from '@/components/Chat/ChatNav';
 import { User, UserContext } from '@/context/user';
 import { GetMe } from '@/pages/api/auth/auth';
+import { theme } from '@nextui-org/react';
 
 
 export default function Chat(ChatRoom) {
@@ -20,21 +21,18 @@ export default function Chat(ChatRoom) {
     }, []);
     return (
       <UserContext.Provider value={user}>
-        <Flex
-          h={'calc(100vh - 78px)'}
-          w={'100%'}
-          style={{
+        <Box
+          sx={(theme) => ({
             position: 'absolute',
+            background: 'red',
+            width: 'calc(100% - 88px)',
+            height: 'calc(100% - 78px)',
             top: '76px',
             left: '88px',
-          }}
-          gap={0}
-          align="stretch"
-          pos={'relative'}
-        >
+          })}>
           <ChatNav />
           <ChatRoom />
-        </Flex>
+        </Box>
       </UserContext.Provider>
     );
   };
