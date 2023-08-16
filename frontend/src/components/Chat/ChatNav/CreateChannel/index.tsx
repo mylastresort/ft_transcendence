@@ -85,6 +85,7 @@ export function CreateChannel() {
           opacity: 0.55,
           blur: 3,
         }}
+        zIndex={1000}
       >
         <Box maw={300} mx="auto">
           <form onSubmit={form.onSubmit(createNewChannel)}>
@@ -128,7 +129,9 @@ export function CreateChannel() {
       </Modal>
       <Button
         h={70}
-        w={300}
+        w={'100%'}
+        maw={300}
+        mx="auto"
         onMouseOver={() => {
           setBgColor('var(--chat-red-color)');
         }}
@@ -136,13 +139,13 @@ export function CreateChannel() {
           setBgColor('var(--white-color)');
         }}
         style={{
+          display: 'block',
           cursor: 'pointer',
           backgroundColor: bgColor,
           borderRadius: '10px',
           border: '2px solid',
           borderColor: 'var(--chat-red-color)',
           padding: '10px',
-          margin: '0px 14px',
           marginTop: '0px',
           color:
             bgColor == 'var(--chat-red-color)'

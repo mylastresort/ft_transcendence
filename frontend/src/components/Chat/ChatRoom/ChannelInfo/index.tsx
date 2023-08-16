@@ -92,7 +92,8 @@ function ChannelInfo({ action }) {
           {chatContext.data.name}
         </Text>
         <Text
-          maw={300}
+          maw={'80%'}
+          // w={300}
           p={15}
           m={'auto'}
           color="dimmed"
@@ -108,7 +109,7 @@ function ChannelInfo({ action }) {
       <ListMembers members={members} />
       <Button
         m={'auto'}
-        w={300}
+        w={'80%'}
         onClick={() => {
           leaveChannel();
         }}

@@ -37,14 +37,14 @@ export function RoomsList({ closeNav }: any) {
         return err;
       });
   }, [update]);
-  useEffect(()=>{
-    socket.on('updateChannel', (data)=>{
-      setUpdate((state)=>!state);
+  useEffect(() => {
+    socket.on('updateChannel', (data) => {
+      setUpdate((state) => !state);
     });
-    return ()=>{
+    return () => {
       socket.off('updateChannel');
-    }
-  }, [])
+    };
+  }, []);
 
   return (
     <Tabs defaultValue="channels">
@@ -54,7 +54,7 @@ export function RoomsList({ closeNav }: any) {
       </Tabs.List>
 
       <Tabs.Panel value="channels" pt="xs">
-        <ScrollArea h={'calc(100vh - 200px)'} mt={20}>
+        <ScrollArea h={'calc(100vh - 200px)'} mt={20} w={'100%'}>
           <CreateChannel />
           {channelsList.map((channel: any) => (
             <div key={channel.id}>
@@ -69,7 +69,7 @@ export function RoomsList({ closeNav }: any) {
       </Tabs.Panel>
 
       <Tabs.Panel value="messages" pt="xs">
-        <ScrollArea h={'calc(100vh - 200px)'} mt={20}>
+        <ScrollArea h={'calc(100vh - 200px)'} mt={20} w={'100%'}>
           <SearchUser />
           {privateChatList.map((chat: any) => (
             <div key={chat.id}>
@@ -100,9 +100,10 @@ function ChatNav() {
         ref={ref}
         zIndex={2}
         id="chat-nav"
-        height={'calc(100vh - 77px)'}
+        h={'calc(100vh - 76px)'}
         p="xs"
         w={350}
+        maw={'calc(100vw - 88px)'}
         pos={'absolute'}
       >
         <Navbar.Section>
