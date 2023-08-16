@@ -79,19 +79,19 @@ export function ListPublicChannels() {
 
   return (
     <Box
-      ml={55}
-      w={'calc(100% - 77px)'}
-      styles={{ width: 'calc(100% - 77px)' }}
-      bg={'#EAEAEA'}
+      sx={(theme)=>({
+        background: '#EAEAEA',
+        paddingLeft: '55px',
+      })}
     >
-      <ScrollArea h={'calc(100vh - 77px)'} w={'calc(100% - 77px)'}>
+      <ScrollArea h={'calc(100vh - 77px)'}>
         <Group>
           {channels.map((channel) => (
             <Card
               key={channel.id}
-              w={300}
+              maw={'300px'}
               bg={'white'}
-              m={30}
+              m={20}
               style={{
                 borderRadius: '15px',
               }}
@@ -102,7 +102,8 @@ export function ListPublicChannels() {
                   src={channel.image}
                   alt=""
                   style={{
-                    width: '200px',
+                    width: '100%',
+                    height: '200px',
                     margin: '0px 50px',
                   }}
                 />

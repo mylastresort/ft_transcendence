@@ -93,7 +93,7 @@ export function ChannelSettings({
         </Flex>
       </Modal>
 
-      <Button onClick={open} rightIcon={<Settings size="0.9rem" />}>
+      <Button w={'80%'} m={'auto'} onClick={open} rightIcon={<Settings size="0.9rem" />}>
         settings
       </Button>
     </>
