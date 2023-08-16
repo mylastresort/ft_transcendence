@@ -53,7 +53,7 @@ export function UserCard({ user, closeNav }) {
           closeNav();
         }}
       >
-        <Group h={60} miw={234}>
+        <Group noWrap h={60}>
           <Avatar radius={50} size={60} src={user.members[0].imgProfile} />
           <div>
             <Text size="lg">{user.members[0].username}</Text>

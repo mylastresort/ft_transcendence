@@ -1,66 +1,18 @@
-import {
-  Button,
-  Group,
-  Modal,
-  Select,
-  Autocomplete,
-  useMantineTheme,
-  Avatar,
-  Text,
-  Box,
-} from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { createStyles, rem } from '@mantine/core';
-import { forwardRef, useState, useContext } from 'react';
-import request from 'superagent';
 import { ChatContext } from '@/context/chat';
-import Link from 'next/link';
+import { ChatSocketContext } from '@/context/chatSocketContext';
+import { Avatar, Button, Group, Text } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
+import { SpotlightProvider, spotlight } from '@mantine/spotlight';
+import type { SpotlightAction, SpotlightActionProps } from '@mantine/spotlight';
+import { style } from '@mui/system';
 import { useRouter } from 'next/router';
-
-const AutoCompleteItem = forwardRef<HTMLDivElement>(
-  ({ value, image, ...others }: any, ref) => {
-    return (
-      <div ref={ref} {...others}>
-        <Group noWrap>
-          <Avatar src={image} />
-          <div>
-            <Text>{value}</Text>
-            <Text size="xs" color="dimmed">
-              this is discription
-            </Text>
-          </div>
-        </Group>
-      </div>
-    );
-  }
-);
+import { forwardRef, useContext, useState } from 'react';
+import request from 'superagent';
 
 export function SearchUser() {
-  const [search, setSearch] = useState<{ value: string; image: string }[]>([]);
-  const [inputValue, setinputValue] = useState('');
-  const [opened, { open, close }] = useDisclosure(false);
   const chatContext = useContext(ChatContext);
-  const theme = useMantineTheme();
-
-  function requestUsers() {
-    const jwtToken = localStorage.getItem('jwtToken');
-    request
-      .get('http://localhost:4400/api/chat/users')
-      .set('Authorization', `Bearer ${jwtToken}`)
-      .query({ username: inputValue })
-      .then((res) =>
-        setSearch(
-          res.body.map((user) => ({
-            value: user.username,
-            image: user.imgProfile,
-          }))
-        )
-      )
-      .catch((err) => {
-        return err;
-      });
-  }
-
+  const socket = useContext(ChatSocketContext);
+  const [bgColor, setBgColor] = useState('var(--white-color)');
   const router = useRouter();
   function createNewPrivateChat(event) {
     close();
@@ -81,41 +33,44 @@ export function SearchUser() {
         return err;
       });
   }
-  const [bgColor, setBgColor] = useState('var(--white-color)');
+  
+  const [search, setSearch] = useState([]);
+  const actions: SpotlightAction[] = search;
+  const jwtToken = localStorage.getItem('jwtToken');
+  function requestUsers(event) {
+    request
+      .get('http://localhost:4400/api/chat/users')
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .query({ username: event })
+      .then((res) => {
+        setSearch(
+          res.body.map((user) => ({
+            title: user.username,
+            description: 'new docs',
+            icon: <Avatar size="1.2rem" src={user.imgProfile} />,
+            onTrigger: () =>
+            createNewPrivateChat({ id: user.id, nickname: user.username }),
+          }))
+        );
+      })
+      .catch((err) => {
+        return err;
+      });
+  }
   return (
-    <>
-      <Modal
-        opened={opened}
-        onClose={close}
-        withCloseButton={false}
-        centered
-        size={550}
-        radius="sm"
-        overlayProps={{
-          color: theme.colorScheme === 'dark' ? 'black' : 'white',
-          opacity: 0.55,
-          blur: 3,
-        }}
-      >
-        <Autocomplete
-          w={450}
-          h={200}
-          m={'auto'}
-          size="lg"
-          value={inputValue}
-          onItemSubmit={createNewPrivateChat}
-          onChange={(val) => {
-            setinputValue(val);
-            requestUsers();
-          }}
-          itemComponent={AutoCompleteItem}
-          placeholder="Search for a user..."
-          data={search}
-        />
-      </Modal>
+    <SpotlightProvider
+      actions={actions}
+      searchPlaceholder="Search..."
+      shortcut="mod + shift + 1"
+      nothingFoundMessage="Nothing found..."
+      onQueryChange={requestUsers}
+    >
+      <Group position="center" >
       <Button
         h={70}
-        w={300}
+        w={'100%'}
+        maw={300}
+        mx="auto"
         onMouseOver={() => {
           setBgColor('var(--secondary-color)');
         }}
@@ -123,21 +78,22 @@ export function SearchUser() {
           setBgColor('var(--white-color)');
         }}
         style={{
+          display: 'block',
           cursor: 'pointer',
           backgroundColor: bgColor,
           borderRadius: '10px',
           border: '2px solid',
           borderColor: 'var(--secondary-color)',
           padding: '10px',
-          margin: '0px 14px',
           marginTop: '0px',
           color: bgColor == 'var(--secondary-color)' ? 'var(--white-color)' : 'var(--secondary-color)',
           fontSize: 40,
         }}
-        onClick={open}
+        onClick={(event) => spotlight.open()}
       >
         +
       </Button>
-    </>
+      </Group>
+    </SpotlightProvider>
   );
 }

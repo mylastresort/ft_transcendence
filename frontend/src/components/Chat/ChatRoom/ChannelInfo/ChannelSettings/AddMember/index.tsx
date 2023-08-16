@@ -73,7 +73,7 @@ export function AddMember() {
       onQueryChange={requestUsers}
     >
       <Group position="center" >
-        <Button w={300} onClick={(event) => spotlight.open()}>Add Member</Button>
+        <Button w={'80%'} onClick={(event) => spotlight.open()}>Add Member</Button>
       </Group>
     </SpotlightProvider>
   );

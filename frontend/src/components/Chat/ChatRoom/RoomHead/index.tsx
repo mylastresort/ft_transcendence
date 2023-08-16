@@ -9,15 +9,11 @@ export function RoomHead({ children }) {
   useEffect(() => setOpen(false), [chatContext.data]);
   const [open, setOpen] = useState(false);
   return (
-    <Flex bg={theme.colors.dark[8]} w={'100%'} h={70} pos={'relative'}>
+    <Flex bg={theme.colors.dark[8]} w={'100%'} h={70}>
       <Group
-        ml={30}
+        pl={30}
         p={2}
-        miw={300}
-        // style={{
-        //   border: '1px solid var(--chat-red-color)',
-        //   borderRadius: 50,
-        // }}
+        w={'100%'}
       >
         <img
           src={chatContext.data.img}
@@ -33,7 +29,8 @@ export function RoomHead({ children }) {
       <Box
         display={open ? 'block' : 'none'}
         pos={'absolute'}
-        w={'100%'}
+        // w={'100%'}
+        maw={'calc(100vw - 143px)'}
         h={'calc(100vh - 78px)'}
         style={{
           zIndex: 1,
