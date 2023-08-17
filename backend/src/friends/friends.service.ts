@@ -375,6 +375,7 @@ export class FriendsService {
       }
 
       await this.notificationsGateway.RerenderFriends(userId, user2Id);
+      await this.notificationsGateway.BlockedEvent(userId, user2Id);
       return { message: 'User blocked' };
     } catch (error) {
       throw new HttpException(
@@ -413,6 +414,7 @@ export class FriendsService {
       });
 
       await this.notificationsGateway.RerenderFriends(userId, friendId);
+      await this.notificationsGateway.UnBlockedEvent(userId, friendId);
       return { message: 'User unblocked' };
     } catch (error) {
       throw new HttpException(

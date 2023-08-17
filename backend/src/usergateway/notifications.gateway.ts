@@ -317,6 +317,42 @@ export class NotificationsGateway {
     }
   }
 
+  async BlockedEvent(UserId: number, senderId: number) {
+    try {
+      const sockets = this.connectedSockets.get(UserId);
+      const sockets2 = this.connectedSockets.get(senderId);
+
+      if (sockets) {
+        for (const socket of sockets)
+          await socket.emit('BlockedEvent', senderId);
+      }
+      if (sockets2) {
+        for (const socket2 of sockets2)
+          await socket2.emit('BlockedEvent', UserId);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async UnBlockedEvent(UserId: number, senderId: number) {
+    try {
+      const sockets = this.connectedSockets.get(UserId);
+      const sockets2 = this.connectedSockets.get(senderId);
+
+      if (sockets) {
+        for (const socket of sockets)
+          await socket.emit('UnBlockedEvent', senderId);
+      }
+      if (sockets2) {
+        for (const socket2 of sockets2)
+          await socket2.emit('UnBlockedEvent', UserId);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   @SubscribeMessage('ReadNotifications')
   async ReadNotifications(client: Socket) {
     try {
