@@ -5,10 +5,52 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class ChatService {
   constructor(private prisma: PrismaService) {}
 
+  async GetBlockedUsers(userId: number) {
+    try {
+      const blockedUsers = await this.prisma.blockedUser.findMany({
+        where: {
+          userId: userId,
+        },
+        select: {
+          blockedUser: true,
+        },
+      });
+
+      const blockedby = await this.prisma.blockedUser.findMany({
+        where: {
+          blockedUserId: userId,
+        },
+        select: {
+          user: true,
+        },
+      });
+
+      const blockedIds = blockedUsers.map(
+        (blockedUser) => blockedUser.blockedUser.id,
+      );
+      const blockedbyIds = blockedby.map((blockedUser) => blockedUser.user.id);
+
+      return [...blockedIds, ...blockedbyIds];
+    }catch(err){
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          error: 'User not found',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
   async getUsers(username: any, me: any) {
     try {
+      
+      const blockedUsers = await this.GetBlockedUsers(me.id);
       return await this.prisma.user.findMany({
         where: {
+          id: {
+            notIn: blockedUsers,
+          },
           username: {
             startsWith: username,
             not: me.username,
@@ -19,7 +61,7 @@ export class ChatService {
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
-          error: 'Chats not found',
+          error: 'User not found',
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -36,7 +78,6 @@ export class ChatService {
           ChatSocketId: socketId,
         },
       });
-      console.log('updating chat socket id ...');
       return res;
     } catch (error) {
       console.log('update socketId error!');
@@ -64,27 +105,6 @@ export class ChatService {
         {
           status: HttpStatus.BAD_REQUEST,
           error: 'user not found',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-  }
-
-  async getBlocked(me: any) {
-    try {
-      this.prisma.user.findFirst({
-        where: {
-          id: me.id,
-        },
-        select: {
-          blockedBy: {},
-        },
-      });
-    } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: 'blocked not found',
         },
         HttpStatus.BAD_REQUEST,
       );

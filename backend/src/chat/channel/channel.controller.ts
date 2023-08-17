@@ -26,7 +26,6 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async createChannel(@Req() req: any): Promise<any> {
-    console.log('createChannel=>', req.user, req.body);
     const res = await this.channelService.createChannel(req.user, req.body);
     await this.channelGateway.updateChannel(res.members);
     return res;
@@ -38,7 +37,6 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async getChannel(@Req() req: any, @Query('id') id: any): Promise<any> {
-    console.log('getChannel1 =>', id);
     return this.channelService.getChannel(req.user, +id);
   }
 
@@ -47,7 +45,6 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async getPublicChannel(@Req() req: any): Promise<any> {
-    console.log('getPublicChannel=>', req.user);
     return this.channelService.getPublicChannel(req.user);
   }
   @Get('me')
@@ -55,7 +52,6 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async getMyChannel(@Req() req: any): Promise<any> {
-    // console.log('getMyChannel=>', req.user);
     return this.channelService.getMyChannel(req.user);
   }
 
@@ -65,7 +61,6 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async deleteChannel(@Req() req: any): Promise<any> {
-    console.log('deleteChannel=>', req.body);
     return this.channelService.deleteChannel(req.user, req.body);
   }
 
@@ -78,7 +73,6 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async getMembers(@Query('id') id: any) {
-    console.log('getMembers req:', +id);
     return await this.channelService.getMembers(+id);
   }
 
@@ -87,7 +81,6 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async getMe(@Req() req: any, @Query('id') id: any) {
-    console.log('getMe req:', +id);
     return await this.channelService.getMe(req.user, +id);
   }
   //leave
@@ -96,7 +89,6 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async leaveChannel(@Req() req: any): Promise<any> {
-    console.log('leaveChannel=>', req.body);
     const res = await this.channelService.leaveChannel(req.user, req.body);
 
     this.channelGateway.notifyMember(res, 'left');
@@ -108,7 +100,6 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async membersSettings(@Req() req: any): Promise<any> {
-    console.log('membersSettings=>', req.body);
     const res = await this.channelService.membersSettings(req.user, req.body);
 
     this.channelGateway.notifyMember(res, req.body);
@@ -121,7 +112,6 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async adminSettings(@Req() req: any): Promise<any> {
-    console.log('adminSettings=>', req.body);
     return this.channelService.adminSettings(req.user, req.body);
   }
 
@@ -130,7 +120,6 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async passwordSettings(@Req() req: any): Promise<any> {
-    console.log('passwordSettings=>', req.body);
     return this.channelService.passwordSettings(req.user, req.body);
   }
 
@@ -140,7 +129,6 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async createMember(@Req() req: any): Promise<any> {
-    console.log('createMember=>', req.body);
     const res = await this.channelService.createMember(req.body);
     await this.channelGateway.updateChannel([res]);
     return res;
@@ -151,7 +139,6 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async joinChanned(@Req() req: any): Promise<any> {
-    console.log('joinChanned=>', req.body);
     const res = await this.channelService.joinChanned(req.user, req.body);
     await this.channelGateway.updateChannel(res.channel.members);
     await this .channelGateway.notifyMember({channel: res.channel, nickname: req.user.username}, 'join');
@@ -166,7 +153,6 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async getMessages(@Query('id') id: any) {
-    console.log('getMessages req:', id);
     return await this.channelService.getMessages(+id);
   }
 
@@ -176,7 +162,6 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async createMessage(@Req() req: any): Promise<any> {
-    console.log('createMessage:', req.body);
     return this.channelService.createMessage(req.user, req.body);
   }
 }

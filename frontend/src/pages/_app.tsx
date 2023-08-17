@@ -164,7 +164,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <>
-      {IMuser?.isFirstTime && <FirstTimeModal />}
+      {/* {IMuser?.isFirstTime && <FirstTimeModal />} */}
       <MantineProvider theme={Theme} withGlobalStyles withNormalizeCSS>
         <Notifications position="top-right" />
         <WsProvider token={Token}>

@@ -10,6 +10,6 @@ import { ChannelService } from './channel/channel.service';
 @Module({
     imports: [PriavteChatModule, ChannelModule],
     controllers: [ChatController],
-    providers: [ChatService, ChatGateway, PrivateChatService, ChannelService],
+    providers: [ChatService, ChatGateway],
 })
 export class ChatModule {}

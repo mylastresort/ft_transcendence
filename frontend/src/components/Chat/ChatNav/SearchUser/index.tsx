@@ -20,7 +20,7 @@ export function SearchUser() {
     request
       .post('http://localhost:4400/api/chat/private')
       .set('Authorization', `Bearer ${jwtToken}`)
-      .send({ username: event.nickname })
+      .send({id: event.id, username: event.nickname })
       .then((res) => {
         chatContext.data = {
           id: res.body.id,

@@ -27,6 +27,16 @@ export class ChatController {
     return await this.chatService.getUsers(username, req.user);
   }
 
+  @Get('users/blocked')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  async getBlockedUsers(
+    @Req() req: any,
+  ): Promise<any> {
+    return await this.chatService.GetBlockedUsers(req.user.id);
+  }
+
   @Get('user/:username')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
