@@ -2,9 +2,7 @@ import {
   Button,
   Stack,
   Flex,
-  TextInput,
   Slider,
-  Text,
   NumberInput,
   Box,
   Input,
@@ -87,7 +85,7 @@ export default function Customizer({ type = 'create', userId }) {
         <Flex
           justify={{ base: 'center', md: 'space-around' }}
           align="center"
-          gap="6rem"
+          gap="3rem"
           w="100%"
           h="100%"
           direction={{ base: 'column', md: 'row' }}
@@ -137,8 +135,12 @@ export default function Customizer({ type = 'create', userId }) {
               variant="filled"
             />
           </Flex>
-          <Stack sx={{}} spacing="3rem" w={{ base: '20rem', md: '26rem' }}>
-            <Input.Wrapper label="Speed" pb="1rem">
+          <Stack spacing="3rem" w={{ base: '20rem', md: '26rem' }}>
+            <Input.Wrapper
+              label="Ball speed"
+              description="How fast the ball moves"
+              pb="1rem"
+            >
               <Slider
                 {...form.getInputProps('speed')}
                 label={null}
@@ -155,7 +157,8 @@ export default function Customizer({ type = 'create', userId }) {
             </Input.Wrapper>
             <NumberInput
               {...form.getInputProps('games')}
-              label="How much do you wish to play?"
+              label="Rounds"
+              description="How many games to play"
               max={9}
               min={3}
               step={2}
@@ -164,7 +167,7 @@ export default function Customizer({ type = 'create', userId }) {
             />
             <div>
               <Button
-                mt="2rem"
+                mt="1rem"
                 mb="1rem"
                 m="0 auto"
                 w="100%"

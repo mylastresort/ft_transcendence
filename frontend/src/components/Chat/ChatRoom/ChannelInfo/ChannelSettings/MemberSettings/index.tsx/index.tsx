@@ -1,11 +1,11 @@
 import { ChatContext } from '@/context/chat';
 import { UserContext } from '@/context/user';
 import { Button, Group, SegmentedControl, Select, Text } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
 import { useContext, useState } from 'react';
 import { useDisclosure } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
 import request from 'superagent';
+import { ChatSocketContext } from '@/context/chatSocketContext';
 
 export function MemberSettings({ members }) {
   const [opened, { open, close }] = useDisclosure(false);
@@ -14,6 +14,7 @@ export function MemberSettings({ members }) {
   const jwtToken = localStorage.getItem('jwtToken');
   const [value, setValue] = useState('mute');
   const [time, setTime] = useState('1');
+  const socket = useContext(ChatSocketContext);
 
   const form = useForm({
     initialValues: {
@@ -24,11 +25,11 @@ export function MemberSettings({ members }) {
     },
   });
   function manageMember({ member }) {
-    console.log('member: ', member, 'setuation: ', value, 'time: ', time);
     const date = new Date();
     const inputTime = date.getTime() + (Number(time) * 3600000);
     const data = {
       nickname: member,
+      channelName: chatContext.data.name,
       isKick: value == 'kick',
       isMute: value == 'mute',
       isBan: value == 'ban',
@@ -39,11 +40,6 @@ export function MemberSettings({ members }) {
       .set('Authorization', `Bearer ${jwtToken}`)
       .send(data)
       .then((res) => {
-        notifications.show({
-          title: `${member} has been ${value}ed`,
-          message: '',
-          color: 'green',
-        });
       })
       .catch((err) => {
         return err;

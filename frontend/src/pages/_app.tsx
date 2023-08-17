@@ -14,7 +14,7 @@ import { WsProvider, UserSocket } from '@/context/WsContext';
 import { Button, Group, MantineProvider, Stack, Text } from '@mantine/core';
 import Theme from './styles/theme.json';
 import { Notifications, notifications } from '@mantine/notifications';
-import { BiSolidUserPlus } from 'react-icons/bi';
+
 import {
   ChatSocketContext,
   ChatSocketProvider,
@@ -149,9 +149,9 @@ export default function App({ Component, pageProps }: AppProps) {
     <MantineProvider withGlobalStyles withNormalizeCSS theme={Theme}>
       <Notifications position="top-right" />
       <WsProvider token={Token}>
-        <ChatSocketProvider value={chatSocket}>
-          <NextUIProvider>
-            <UserContext.Provider value={user}>
+        <NextUIProvider>
+          <UserContext.Provider value={user}>
+            <ChatSocketProvider value={chatSocket}>
               <MainNavbar Show={show} isTwoFactorAuth={isTwoFactorAuth} />
               <User_Sidebar Show={show} />
               <Component
@@ -159,9 +159,9 @@ export default function App({ Component, pageProps }: AppProps) {
                 setIsTwoFactorAuth={setIsTwoFactorAuth}
               />
               <Footer Show={show} isTwoFactorAuth={isTwoFactorAuth} />
-            </UserContext.Provider>
-          </NextUIProvider>
-        </ChatSocketProvider>
+            </ChatSocketProvider>
+          </UserContext.Provider>
+        </NextUIProvider>
       </WsProvider>
     </MantineProvider>
   );

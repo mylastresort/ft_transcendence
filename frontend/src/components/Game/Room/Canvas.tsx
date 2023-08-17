@@ -39,6 +39,8 @@ export default function Canvas() {
   const height = game.config.limit[1] * 2;
   const width = game.config.limit[0] * 2;
   const finished = useRef(false);
+  const playersCurrent = useRef({ host: 0, guest: 0 });
+  const [opponent, setOpponent] = useState('offline');
   const { handleMouseMove } = usePlayers(
     host,
     guest,
@@ -46,7 +48,8 @@ export default function Canvas() {
     game.role,
     canvas,
     height,
-    finished
+    finished,
+    playersCurrent
   );
   useBall(
     ball,
@@ -169,7 +172,7 @@ export default function Canvas() {
   }
 
   return (
-    <>
+    <Box onMouseMove={handleMouseMove}>
       <Box
         sx={{
           backgroundColor: '#141b26',
@@ -351,14 +354,33 @@ export default function Canvas() {
                       size="min(1vh, 1vw)"
                       style={{ marginInline: '.1rem' }}
                       fill={
-                        mapobj.fillColor + (history.length === i ? '' : '75')
+                        mapobj.fillColor + (history.length === i ? '' : '80')
                       }
                     />
                   )
                 )}
               </Box>
             </Flex>
-            <Avatar size="min(5vh, 5vw)" src={player.userImgProfile} />
+            <Box
+              w="min(5vh, 5vw)"
+              bg="blue"
+              h="min(5vh, 5vw)"
+              style={{ position: 'relative' }}
+            >
+              <Avatar size="min(5vh, 5vw)" src={player.userImgProfile} />
+              <BsCircleFill
+                fill={'green'}
+                size=".9rem"
+                style={{
+                  position: 'absolute',
+                  bottom: '0',
+                  right: '0',
+                  transform: 'translate(25%, 25%)',
+                  borderRadius: '50%',
+                  border: '2px solid var(--sidebar-color)',
+                }}
+              />
+            </Box>
           </Flex>
           <Flex
             gap=".7rem"
@@ -404,14 +426,33 @@ export default function Canvas() {
                       size="min(1vh, 1vw)"
                       style={{ marginInline: '.1rem' }}
                       fill={
-                        mapobj.fillColor + (history.length === i ? '' : '75')
+                        mapobj.fillColor + (history.length === i ? '' : '80')
                       }
                     />
                   )
                 )}
               </Box>
             </Flex>
-            <Avatar size="min(5vh, 5vw)" src={game.opponent.userImgProfile} />
+            <Box
+              w="min(5vh, 5vw)"
+              bg="blue"
+              h="min(5vh, 5vw)"
+              style={{ position: 'relative' }}
+            >
+              <Avatar size="min(5vh, 5vw)" src={game.opponent.userImgProfile} />
+              <BsCircleFill
+                fill={'green'}
+                size=".9rem"
+                style={{
+                  position: 'absolute',
+                  bottom: '0',
+                  right: '0',
+                  transform: 'translate(25%, 25%)',
+                  borderRadius: '50%',
+                  border: '2px solid var(--sidebar-color)',
+                }}
+              />
+            </Box>
           </Flex>
         </Flex>
         <Box
@@ -441,7 +482,21 @@ export default function Canvas() {
               },
             }}
           >
-            <Avatar size="10vh" m="0 auto" src={player.userImgProfile} />
+            <Box m="0 auto" style={{ position: 'relative' }} w="10vh" h="10vh">
+              <Avatar m="0 auto" size="10vh" src={player.userImgProfile} />
+              <BsCircleFill
+                fill={'green'}
+                size="1rem"
+                style={{
+                  position: 'absolute',
+                  bottom: '0',
+                  right: '0',
+                  transform: 'translate(25%, 25%)',
+                  borderRadius: '50%',
+                  border: '2px solid var(--sidebar-color)',
+                }}
+              />
+            </Box>
             <Flex
               direction="column"
               sx={{
@@ -480,7 +535,7 @@ export default function Canvas() {
                       size="min(1vh, 1vw)"
                       style={{ marginInline: '.1rem' }}
                       fill={
-                        mapobj.fillColor + (history.length === i ? '' : '75')
+                        mapobj.fillColor + (history.length === i ? '' : '80')
                       }
                     />
                   )
@@ -506,7 +561,6 @@ export default function Canvas() {
               flexBasis: '100%',
             }}
             miw={width + 2 * game.config.radius}
-            onMouseMove={handleMouseMove}
             ref={canvas}
             m="0 auto"
             maw="min(90vh, 80vw)"
@@ -560,7 +614,8 @@ export default function Canvas() {
                   backgroundImage: mapobj.ballColor,
                   borderRadius: mapobj.ballRadius,
                   position: 'absolute',
-                  transform: 'translate(var(--ball-x), var(--ball-y)) translate(-50%, -50%)',
+                  transform:
+                    'translate(var(--ball-x), var(--ball-y)) translate(-50%, -50%)',
                 }}
               />
             </Box>
@@ -611,7 +666,25 @@ export default function Canvas() {
               },
             }}
           >
-            <Avatar m="0 auto" size="10vh" src={game.opponent.userImgProfile} />
+            <Box m="0 auto" style={{ position: 'relative' }} w="10vh" h="10vh">
+              <Avatar
+                m="0 auto"
+                size="10vh"
+                src={game.opponent.userImgProfile}
+              />
+              <BsCircleFill
+                fill={'green'}
+                size="1rem"
+                style={{
+                  position: 'absolute',
+                  bottom: '0',
+                  right: '0',
+                  transform: 'translate(25%, 25%)',
+                  borderRadius: '50%',
+                  border: '2px solid var(--sidebar-color)',
+                }}
+              />
+            </Box>
             <Flex
               direction="column"
               sx={{
@@ -652,7 +725,7 @@ export default function Canvas() {
                       size="min(1vh, 1vw)"
                       style={{ marginInline: '.1rem' }}
                       fill={
-                        mapobj.fillColor + (history.length === i ? '' : '75')
+                        mapobj.fillColor + (history.length === i ? '' : '80')
                       }
                     />
                   )
@@ -752,6 +825,6 @@ export default function Canvas() {
           </ActionIcon>
         </Box>
       </Box>
-    </>
+    </Box>
   );
 }

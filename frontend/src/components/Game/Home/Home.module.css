@@ -5,12 +5,10 @@
     background-repeat: no-repeat;
     background-size: contain;
     display: flex;
-    height: calc(100% - 76px);
+    height: calc(100%);
     justify-content: center;
-    left: 88px;
     position: absolute;
-    top: 76px;
-    width: calc(100% - 88px);
+    width: calc(100%);
 }
 
 .home:first-child {

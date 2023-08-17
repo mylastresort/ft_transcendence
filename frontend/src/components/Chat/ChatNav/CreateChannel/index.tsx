@@ -57,12 +57,12 @@ export function CreateChannel() {
           img: res.body.image,
           me: res.body.members[0],
         };
-        console.log("created =>>", chatContext.data);
         notifications.show({
           title: `Channel ${data.channelName} has been created`,
           message: 'New Channel Lesgooo..',
           color: 'green'
         })
+        router.push('/chat/channels');
       })
       .catch((err) => {
         notifications.show({
@@ -71,7 +71,6 @@ export function CreateChannel() {
           color: 'red'
         })
       });
-      router.push('/chat/channels');
   }
   return (
     <>

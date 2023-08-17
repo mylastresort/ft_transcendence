@@ -9,11 +9,14 @@ import { ChannelCard, UserCard } from './Card';
 import { Search } from 'tabler-icons-react';
 import { ChatContext } from '@/context/chat';
 import Link from 'next/link';
+import { ChatSocketContext } from '@/context/chatSocketContext';
 
-export function RoomsList({ closeNav, load }: any) {
+export function RoomsList({ closeNav }: any) {
   const jwtToken = localStorage.getItem('jwtToken');
   const [channelsList, setChannelsList] = useState([]);
   const [privateChatList, setPrivateChatList] = useState([]);
+  const [update, setUpdate] = useState(true);
+  const socket = useContext(ChatSocketContext);
   useEffect(() => {
     request
       .get('http://localhost:4400/api/chat/channel/me')
@@ -33,7 +36,16 @@ export function RoomsList({ closeNav, load }: any) {
       .catch((err) => {
         return err;
       });
-  }, [load]);
+  }, [update]);
+  useEffect(()=>{
+    socket.on('updateChannel', (data)=>{
+      console.log('updated...');
+      setUpdate((state)=>!state);
+    });
+    return ()=>{
+      socket.off('updateChannel');
+    }
+  }, [])
 
   return (
     <Tabs defaultValue="channels">
@@ -74,7 +86,6 @@ export function RoomsList({ closeNav, load }: any) {
 function ChatNav() {
   const chatContext = useContext(ChatContext);
   const [opened, { toggle }] = useDisclosure(true);
-  const [load, setLoad] = useState(true);
   const ref = useClickOutside(() => {
     opened ? toogleNav() : false;
   });
@@ -106,7 +117,7 @@ function ChatNav() {
           />
         </Navbar.Section>
         <Navbar.Section className="nav-child" grow>
-          <RoomsList closeNav={toogleNav} load={load}></RoomsList>
+          <RoomsList closeNav={toogleNav}></RoomsList>
         </Navbar.Section>
         <Navbar.Section pos={'absolute'} right={5} bottom={10}>
           <Link href={'/chat'}>

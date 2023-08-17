@@ -29,9 +29,6 @@ function GameWrapper(Component) {
           game.socket
             ?.on('connect', () => setConnected(true))
             .on('disconnect', () => setConnected(false))
-            .on('exception', (err) => {
-              throw new Error(err.message);
-            })
             .connect();
         })
         .catch(() => {});

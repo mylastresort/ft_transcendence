@@ -1,3 +1,6 @@
+import { basename } from 'path';
+import { GameGateway, Player } from './game.gateway';
+import { _Player } from './_player.class';
 import {
   HttpException,
   HttpStatus,
@@ -7,14 +10,12 @@ import {
 } from '@nestjs/common';
 import { interval, map, switchMap, zip } from 'rxjs';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { WsException } from '@nestjs/websockets';
-import Ball from './ball.class';
 import { Room } from './room.class';
-import { GameGateway, Player } from './game.gateway';
-import { User } from '@prisma/client';
 import { S3 } from 'aws-sdk';
+import { User } from '@prisma/client';
+import { WsException } from '@nestjs/websockets';
 import * as fs from 'fs';
-import { basename } from 'path';
+import Ball from './ball.class';
 
 @Injectable()
 export class GameService {
@@ -24,7 +25,7 @@ export class GameService {
 
   private rooms = new Map<Room['id'], Room>();
 
-  private players = new Map<User['id'], [Player]>();
+  private players = new Map<User['id'], Player[]>();
 
   private notifier$ = interval(3000)
     .pipe(
@@ -45,6 +46,8 @@ export class GameService {
     .subscribe(async ({ host, guest, room: { id } }) => {
       await host.join(id);
       await guest.join(id);
+      host.data.currentGameId = id;
+      guest.data.currentGameId = id;
       host.to(id).emit('joined', id, host.data, host.data);
       guest.to(id).emit('joined', id, guest.data, host.data);
     });
@@ -56,21 +59,56 @@ export class GameService {
   private readonly achievments = [
     {
       name: 'New Comer',
-      description: 'Welcome to your second home',
+      description: 'Welcome to your second home.',
       icon: './Uploads/excited.png',
     },
     {
       name: 'First Win',
-      description: 'You won your first game',
+      description: 'You won your first game.',
       icon: './Uploads/medal.png',
     },
     {
-      name: 'First Game',
-      description: 'You played your first game',
+      name: 'Nostalgic',
+      description: 'You played 1972 Pong.',
       icon: './Uploads/arcade-game.png',
+      mapKey: 'Classic',
+    },
+    {
+      description: 'You played Star Wars Pong.',
+      icon: './Uploads/personal-droid.png',
+      mapKey: 'StarWars',
+      name: 'Wrrrp bleep.',
+    },
+    {
+      description: 'You played Cyberpunk Pong.',
+      icon: './Uploads/cyberpunk.png',
+      mapKey: 'Cyberpunk',
+      name: 'Draw The Line',
+    },
+    {
+      description: 'You played at Dracula House.',
+      icon: './Uploads/murderer.png',
+      mapKey: 'WitchCraft',
+      name: 'Fearless Vampire Hunter',
+    },
+    {
+      description: 'You fought in Dragon Ball palace.',
+      icon: './Uploads/dragon.png',
+      mapKey: 'DragonBall',
+      name: "Z-Warrior's Key",
     },
     {
       name: 'Level 1',
+      description: 'You reached level 1',
+      icon: './Uploads/trophy.png',
+    },
+    {
+      name: 'Level 5',
+      description: 'You reached level 1',
+      icon: './Uploads/trophy.png',
+    },
+    {
+      name: 'Level 10',
       description: 'You reached level 1',
       icon: './Uploads/trophy.png',
     },
@@ -87,7 +125,13 @@ export class GameService {
     });
     for (const achievement of this.achievments) {
       try {
-        await this.prisma.achievement.create({ data: achievement });
+        await this.prisma.achievement.create({
+          data: {
+            name: achievement.name,
+            icon: achievement.icon,
+            description: achievement.description,
+          },
+        });
         await fs.readFile(achievement.icon, (err, data) => {
           if (err) throw err;
           s3.upload(
@@ -110,38 +154,76 @@ export class GameService {
     this.prisma.$use((params, next) => {
       switch (params.model) {
         case 'Room':
-          if (params.action === 'update')
-            setImmediate(async () => {
-              const room = await this.prisma.room.findUnique({
-                where: params.args.where,
-                select: {
-                  players: {
-                    select: {
-                      _count: { select: { rooms: true, wins: true } },
-                      userId: true,
+          if (
+            params.action === 'update' &&
+            params.args.data.status === 'finished'
+          ) {
+            const achievement = this.achievments.find(
+              ({ mapKey }) => params.args.data.map === mapKey,
+            );
+            if (achievement)
+              setImmediate(async () => {
+                await this.prisma.achievement
+                  .update({
+                    where: { name: achievement.name },
+                    data: {
+                      players: {
+                        connect: [
+                          { userId: params.args.data.winner.connect.userId },
+                          { userId: params.args.data.loser.connect.userId },
+                        ],
+                      },
                     },
-                  },
-                },
+                  })
+                  .catch(() => {});
+                await this.prisma.achievement
+                  .update({
+                    where: { name: 'First Win' },
+                    data: {
+                      players: {
+                        connect: {
+                          userId: params.args.data.winner.connect.userId,
+                        },
+                      },
+                    },
+                  })
+                  .catch(() => {});
               });
-              room?.players.forEach(
-                async ({ _count: { rooms, wins }, userId }) => {
-                  const achievement: { name: string }[] = [];
-                  if (params.args.data.status === 'finished' && !wins)
-                    achievement.push({ name: 'First Win' });
-                  if (rooms === 1) achievement.push({ name: 'First Game' });
-                  if (achievement.length) {
-                    await this.prisma.player.update({
-                      where: { userId },
-                      data: { achievements: { connect: achievement } },
-                    });
-                  }
-                },
-              );
-            });
+          }
           break;
+        case 'Player':
+          if (params.action === 'update') {
+            if (params.args.data.level >= 1)
+              params.args.data.achievements = {
+                connect: {
+                  name:
+                    params.args.data.level >= 10
+                      ? 'Level 10'
+                      : params.args.data.level >= 5
+                      ? 'Level 5'
+                      : 'Level 1',
+                },
+              };
+          }
       }
       return next(params);
     });
+  }
+
+  async watchUserStatus(socket: Player, userId) {
+    const user = await this.getPlayer(userId, false);
+    if (user) {
+      user.userStatusWatchers.push(socket);
+      socket.emit('user-status', user.userId, user.userStatus);
+    }
+  }
+
+  async unwatchUserStatus(socket: Player, userId) {
+    const player = await this.getPlayer(userId, false);
+    if (player) {
+      const index = player.userStatusWatchers.indexOf(socket);
+      if (index !== -1) player.userStatusWatchers.splice(index, 1);
+    }
   }
 
   addPlayerSocket(socket: Player) {
@@ -149,6 +231,15 @@ export class GameService {
     sockets
       ? sockets.push(socket)
       : this.players.set(socket.data.userId, [socket]);
+  }
+
+  removePlayerSocket(socket: Player) {
+    const sockets = this.players.get(socket.data.userId);
+    if (sockets) {
+      const index = sockets.indexOf(socket);
+      if (index !== -1) sockets.splice(index, 1);
+      if (!sockets.length) this.players.delete(socket.data.userId);
+    }
   }
 
   async getGameConf(
@@ -244,7 +335,6 @@ export class GameService {
     playerId: Player['data']['userId'],
     id: Player['data']['currentGameId'],
   ) {
-
     const room = this.rooms.get(id);
     if (room) {
       if (
@@ -314,25 +404,30 @@ export class GameService {
           },
           select,
         }));
-      return {
-        userAchievements: player.achievements,
-        userCurrentStreak: player.currentStreak,
-        userId: user.id,
-        userImgProfile: user.imgProfile,
-        userLastPlayed: player.lastPlayed,
-        userLevel: player.level,
-        userLongestStreak: player.longestStreak,
-        userLosses: player._count.losses,
-        username: user.username,
-        userWins: player._count.wins,
-      } satisfies Player['data'];
+      return new _Player(
+        'online',
+        player.achievements,
+        player.currentStreak,
+        user.id,
+        user.imgProfile,
+        player.lastPlayed,
+        player.level,
+        player.longestStreak,
+        player._count.losses,
+        user.username,
+        [],
+        player._count.wins,
+      );
     } catch (err) {
       throw new WsException(err.message);
     }
   }
 
   async join(socket: Player, body) {
-    if ((await this.getPlayer(socket.data.userId)).currentGameId)
+    if (
+      socket.data.userStatus === 'ingame' ||
+      socket.data.userStatus === 'ready'
+    )
       throw new WsException('Already in game');
     socket.data.currentUserRole = body.role;
     socket.data.hostWishedGameSpeed = body.speed;
@@ -393,18 +488,13 @@ export class GameService {
               ? 1
               : 0,
         };
-        const level = {
-          increment: 0.2 * room.players[winner.currentUserRole][2],
-        };
+        const level =
+          2 * room.players[winner.currentUserRole][2] + winner.userLevel;
         const longestStreak = Math.max(
           winner.userLongestStreak,
           currentStreak.increment + winner.userCurrentStreak,
         );
         const data = {
-          achievements:
-            winner.userLevel < 1 && level.increment + winner.userLevel >= 1
-              ? { connect: { name: 'Level 1' } }
-              : {},
           currentStreak,
           lastPlayed: endedAt,
           level,
@@ -421,8 +511,9 @@ export class GameService {
               endedAt,
               winner: { connect: { userId: winner.userId } },
               loser: { connect: { userId: loser.userId } },
-              winnerPostLevel: level.increment + winner.userLevel,
+              winnerPostLevel: level + winner.userLevel,
               losserLevel: loser.userLevel,
+              map: room.host.hostWishedGameMap,
             },
           });
           const winnerUpdates = await this.prisma.player.update({
@@ -472,14 +563,14 @@ export class GameService {
         delete room.guest.currentGameId;
         delete room.guest.currentUserRole;
         delete room.guest.hostSettableGames;
-        delete room.guest.ready;
+        room.guest.userStatus = 'online';
         delete room.host.currentGameId;
         delete room.host.currentUserRole;
         delete room.host.hostSettableGames;
         delete room.host.hostWishedGameMap;
         delete room.host.hostWishedGameName;
         delete room.host.hostWishedGameSpeed;
-        delete room.host.ready;
+        room.host.userStatus = 'online';
         this.rooms.delete(socket.data.currentGameId);
       }
     }
@@ -495,10 +586,11 @@ export class GameService {
     ready: boolean,
     id: Player['data']['currentGameId'],
   ) {
-    if (socket.data.currentGameId) throw new WsException('Already in game');
-    let room: any = this.rooms.get(id);
+    if (socket.data.userStatus === 'ingame')
+      throw new WsException('Already in game');
+    let room: Room = this.rooms.get(id);
     if (!room) {
-      room = await this.prisma.room.findUnique({
+      const lazyRoom = await this.prisma.room.findUnique({
         where: { id },
         select: {
           players: { select: { userId: true } },
@@ -511,30 +603,32 @@ export class GameService {
           hostId: true,
         },
       });
-      if (!room) throw new WsException('Room not found');
-      if (!room.players.some(({ userId }) => userId === socket.data.userId))
+      if (!lazyRoom) throw new WsException('Room not found');
+      if (!lazyRoom.players.some(({ userId }) => userId === socket.data.userId))
         throw new WsException('You are not in this room');
-      if (room.status === 'finished') throw new WsException('Room is finished');
+      if (lazyRoom.status === 'finished')
+        throw new WsException('Room is finished');
       const host = await this.getPlayer(
-        room.hostId === room.players[0].userId
-          ? room.players[0].userId
-          : room.players[1].userId,
+        lazyRoom.hostId === lazyRoom.players[0].userId
+          ? lazyRoom.players[0].userId
+          : lazyRoom.players[1].userId,
         false,
       );
       const guest = await this.getPlayer(
-        room.hostId !== room.players[0].userId
-          ? room.players[0].userId
-          : room.players[1].userId,
+        lazyRoom.hostId !== lazyRoom.players[0].userId
+          ? lazyRoom.players[0].userId
+          : lazyRoom.players[1].userId,
         false,
       );
-      if (!host || !guest) throw new WsException('Player is offline');
-      if (host.currentGameId || guest.currentGameId)
+      const opponent = socket.data.userId === host.userId ? guest : host;
+      if (!opponent) throw new WsException('Player is offline');
+      if (opponent.userStatus === 'ingame')
         throw new WsException('Player is already in game');
       host.currentUserRole = 'host';
-      host.hostSettableGames = room.maxGames;
-      host.hostWishedGameMap = room.map;
-      host.hostWishedGameName = room.name;
-      host.hostWishedGameSpeed = room.speed;
+      host.hostSettableGames = lazyRoom.maxGames;
+      host.hostWishedGameMap = lazyRoom.map;
+      host.hostWishedGameName = lazyRoom.name;
+      host.hostWishedGameSpeed = lazyRoom.speed;
       guest.currentUserRole = 'guest';
       room = new Room(host, guest);
       room.isInvite = true;
@@ -549,8 +643,10 @@ export class GameService {
       throw new WsException('You are not in this room');
     socket.data =
       room.host.userId === socket.data.userId ? room.host : room.guest;
-    socket.data.ready = ready;
-    if (room.guest.ready && room.host.ready) {
+    socket.data.userStatus = ready ? 'ready' : 'online';
+    if (room.guest.userStatus === 'ready' && room.host.userStatus === 'ready') {
+      room.guest.userStatus = 'ingame';
+      room.host.userStatus = 'ingame';
       const config = {
         limit: Room.edges,
         paddle: Room.paddle,
@@ -628,7 +724,7 @@ export class GameService {
             delete room.guest.currentGameId;
             delete room.guest.currentUserRole;
             delete room.guest.hostSettableGames;
-            delete room.guest.ready;
+            room.guest.userStatus = 'online';
             delete room.host.currentGameId;
             delete room.host.currentGameId;
             delete room.host.currentUserRole;
@@ -636,7 +732,7 @@ export class GameService {
             delete room.host.hostWishedGameMap;
             delete room.host.hostWishedGameName;
             delete room.host.hostWishedGameSpeed;
-            delete room.host.ready;
+            room.host.userStatus = 'online';
           } else {
             this.broadcast(socket, 'games:counter', room.games, isOut[0]);
             room.resetPlayers();
@@ -672,17 +768,14 @@ export class GameService {
                 ? 1
                 : 0,
           };
-          const level = { increment: 0.2 * room.players[isOut[0]][2] };
+          const level =
+            2 * room.players[isOut[0]][2] + room[isOut[0]].userLevel;
           const longestStreak =
             currentStreak.increment + player.userCurrentStreak >
             player.userLongestStreak
               ? currentStreak.increment + player.userCurrentStreak
               : player.userLongestStreak;
           const data = {
-            achievements:
-              player.userLevel < 1 && level.increment + player.userLevel >= 1
-                ? { connect: { name: 'Level 1' } }
-                : {},
             currentStreak,
             longestStreak,
           };
@@ -709,11 +802,12 @@ export class GameService {
                       : room.host.userId,
                 },
               },
-              winnerPostLevel: level.increment + player.userLevel,
+              winnerPostLevel: level,
               losserLevel:
                 winnerId === room.host.userId
                   ? room.guest.userLevel
                   : room.host.userLevel,
+              map: room.host.hostWishedGameMap,
             },
           });
           await this.prisma.player.updateMany({
@@ -725,7 +819,7 @@ export class GameService {
           if (opponent) opponent.userLastPlayed = endedAt;
           const winner =
             socket.data.userId === winnerId ? socket.data : opponent;
-          winner.userLevel += level.increment;
+          winner.userLevel = level;
           winner.userCurrentStreak += currentStreak.increment;
           winner.userLongestStreak = longestStreak;
           winner.userWins++;
@@ -773,6 +867,7 @@ export class GameService {
               startedAt: true,
               endedAt: true,
               winnerPostLevel: true,
+              losserLevel: true,
             },
           },
         },

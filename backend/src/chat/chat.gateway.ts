@@ -11,6 +11,7 @@ import { WsJwtGuard } from 'src/auth/ws-jwt/ws-jwt.guard';
 import { SocketAuthMiddleware } from 'src/auth/ws.middleware';
 import { ChannelService } from './channel/channel.service';
 import { PrivateChatService } from './private/privateChat.service';
+import { ChatService } from './chat.service';
 interface Message {
   room: string;
   msg: string;
@@ -24,6 +25,7 @@ interface Message {
 @UseGuards(WsJwtGuard)
 export default class ChatGateway {
   constructor(
+    private chatService: ChatService,
     private channelService: ChannelService,
     private privateChatService: PrivateChatService,
   ) {}
@@ -34,7 +36,9 @@ export default class ChatGateway {
     client.use(SocketAuthMiddleware() as any);
     client.on('connection', (socket) => {
       console.log('chat member connected: ', socket.id);
+      this.chatService.updateSocketId(socket.id, socket.data.id);
     });
+    
     client.on('disconnect', ()=>{
       console.log('disconnecting...');
     })
@@ -49,12 +53,20 @@ export default class ChatGateway {
     @ConnectedSocket() client: Socket,
   ): void {
     console.log('joinPrivateRoom: ', room);
-    client.rooms.forEach((room) => {
-      client.leave(room);
-    });
     client.join(room);
-    console.log(client.rooms);
   }
+
+
+  @UseGuards(WsJwtGuard)
+  @SubscribeMessage('private/leave-room')
+  leavePrivateRoom(
+    @MessageBody() room: any,
+    @ConnectedSocket() client: Socket,
+  ): void {
+    console.log('leavePrivateRoom: ', room);
+    client.leave(room);
+  }
+
 
   @SubscribeMessage('private/sendMsg')
   async SendPrivateMessage(
@@ -78,11 +90,21 @@ export default class ChatGateway {
     @ConnectedSocket() client: Socket,
   ): void {
     console.log('joinChannelRoom: ', room);
-    client.rooms.forEach((room) => {
-      client.leave(room);
-    });
     client.join(room);
   }
+
+
+  @UseGuards(WsJwtGuard)
+  @SubscribeMessage('channel/leave-room')
+  leavehannelRoom(
+    @MessageBody() room: any,
+    @ConnectedSocket() client: Socket,
+  ): void {
+    console.log('leavehannelRoom: ', room);
+    client.leave(room);
+  }
+
+
 
   @SubscribeMessage('channel/sendMsg')
   async SendChannelMessage(
@@ -90,11 +112,14 @@ export default class ChatGateway {
     @ConnectedSocket() client: Socket,
   ) {
     console.log('SendChannelMessage: ', data);
-    const createdMessage = await this.channelService.createMessage(
-      client.data,
-      data,
-    );
-    this.server.to(data.name).emit('channel/newMsg', createdMessage);
-    console.log("rooms: ",client.rooms);
+    try{
+      const createdMessage = await this.channelService.createMessage(
+        client.data,
+        data,
+        );
+        this.server.to(data.name).emit('channel/newMsg', createdMessage);
+      }catch(err){
+        console.log('message not sent!');
+      }
   }
 }

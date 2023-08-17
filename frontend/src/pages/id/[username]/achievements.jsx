@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import {
   Container,
   SimpleGrid,
@@ -27,13 +27,13 @@ function Achievements() {
       .catch((err) => {
         console.log(err);
       });
-    GetPlayerStats()
-      .then((res) => {
-        setPlayerAchievements(res.body.userAchievements);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+      GetPlayerStats({ username: window.location.pathname.split('/')[2] })
+        .then((res) => {
+          setPlayerAchievements(res.body.userAchievements);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
   }, []);
 
   return (
@@ -64,7 +64,7 @@ function Achievements() {
                     bg="var(--primary-color)"
                     w="35%"
                   >
-                    <img src={item.icon}></img>
+                    <img style={{ padding: '1em' }} src={item.icon}></img>
                   </Center>
                 </Flex>
               </Stack>

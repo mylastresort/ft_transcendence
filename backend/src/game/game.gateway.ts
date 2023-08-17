@@ -20,32 +20,13 @@ import { verify } from 'jsonwebtoken';
 import { Server, Socket } from 'socket.io';
 import { User } from '@prisma/client';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
-import { UUID } from 'crypto';
+import { _Player } from './_player.class';
 
 export type Player = Socket<
   DefaultEventsMap,
   DefaultEventsMap,
   DefaultEventsMap,
-  {
-    currentGameId?: UUID;
-    currentUserRole?: 'host' | 'guest';
-    currentUserSocketId?: Socket['id'];
-    hostSettableGames?: number;
-    hostWishedGameMap?: string;
-    hostWishedGameName?: string;
-    hostWishedGameSpeed?: number;
-    ready?: boolean;
-    userAchievements: { name: string; description: string }[];
-    userCurrentStreak: number;
-    userId: User['id'];
-    userImgProfile: string;
-    userLastPlayed: Date;
-    userLevel: number;
-    userLongestStreak: number;
-    userLosses: number;
-    username: string;
-    userWins: number;
-  }
+  _Player
 >;
 
 @Catch()
@@ -64,6 +45,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleDisconnect(socket: Player) {
     this.game.leave(socket);
+    socket.data.userStatus = 'offline';
+    this.game.removePlayerSocket(socket);
   }
 
   async handleConnection(socket: Player) {
@@ -76,6 +59,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       if (!user) throw new Error('Invalid token');
       socket.data = await this.game.getPlayer(user.id);
       socket.data.currentUserSocketId = socket.id;
+      socket.data.userStatus = 'online';
       this.game.addPlayerSocket(socket);
     } catch (err) {
       console.error(err);
@@ -116,5 +100,15 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('chat')
   handlePlayerChat(socket: Player, msg) {
     return this.game.chat(socket, msg);
+  }
+
+  @SubscribeMessage('watch-user-status')
+  handleWatchUserStatus(socket: Player, userId) {
+    return this.game.watchUserStatus(socket, userId);
+  }
+
+  @SubscribeMessage('unwatch-user-status')
+  handleUnwatchUserStatus(socket: Player, userId) {
+    return this.game.unwatchUserStatus(socket, userId);
   }
 }
