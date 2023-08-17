@@ -68,8 +68,6 @@ function FirstTimeModal() {
         .catch((err) => {
           console.log(err);
         });
-    } else {
-      window.alert('Please choose a image');
     }
 
     if (
@@ -86,7 +84,7 @@ function FirstTimeModal() {
         username: Username,
         firstName: FirstName,
         lastName: LastName,
-        location: Country,
+        location: Country ? Country : '',
         summary: Summary,
       };
       PostUpdateProfile(payload)
@@ -143,7 +141,7 @@ function FirstTimeModal() {
                 <Text size="1.1rem" weight={400}>
                   YOUR AVATARS
                 </Text>
-                <Group mih={50} bg="var(--sidebar-color)" p={20}>
+                <Group bg="var(--sidebar-color)" p={20}>
                   {[
                     '/images/avatar1.jpg',
                     '/images/avatar2.jpg',

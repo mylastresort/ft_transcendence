@@ -167,6 +167,7 @@ export class UsersService {
         return user;
       }
     } catch (error) {
+      console.log(error);
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,

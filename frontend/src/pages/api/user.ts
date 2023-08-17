@@ -23,7 +23,7 @@ export const PostUpdateProfile = (data: any) => {
       return res;
     })
     .catch((err) => {
-      return err;
+      throw err;
     });
 };
 
