@@ -22,7 +22,6 @@ export class PriavteChatController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async createPrivateChat(@Req() req: any): Promise<any> {
-    console.log('createPrivateChat=>', req.user, req.body);
     return this.privateChatService.createPrivateChat(req.user, req.body);
   }
 
@@ -32,7 +31,6 @@ export class PriavteChatController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async getPrivateChat(@Req() req: any): Promise<any> {
-    console.log('getPrivateChat=>', req.user);
     return this.privateChatService.getPrivateChat(req.user);
   }
 
@@ -42,7 +40,6 @@ export class PriavteChatController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async deletePrivateChat(@Req() req: any): Promise<any> {
-    console.log('deletePrivateChat=>', req.body);
     return this.privateChatService.deletePrivateChat(req.body.id);
   }
 
@@ -54,7 +51,6 @@ export class PriavteChatController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async getMessages(@Query('id') id: string) {
-    console.log('getMessages req:', +id);
     return await this.privateChatService.getMessages(+id);
   }
 
@@ -64,7 +60,6 @@ export class PriavteChatController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async createMessage(@Req() req: any): Promise<any> {
-    console.log('createMessage:', req.body);
     return this.privateChatService.createMessage(req.user, req.body);
   }
 }
