@@ -64,14 +64,17 @@ export class PrivateChatService {
   async getPrivateChat(me: any) {
     try {
       const blockedUsers = await this.chatService.GetBlockedUsers(me.id);
+      console.log('blocked users:', blockedUsers);
       return await this.prisma.privateChat.findMany({
         where: {
           members: {
-            some: {
+            none:{
               id: {
-                equals: me.id,
-                notIn: blockedUsers
-              },
+                in: blockedUsers
+              }
+            },
+            some: {
+              id: me.id,
             },
           },
         },

@@ -26,6 +26,7 @@ export default function MsgList({ h, isChannel = false }) {
     { id: number; content: string; sender: any }[],
     any
   ] = useState([]);
+  const [blocked, setBlocked] = useState([] as number[]);
 
   useEffect(() => {
     request
@@ -34,17 +35,30 @@ export default function MsgList({ h, isChannel = false }) {
       .query({ id: chatContext.data.id })
       .then((res) => {
         setMessages(res.body);
-        console.log("Messages: ", messages);
+        // console.log("Messages: ", messages);
       })
       .catch((err) => {
         console.log(err);
       });
 
+
+    request
+      .get(`http://localhost:4400/api/chat/users/blocked`)
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .then((res) => {
+        setBlocked(res.body);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, [chatContext.data.id]);
 
   useEffect(() => {
     socket.on(`${route}/newMsg`, (newMessage) => {
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
+      const senderId : number = isChannel ? newMessage.sender.userId : newMessage.senderId;
+      if (!blocked.includes(senderId)){
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
+      }
     });
     return ()=>{
       socket.off(`${route}/newMsg`);

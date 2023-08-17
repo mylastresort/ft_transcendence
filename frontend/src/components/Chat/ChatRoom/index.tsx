@@ -13,6 +13,7 @@ import { ChatSocketContext } from '@/context/chatSocketContext';
 import { useRouter } from 'next/router';
 import { notifications } from '@mantine/notifications';
 import { UserContext } from '@/context/user';
+import { UserSocket } from '@/context/WsContext';
 
 function ChatRoomContent({ isChannel = false }) {
   const matches = useMediaQuery('(min-width:1000px)');
@@ -34,6 +35,11 @@ function ChatRoomContent({ isChannel = false }) {
 
   const router = useRouter();
   useEffect(() => {
+    UserSocket.on('BlockedEvent', (data)=>{
+      if (!isChannel && chatContext.data.name == )
+      console.log("you have benn blocked", data);
+      router.push('/chat');
+    });
     socket.on('action', (res) => {
       console.log('action ...', res.action);
       if (!userContext.data) {
@@ -58,6 +64,7 @@ function ChatRoomContent({ isChannel = false }) {
     });
     return () => {
       socket.off('action');
+      UserSocket.off('BlockedEvent');
     };
   }, [route]);
 
