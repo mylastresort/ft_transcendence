@@ -58,6 +58,8 @@ export class GameController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async getPlayer(@Body('username') username: string) {
+    if (!username)
+      throw new HttpException('Username not provided', HttpStatus.BAD_REQUEST);
     const user = await this.prisma.user.findUnique({
       where: { username },
       select: { id: true },
@@ -82,7 +84,9 @@ export class GameController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async getGames(@Body('username') username: string) {
-    const user = await this.prisma.user.findFirst({
+    if (!username)
+      throw new HttpException('Username not provided', HttpStatus.BAD_REQUEST);
+    const user = await this.prisma.user.findUnique({
       where: { username },
       select: { id: true },
     });
