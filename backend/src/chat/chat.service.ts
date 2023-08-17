@@ -55,6 +55,7 @@ export class ChatService {
           lastName: true,
           sammary: true,
           status: true,
+          imgProfile: true,
         },
       });
       return res;

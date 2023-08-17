@@ -501,6 +501,7 @@ export class ChannelService {
         data: member.isKick
           ? {
               isMember: false,
+              isAdministator: false,
             }
           : member.isMute
           ? {
@@ -511,6 +512,7 @@ export class ChannelService {
           ? {
               isMember: false,
               isBanned: true,
+              isAdministator: false,
               bannedTime: new Date(member.time),
             }
           : {},
