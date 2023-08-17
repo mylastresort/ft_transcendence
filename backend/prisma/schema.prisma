@@ -78,6 +78,8 @@ model Friend {
   blockedBy User[]   @relation("BlockedBy")
 }
 
+
+
 model Notification {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
