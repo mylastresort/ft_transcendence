@@ -87,7 +87,7 @@ function ChatRoomContent({ isChannel = false }) {
               {isChannel ? <ChannelInfo action={action} /> : <UserInfo />}
             </RoomHead>
           )}
-          <MsgList h={`calc(100% - ${matches ? 87 : 167}px)`} isChannel={isChannel} />
+          <MsgList h={`calc(100% - ${matches ? 77 : 147}px)`} isChannel={isChannel} />
           <ChatInput isChannel={isChannel} />
         </Box>
         {matches && (

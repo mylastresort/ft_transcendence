@@ -20,12 +20,12 @@ export function SearchUser() {
     request
       .post('http://localhost:4400/api/chat/private')
       .set('Authorization', `Bearer ${jwtToken}`)
-      .send({ username: event.value })
+      .send({ username: event.nickname })
       .then((res) => {
         chatContext.data = {
           id: res.body.id,
-          name: event.value,
-          img: event.image,
+          name: event.nickname,
+          img: event.img,
         };
         router.push('/chat/private');
       })
@@ -49,7 +49,7 @@ export function SearchUser() {
             description: 'new docs',
             icon: <Avatar size="1.2rem" src={user.imgProfile} />,
             onTrigger: () =>
-            createNewPrivateChat({ id: user.id, nickname: user.username }),
+            createNewPrivateChat({ id: user.id, nickname: user.username, img: user.imgProfile}),
           }))
         );
       })
