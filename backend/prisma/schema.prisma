@@ -17,10 +17,10 @@ model User {
   updatedAt DateTime @updatedAt
 
   id_42      Int     @unique
-  username   String? @unique
-  imgProfile String?
-  firstName  String?
-  lastName   String?
+  username   String  @unique
+  imgProfile String
+  firstName  String
+  lastName   String
   location   String?
   sammary    String  @default("No information given")
   isFirstTime Boolean @default(true)
