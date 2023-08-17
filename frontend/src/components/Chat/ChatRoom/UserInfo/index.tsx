@@ -22,22 +22,9 @@ interface UserInfo{
 
 function UserInfo() {
   const jwtToken = localStorage.getItem('jwtToken');
-  const chatContext = useContext(ChatContext);
-  const userContext = useContext(UserContext);
   const theme = useMantineTheme();
   const [userInfo, setUserInfo] = useState({} as UserInfo);
-  console.log(chatContext.data);
-  const online = userInfo.status == 'online'
-  function deleteUser() {
-    request
-      .post('http://localhost:4400/api/chat/private/delete')
-      .set('Authorization', `Bearer ${jwtToken}`)
-      .send({ id: chatContext.data.id })
-      .catch((err) => {
-        return err;
-      });
-  }
-
+  const chatContext = useContext(ChatContext);
   useEffect(() => {
     request
       .get(`http://localhost:4400/api/chat/user/${chatContext.data.name}`)
@@ -50,6 +37,17 @@ function UserInfo() {
         console.log(err);
       });
   }, []);
+  const online = userInfo.status == 'online'
+  function deleteUser() {
+    request
+      .post('http://localhost:4400/api/chat/private/delete')
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .send({ id: chatContext.data.id })
+      .catch((err) => {
+        return err;
+      });
+  }
+
   return (
     <Box w={'100%'} h={'100%'} bg={theme.colors.dark[6]} pt={100}>
       <Flex direction={'column'} gap={10}>

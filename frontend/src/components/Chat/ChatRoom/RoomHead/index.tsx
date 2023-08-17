@@ -29,7 +29,6 @@ export function RoomHead({ children }) {
       <Box
         display={open ? 'block' : 'none'}
         pos={'absolute'}
-        // w={'100%'}
         maw={'calc(100vw - 143px)'}
         h={'calc(100vh - 78px)'}
         style={{
