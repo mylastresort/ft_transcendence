@@ -31,7 +31,6 @@ export class ChannelService {
 
   //create
   async createChannel(me: Me, channel: CreateChannel) {
-    console.log('channel: ', channel);
     let hashedPass = '';
     try {
       if (channel.isProtected) {
@@ -71,7 +70,6 @@ export class ChannelService {
         },
       });
     } catch (error) {
-      console.log('channel err: ', error);
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,

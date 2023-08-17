@@ -23,7 +23,6 @@ export default class ChannelGateway {
   server: Server;
 
   updateChannel(members) {
-    console.log('updated: ', members);
     members.forEach((member) => {
       this.server
         .to(member.user.ChatSocketId)
@@ -54,7 +53,6 @@ export default class ChannelGateway {
   @UseGuards(WsJwtGuard)
   @SubscribeMessage('addMember')
   addMember(@MessageBody() room: any, @ConnectedSocket() client: Socket): void {
-    console.log('addMember: ', room);
     this.server
       .to(room.name)
       .emit('action', { target: room.target, action: 'added to channel' });
@@ -66,7 +64,6 @@ export default class ChannelGateway {
     @MessageBody() room: any,
     @ConnectedSocket() client: Socket,
   ): void {
-    console.log('joinChannelRoom: ', room);
     client.join(room);
   }
 
@@ -76,7 +73,6 @@ export default class ChannelGateway {
     @MessageBody() room: any,
     @ConnectedSocket() client: Socket,
   ): void {
-    console.log('leavehannelRoom: ', room);
     client.leave(room);
   }
 
@@ -85,7 +81,6 @@ export default class ChannelGateway {
     @MessageBody() data: any,
     @ConnectedSocket() client: Socket,
   ) {
-    console.log('SendChannelMessage: ', data);
     try {
       const createdMessage = await this.channelService.createMessage(
         client.data,
