@@ -16,6 +16,7 @@ import { ApiBearerAuth, ApiTags, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { updateProfileImg, updateProfile } from './dto/users.dto';
 
 @ApiTags('Users')
 @Controller({
@@ -67,7 +68,7 @@ export class UsersController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  async updateProfileImg(@Req() req: any, @Body() body: any) {
+  async updateProfileImg(@Req() req: any, @Body() body: updateProfileImg) {
     return this.service.updateProfileImg(req.user.id, body);
   }
 
@@ -75,7 +76,7 @@ export class UsersController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  async updateProfile(@Req() req: any, @Body() body: any) {
+  async updateProfile(@Req() req: any, @Body() body: updateProfile) {
     return this.service.updateProfile(req.user.id, body);
   }
 
@@ -83,7 +84,7 @@ export class UsersController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  async userProfile(@Req() req: any, @Body() body: any) {
+  async userProfile(@Req() req: any, @Body() body: { username: string }) {
     return this.service.userProfile(req.user.id, body.username);
   }
 }

@@ -11,7 +11,15 @@ import { useRouter } from 'next/router';
 import { User_Sidebar } from '../components/Sidebar/Sidebar';
 import { UserContext } from '@/context/user';
 import { WsProvider, UserSocket } from '@/context/WsContext';
-import { Button, Group, MantineProvider, Stack, Text } from '@mantine/core';
+import FirstTimeModal from '@/components/Modals/FIrstTImeModal';
+import {
+  Button,
+  Group,
+  MantineProvider,
+  Stack,
+  Text,
+  Modal,
+} from '@mantine/core';
 import Theme from './styles/theme.json';
 import { Notifications, notifications } from '@mantine/notifications';
 
@@ -24,6 +32,7 @@ import { Socket, io } from 'socket.io-client';
 export default function App({ Component, pageProps }: AppProps) {
   let user = useContext(UserContext);
   const [show, setShow] = useState(true);
+  const [IMuser, setUser] = useState<any>({});
   const [isTwoFactorAuth, setIsTwoFactorAuth] = useState(false);
   const [Token, setToken] = useState<string | null>(null);
   const router = useRouter();
@@ -37,7 +46,8 @@ export default function App({ Component, pageProps }: AppProps) {
       GetMe()
         .then((res) => {
           user.data = res.body;
-          console.log('New User Data:', res.body);
+          setUser(res.body);
+          console.log('ok user', res.body);
           if (res.status !== 200) {
             UserSocket.disconnect();
             localStorage.removeItem('jwtToken');
@@ -60,6 +70,8 @@ export default function App({ Component, pageProps }: AppProps) {
         GetMe()
           .then((res) => {
             user = res.body;
+            setUser(res.body);
+            console.log('ok user', res.body);
             if (res.status !== 200) {
               UserSocket.disconnect();
               localStorage.removeItem('jwtToken');
@@ -146,23 +158,26 @@ export default function App({ Component, pageProps }: AppProps) {
   }, []);
 
   return (
-    <MantineProvider withGlobalStyles withNormalizeCSS theme={Theme}>
-      <Notifications position="top-right" />
-      <WsProvider token={Token}>
-        <NextUIProvider>
-          <UserContext.Provider value={user}>
-            <ChatSocketProvider value={chatSocket}>
-              <MainNavbar Show={show} isTwoFactorAuth={isTwoFactorAuth} />
-              <User_Sidebar Show={show} />
-              <Component
-                {...pageProps}
-                setIsTwoFactorAuth={setIsTwoFactorAuth}
-              />
-              <Footer Show={show} isTwoFactorAuth={isTwoFactorAuth} />
-            </ChatSocketProvider>
-          </UserContext.Provider>
-        </NextUIProvider>
-      </WsProvider>
-    </MantineProvider>
+    <>
+      {IMuser?.isFirstTime && <FirstTimeModal />}
+      <MantineProvider theme={Theme} withGlobalStyles withNormalizeCSS>
+        <Notifications position="top-right" />
+        <WsProvider token={Token}>
+          <NextUIProvider>
+            <UserContext.Provider value={user}>
+              <ChatSocketProvider value={chatSocket}>
+                <MainNavbar Show={show} isTwoFactorAuth={isTwoFactorAuth} />
+                <User_Sidebar Show={show} />
+                <Component
+                  {...pageProps}
+                  setIsTwoFactorAuth={setIsTwoFactorAuth}
+                />
+                <Footer Show={show} isTwoFactorAuth={isTwoFactorAuth} />
+              </ChatSocketProvider>
+            </UserContext.Provider>
+          </NextUIProvider>
+        </WsProvider>
+      </MantineProvider>
+    </>
   );
 }

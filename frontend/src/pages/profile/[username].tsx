@@ -73,7 +73,6 @@ function Pofile() {
 
       setUsername(Username);
       setIsMe(false);
-      // setIsLoaded(true);
       setIsBlocked(false);
       setIsNotFound(false);
       setIsBlockedBy(false);
@@ -101,14 +100,24 @@ function Pofile() {
       setUserProfile(UserProfile);
 
       const blockedFriendsResponse = await GetBLockedFriends();
-      const blockedFriends = blockedFriendsResponse.body;
-      const BlockedUsers = blockedFriends.find(
-        (item: any) => item.username === Username
+      const blockedUsers = blockedFriendsResponse.body.blockedUsers;
+      const blockedby = blockedFriendsResponse.body.blockedby;
+      console.log('blocked users ', blockedUsers);
+      const BlockedUsers = blockedUsers.find(
+        (item: any) => item.blockedUser.username === Username
       );
+
+      const BlockedBy = blockedby.find(
+        (item: any) => item.user.username === Username
+      );
+
+      console.log('blocked by ', BlockedBy);
+
       if (BlockedUsers) {
         setIsBlocked(true);
       }
-      if (BlockedUsers?.blockedBy.length > 0) {
+      if (BlockedBy) {
+        setIsBlocked(true);
         setIsBlockedBy(true);
         setIsLoaded(false);
 
@@ -132,6 +141,8 @@ function Pofile() {
       const PendingFriend = notFriends.find(
         (item: any) => item.username === Username
       );
+
+      console.log('pending friend ', PendingFriend);
       setPendingFriend(PendingFriend);
     } catch (err) {
       console.log(err);
@@ -184,6 +195,22 @@ function Pofile() {
     const payload = {
       receiverId: data.id,
       senderId: data.receivedRequests[0].senderId,
+    };
+    PostCancelFriendRequest(payload)
+      .then((res) => {
+        if (res.status === 200) {
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const CancelRequest = (data: any) => () => {
+    console.log(data);
+    const payload = {
+      receiverId: userMe?.id,
+      senderId: data.sentRequests[0].senderId,
     };
     PostCancelFriendRequest(payload)
       .then((res) => {
@@ -387,6 +414,15 @@ function Pofile() {
                         </ActionIcon>
                       </Menu.Target>
                       <Menu.Dropdown>
+                        {PendingFriend?.sentRequests?.length > 0 && (
+                          <Menu.Item
+                            icon={<BiUserX size={14} color="#f57e07" />}
+                            onClick={CancelRequest(PendingFriend)}
+                          >
+                            Cancel Request
+                          </Menu.Item>
+                        )}
+
                         {friends?.find(
                           (friend: any) => friend.username === userMe?.username
                         ) && (

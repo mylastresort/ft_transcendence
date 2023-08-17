@@ -15,7 +15,10 @@ import { ChannelService } from './channel.service';
 
 @Controller('chat/channel')
 export class ChannelController {
-  constructor(private channelService: ChannelService, private channelGateway: ChannelGateway) {}
+  constructor(
+    private channelService: ChannelService,
+    private channelGateway: ChannelGateway,
+  ) {}
 
   //create
   @Post()
@@ -52,7 +55,7 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async getMyChannel(@Req() req: any): Promise<any> {
-    console.log('getMyChannel=>', req.user);
+    // console.log('getMyChannel=>', req.user);
     return this.channelService.getMyChannel(req.user);
   }
 
@@ -104,13 +107,12 @@ export class ChannelController {
   async membersSettings(@Req() req: any): Promise<any> {
     console.log('membersSettings=>', req.body);
     const res = await this.channelService.membersSettings(req.user, req.body);
-    
+
     this.channelGateway.notifyMember(res, req.body);
 
     return res;
   }
 
-  
   @Post('settings/admin')
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
@@ -119,7 +121,6 @@ export class ChannelController {
     console.log('adminSettings=>', req.body);
     return this.channelService.adminSettings(req.user, req.body);
   }
-
 
   @Post('settings/password')
   @UseGuards(AuthGuard('jwt'))

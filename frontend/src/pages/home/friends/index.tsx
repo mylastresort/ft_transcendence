@@ -73,7 +73,7 @@ function friends() {
   useEffect(() => {
     Get_Not_Friends()
       .then((res) => {
-        console.log(res);
+        console.log('not my friends', res.body);
         setUsers(res.body);
       })
       .catch((err) => {

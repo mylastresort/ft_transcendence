@@ -147,18 +147,19 @@ function BlockedFriends({ blockedFriends }) {
               key={index}
               className={Styles.UnstyledButton}
               onClick={() => {
-                router.push(`/profile/${item?.username}`);
+                router.push(`/profile/${item?.blockedUser.username}`);
               }}
             >
               <Group>
-                <Avatar src={item?.imgProfile} />
+                <Avatar src={item?.blockedUser.imgProfile} />
 
                 <div style={{ flex: 1 }}>
                   <Text size="md" weight={500}>
-                    {item?.username}
+                    {item?.blockedUser.username}
                   </Text>
                   <Text size="xs" weight={500}>
-                    {item.status}
+                    {/* {item?.blockedUser.status} */}
+                    blocked
                   </Text>
                 </div>
 
@@ -278,7 +279,7 @@ function Friends() {
       setFriends(friendsList.body);
 
       const blockedFriends = await GetBLockedFriends();
-      setBlockedFriends(blockedFriends.body);
+      setBlockedFriends(blockedFriends.body.blockedUsers);
 
       const notFriends = await Get_Not_Friends();
       setAddfriends(notFriends.body);

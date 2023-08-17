@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-
+import { updateProfileImg, updateProfile } from './dto/users.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as fs from 'fs';
 import { S3 } from 'aws-sdk';
@@ -56,8 +56,6 @@ export class UsersService {
           Body: fileContent,
         };
 
-        // S3 ManagedUpload with callbacks are not supported in AWS SDK for JavaScript (v3).
-        // Please convert to `await client.upload(params, options).promise()`, and re-run aws-sdk-js-codemod.
         s3.upload(params, async (err: any, data: any) => {
           if (err) {
             throw new HttpException(err, 500);
@@ -86,7 +84,7 @@ export class UsersService {
     }
   }
 
-  async updateProfileImg(UserId: number, body: any) {
+  async updateProfileImg(UserId: number, body: updateProfileImg) {
     try {
       const me = await this.Prisma.user.findUnique({
         where: {
@@ -127,7 +125,7 @@ export class UsersService {
     }
   }
 
-  async updateProfile(UserId: number, body: any) {
+  async updateProfile(UserId: number, body: updateProfile) {
     try {
       const me = await this.Prisma.user.findUnique({
         where: {
@@ -153,7 +151,8 @@ export class UsersService {
             firstName: body.firstName,
             lastName: body.lastName,
             location: body.location,
-            sammary: body.sammary,
+            sammary: body.summary,
+            isFirstTime: false,
           },
           select: {
             username: true,
@@ -161,6 +160,8 @@ export class UsersService {
             lastName: true,
             location: true,
             sammary: true,
+            isFirstTime: true,
+            imgProfile: true,
           },
         });
         return user;

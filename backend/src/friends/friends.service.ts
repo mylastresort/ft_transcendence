@@ -1,13 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 // import { WebsocketGateway } from 'src/gateway/websocket.gateway';
-// import { NotificationsGateway } from 'src/usergateway/notifications.gateway';
+import { NotificationsGateway } from 'src/usergateway/notifications.gateway';
 
 @Injectable()
 export class FriendsService {
   constructor(
     private Prisma: PrismaService,
-    // // private notificationsGateway: NotificationsGateway,
+    private notificationsGateway: NotificationsGateway,
   ) {}
 
   async getUsers(user: any) {
@@ -30,24 +30,35 @@ export class FriendsService {
         },
       });
 
-      const blocked = await this.Prisma.friend.findMany({
+      const blocked = await this.Prisma.blockedUser.findMany({
         where: {
           userId: user.id,
-          blocked: true,
         },
-        select: {
-          friend: true,
+      });
+
+      const blockedby = await this.Prisma.blockedUser.findMany({
+        where: {
+          blockedUserId: user.id,
         },
       });
 
       const friendIds = friends.map((friend) => friend.friend.id);
       const friendsOfIds = friendsOf.map((friend) => friend.user.id);
-      const blockedIds = blocked.map((friend) => friend.friend.id);
+      const blockedIds = blocked.map(
+        (blockedUser) => blockedUser.blockedUserId,
+      );
+      const blockedbyIds = blockedby.map((blockedUser) => blockedUser.userId);
 
       const users = await this.Prisma.user.findMany({
         where: {
           id: {
-            notIn: [...friendIds, ...friendsOfIds, ...blockedIds, user.id],
+            notIn: [
+              ...friendIds,
+              ...friendsOfIds,
+              ...blockedIds,
+              ...blockedbyIds,
+              user.id,
+            ],
           },
         },
         select: {
@@ -92,8 +103,8 @@ export class FriendsService {
           status: 'pending',
         },
       });
-      // await this.notificationsGateway.NewFriendReq(receiverId, senderId);
-      // await this.notificationsGateway.RerenderFriends(senderId, receiverId);
+      await this.notificationsGateway.NewFriendReq(receiverId, senderId);
+      await this.notificationsGateway.RerenderFriends(senderId, receiverId);
 
       return friendRequest;
     } catch (error) {
@@ -139,8 +150,8 @@ export class FriendsService {
         },
       });
 
-      // await this.notificationsGateway.AcceptFriendReq(senderId, receiverId);
-      // await this.notificationsGateway.RerenderFriends(senderId, receiverId);
+      await this.notificationsGateway.AcceptFriendReq(senderId, receiverId);
+      await this.notificationsGateway.RerenderFriends(senderId, receiverId);
 
       return friend;
     } catch (error) {
@@ -184,12 +195,12 @@ export class FriendsService {
       });
 
       if (UserId !== senderId) {
-        // await this.notificationsGateway.CandelFriendReq(senderId, receiverId);
+        await this.notificationsGateway.CandelFriendReq(senderId, receiverId);
       } else {
-        // await this.notificationsGateway.CandelFriendReqNotif(receiverId);
+        await this.notificationsGateway.CandelFriendReqNotif(receiverId);
       }
 
-      // await this.notificationsGateway.RerenderFriends(senderId, receiverId);
+      await this.notificationsGateway.RerenderFriends(senderId, receiverId);
 
       return { message: 'Friend request canceled' };
     } catch (error) {
@@ -311,7 +322,7 @@ export class FriendsService {
           },
         });
       }
-      // await this.notificationsGateway.RerenderFriends(userId, friendId);
+      await this.notificationsGateway.RerenderFriends(userId, friendId);
       return { message: 'Friend removed' };
     } catch (error) {
       throw new HttpException(
@@ -324,65 +335,52 @@ export class FriendsService {
     }
   }
 
-  async BlockUser(userId: number, friendId: number) {
+  async BlockUser(userId: number, user2Id: number) {
     try {
-      const friend = await this.Prisma.friend.findFirst({
-        where: {
-          userId: userId,
-          friendId: friendId,
+      await this.Prisma.blockedUser.create({
+        data: {
+          user: { connect: { id: userId } },
+          blockedUser: { connect: { id: user2Id } },
         },
       });
 
-      const friendOf = await this.Prisma.friend.findFirst({
+      const isFriend = await this.Prisma.friend.findFirst({
         where: {
-          userId: friendId,
+          userId: userId,
+          friendId: user2Id,
+        },
+      });
+
+      if (isFriend) {
+        await this.Prisma.friend.delete({
+          where: {
+            id: isFriend.id,
+          },
+        });
+      }
+
+      const isFriend2 = await this.Prisma.friend.findFirst({
+        where: {
+          userId: user2Id,
           friendId: userId,
         },
       });
 
-      if (!friend && !friendOf) {
-        await this.Prisma.friend.create({
-          data: {
-            user: { connect: { id: userId } },
-            friend: { connect: { id: friendId } },
-            blocked: true,
-            blockedBy: { connect: { id: userId } },
-          },
-        });
-        // await this.notificationsGateway.RerenderFriends(userId, friendId);
-        return { message: 'User blocked' };
-      }
-
-      if (friend) {
-        await this.Prisma.friend.update({
+      if (isFriend2) {
+        await this.Prisma.friend.delete({
           where: {
-            id: friend.id,
-          },
-          data: {
-            blocked: true,
-            blockedBy: { connect: { id: userId } },
+            id: isFriend2.id,
           },
         });
       }
 
-      if (friendOf) {
-        await this.Prisma.friend.update({
-          where: {
-            id: friendOf.id,
-          },
-          data: {
-            blocked: true,
-            blockedBy: { connect: { id: userId } },
-          },
-        });
-      }
-      // await this.notificationsGateway.RerenderFriends(userId, friendId);
+      await this.notificationsGateway.RerenderFriends(userId, user2Id);
       return { message: 'User blocked' };
     } catch (error) {
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
-          error: 'Friend not found',
+          error: 'user not found',
         },
         HttpStatus.NOT_FOUND,
       );
@@ -391,46 +389,30 @@ export class FriendsService {
 
   async UnblockUser(userId: number, friendId: number) {
     try {
-      const friend = await this.Prisma.friend.findFirst({
+      const blockedUser = await this.Prisma.blockedUser.findFirst({
         where: {
           userId: userId,
-          friendId: friendId,
+          blockedUserId: friendId,
         },
       });
 
-      const friendOf = await this.Prisma.friend.findFirst({
-        where: {
-          userId: friendId,
-          friendId: userId,
-        },
-      });
-
-      if (!friend && !friendOf) {
+      if (!blockedUser) {
         throw new HttpException(
           {
             status: HttpStatus.NOT_FOUND,
-            error: 'Friend not found',
+            error: 'user not found',
           },
           HttpStatus.NOT_FOUND,
         );
       }
 
-      if (friend) {
-        await this.Prisma.friend.delete({
-          where: {
-            id: friend.id,
-          },
-        });
-      }
+      await this.Prisma.blockedUser.delete({
+        where: {
+          id: blockedUser.id,
+        },
+      });
 
-      if (friendOf) {
-        await this.Prisma.friend.delete({
-          where: {
-            id: friendOf.id,
-          },
-        });
-      }
-      // await this.notificationsGateway.RerenderFriends(userId, friendId);
+      await this.notificationsGateway.RerenderFriends(userId, friendId);
       return { message: 'User unblocked' };
     } catch (error) {
       throw new HttpException(
@@ -468,7 +450,6 @@ export class FriendsService {
       const friends = await this.Prisma.friend.findMany({
         where: {
           userId: User_id.id,
-          blocked: false,
         },
         select: {
           friend: true,
@@ -478,7 +459,6 @@ export class FriendsService {
       const friendOf = await this.Prisma.friend.findMany({
         where: {
           friendId: User_id.id,
-          blocked: false,
         },
         select: {
           user: true,
@@ -552,33 +532,34 @@ export class FriendsService {
 
   async GetBlockedUsers(userId: number) {
     try {
-      const friends = await this.Prisma.friend.findMany({
+      const blockedUsers = await this.Prisma.blockedUser.findMany({
         where: {
           userId: userId,
-          blocked: true,
         },
         select: {
-          friend: true,
+          blockedUser: true,
         },
       });
 
-      const friendOf = await this.Prisma.friend.findMany({
+      const blockedby = await this.Prisma.blockedUser.findMany({
         where: {
-          friendId: userId,
-          blocked: true,
+          blockedUserId: userId,
         },
         select: {
           user: true,
         },
       });
 
-      const friendIds = friends.map((friend) => friend.friend.id);
-      const friendOfIds = friendOf.map((friend) => friend.user.id);
+      const blockedIds = blockedUsers.map(
+        (blockedUser) => blockedUser.blockedUser.id,
+      );
+
+      const blockedbyIds = blockedby.map((blockedUser) => blockedUser.user.id);
 
       const users = await this.Prisma.user.findMany({
         where: {
           id: {
-            in: [...friendIds, ...friendOfIds],
+            in: [...blockedIds, ...blockedbyIds],
           },
         },
         select: {
@@ -588,12 +569,10 @@ export class FriendsService {
           createdAt: true,
           firstName: true,
           lastName: true,
-          status: true,
-          blockedBy: true,
         },
       });
 
-      return users;
+      return { users, blockedUsers, blockedby };
     } catch (error) {
       throw new HttpException(
         {

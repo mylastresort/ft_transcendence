@@ -100,6 +100,7 @@ export class AuthService {
           sammary: true,
           twoFactorAuth: true,
           verified2FA: true,
+          isFirstTime: true,
         },
       });
 

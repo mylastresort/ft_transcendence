@@ -1,0 +1,5 @@
+.Avatar_img:hover {
+  cursor: pointer;
+  transition: transform 0.5s;
+  transform: scale(1.1);
+}

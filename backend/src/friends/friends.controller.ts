@@ -34,7 +34,10 @@ export class FriendsController {
   @UseGuards(AuthGuard('jwt'))
   @Post('SendFriendRequest')
   @HttpCode(HttpStatus.OK)
-  async SendFriendRequest(@Req() req: any, @Body() body: any) {
+  async SendFriendRequest(
+    @Req() req: any,
+    @Body() body: { receiverId: number },
+  ) {
     return this.service.SendFriendRequest(req.user.id, body.receiverId);
   }
 
@@ -42,7 +45,7 @@ export class FriendsController {
   @UseGuards(AuthGuard('jwt'))
   @Post('AcceptFriendRequest')
   @HttpCode(HttpStatus.OK)
-  async AcceptFriendRequest(@Req() req: any, @Body() body: any) {
+  async AcceptFriendRequest(@Req() req: any, @Body() body: { id: number }) {
     return this.service.AcceptFriendRequest(req.user.id, body.id);
   }
 
@@ -50,7 +53,10 @@ export class FriendsController {
   @UseGuards(AuthGuard('jwt'))
   @Post('CancelFriendRequest')
   @HttpCode(HttpStatus.OK)
-  async CancelFriendRequest(@Req() req: any, @Body() body: any) {
+  async CancelFriendRequest(
+    @Req() req: any,
+    @Body() body: { senderId: number; receiverId: number },
+  ) {
     return this.service.CancelFriendRequest(
       req.user.id,
       body.senderId,
@@ -62,7 +68,10 @@ export class FriendsController {
   @UseGuards(AuthGuard('jwt'))
   @Post('RemoveFriendFromList')
   @HttpCode(HttpStatus.OK)
-  async RemoveFriendFromList(@Req() req: any, @Body() body: any) {
+  async RemoveFriendFromList(
+    @Req() req: any,
+    @Body() body: { receiverId: number },
+  ) {
     return this.service.RemoveFriendFromList(req.user.id, body.receiverId);
   }
 
@@ -70,7 +79,7 @@ export class FriendsController {
   @UseGuards(AuthGuard('jwt'))
   @Post('RejectFriendRequest')
   @HttpCode(HttpStatus.OK)
-  async RejectFriendRequest(@Req() req: any, @Body() body: any) {
+  async RejectFriendRequest(@Req() req: any, @Body() body: { id: number }) {
     return this.service.RejectFriendRequest(req.user.id, body.id);
   }
 
@@ -78,7 +87,7 @@ export class FriendsController {
   @UseGuards(AuthGuard('jwt'))
   @Post('unfriend')
   @HttpCode(HttpStatus.OK)
-  async unfriend(@Req() req: any, @Body() body: any) {
+  async unfriend(@Req() req: any, @Body() body: { id: number }) {
     return this.service.unfriend(req.user.id, body.id);
   }
 
@@ -86,7 +95,7 @@ export class FriendsController {
   @UseGuards(AuthGuard('jwt'))
   @Post('BlockUser')
   @HttpCode(HttpStatus.OK)
-  async BlockUser(@Req() req: any, @Body() body: any) {
+  async BlockUser(@Req() req: any, @Body() body: { id: number }) {
     return this.service.BlockUser(req.user.id, body.id);
   }
 
@@ -94,7 +103,7 @@ export class FriendsController {
   @UseGuards(AuthGuard('jwt'))
   @Post('UnblockUser')
   @HttpCode(HttpStatus.OK)
-  async UnblockUser(@Req() req: any, @Body() body: any) {
+  async UnblockUser(@Req() req: any, @Body() body: { id: number }) {
     return this.service.UnblockUser(req.user.id, body.id);
   }
 
@@ -102,7 +111,7 @@ export class FriendsController {
   @UseGuards(AuthGuard('jwt'))
   @Post('GetFriends')
   @HttpCode(HttpStatus.OK)
-  async GetFriends(@Req() req: any, @Body() body: any) {
+  async GetFriends(@Req() req: any, @Body() body: { username: string }) {
     return this.service.GetFriends(req.user.id, body.username);
   }
 
@@ -110,7 +119,7 @@ export class FriendsController {
   @UseGuards(AuthGuard('jwt'))
   @Get('GetFriendRequests')
   @HttpCode(HttpStatus.OK)
-  async GetFriendRequests(@Req() req: any, @Body() body: any) {
+  async GetFriendRequests(@Req() req: any) {
     return this.service.GetFriendRequests(req.user.id);
   }
 
