@@ -30,7 +30,6 @@ function UserInfo() {
       .set('Authorization', `Bearer ${jwtToken}`)
       .then((res) => {
         setUserInfo(res.body);
-        console.log('user Info: ', res.body);
       })
       .catch((err) => {
         console.log(err);

@@ -4,8 +4,8 @@ import { useContext, useEffect, useState } from 'react';
 import { ChatContext } from '@/context/chat';
 import request from 'superagent';
 import { ChatSocketContext, socket } from '@/context/chatSocketContext';
-import { User, UserContext } from '@/context/user';
-import { GetMe } from '@/pages/api/auth/auth';
+import { UserContext } from '@/context/user';
+import { UserSocket } from '@/context/WsContext';
 
 interface MessageI {
   id: number;
@@ -27,6 +27,20 @@ export default function MsgList({ h, isChannel = false }) {
     any
   ] = useState([]);
   const [blocked, setBlocked] = useState([] as number[]);
+  const [updateBlocked, setUpdateBlocked] = useState(false);
+
+  useEffect(() => {
+    request
+    .get(`http://localhost:4400/api/chat/users/blocked`)
+    .set('Authorization', `Bearer ${jwtToken}`)
+    .then((res) => {
+      console.log("blocked users: ", res.body);
+      setBlocked(res.body);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  }, [updateBlocked]);
 
   useEffect(() => {
     request
@@ -34,24 +48,14 @@ export default function MsgList({ h, isChannel = false }) {
       .set('Authorization', `Bearer ${jwtToken}`)
       .query({ id: chatContext.data.id })
       .then((res) => {
-        setMessages(res.body);
-        // console.log("Messages: ", messages);
+        const msgs = res.body.filter((msg)=>
+          !blocked.includes(msg.sender.userId))
+        setMessages(msgs);
       })
       .catch((err) => {
         console.log(err);
       });
-
-
-    request
-      .get(`http://localhost:4400/api/chat/users/blocked`)
-      .set('Authorization', `Bearer ${jwtToken}`)
-      .then((res) => {
-        setBlocked(res.body);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, [chatContext.data.id]);
+  }, [chatContext.data.id, blocked]);
 
   useEffect(() => {
     socket.on(`${route}/newMsg`, (newMessage) => {
@@ -60,8 +64,16 @@ export default function MsgList({ h, isChannel = false }) {
         setMessages((prevMessages) => [...prevMessages, newMessage]);
       }
     });
+    UserSocket.on('BlockedEvent', (data) => {
+      setUpdateBlocked((state)=>!state);
+    });
+    UserSocket.on('UnBlockedEvent', (data) => {
+      setUpdateBlocked((state)=>!state);
+    });
     return ()=>{
       socket.off(`${route}/newMsg`);
+      socket.off('BlockedEvent');
+      socket.off('UnBlockedEvent');
     }
   }, [route]);
 
