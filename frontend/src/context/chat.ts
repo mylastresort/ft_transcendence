@@ -5,7 +5,7 @@ export interface Chat {
     id: number;
     name: string;
     img: string;
-    ownerId?: number;
+    memberId?: number;
     me?: {
       id: number;
       nickname: string;

@@ -49,6 +49,7 @@ export function UserCard({ user, closeNav }) {
             id: user.id,
             name: user.members[0].username,
             img: user.members[0].imgProfile,
+            memberId: user.members[0].id,
           };
           closeNav();
         }}

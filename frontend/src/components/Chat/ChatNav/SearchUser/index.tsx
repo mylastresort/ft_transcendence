@@ -1,10 +1,8 @@
 import { ChatContext } from '@/context/chat';
 import { ChatSocketContext } from '@/context/chatSocketContext';
 import { Avatar, Button, Group, Text } from '@mantine/core';
-import { notifications } from '@mantine/notifications';
 import { SpotlightProvider, spotlight } from '@mantine/spotlight';
 import type { SpotlightAction, SpotlightActionProps } from '@mantine/spotlight';
-import { style } from '@mui/system';
 import { useRouter } from 'next/router';
 import { forwardRef, useContext, useState } from 'react';
 import request from 'superagent';
