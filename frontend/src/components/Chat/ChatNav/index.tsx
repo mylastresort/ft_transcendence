@@ -10,6 +10,7 @@ import { Search } from 'tabler-icons-react';
 import { ChatContext } from '@/context/chat';
 import Link from 'next/link';
 import { ChatSocketContext } from '@/context/chatSocketContext';
+import { UserSocket } from '@/context/WsContext';
 
 export function RoomsList({ closeNav }: any) {
   const jwtToken = localStorage.getItem('jwtToken');
@@ -38,11 +39,15 @@ export function RoomsList({ closeNav }: any) {
       });
   }, [update]);
   useEffect(() => {
+    UserSocket.on('BlockedEvent', (data) => {
+      setUpdate((state) => !state);
+    });
     socket.on('updateChannel', (data) => {
       setUpdate((state) => !state);
     });
     return () => {
       socket.off('updateChannel');
+      UserSocket.off('BlockedEvent');
     };
   }, []);
 

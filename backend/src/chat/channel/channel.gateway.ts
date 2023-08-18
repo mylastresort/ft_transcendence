@@ -91,41 +91,4 @@ export default class ChannelGateway {
       console.log('message not sent!');
     }
   }
-
-  @UseGuards(WsJwtGuard)
-  @SubscribeMessage('channel/join-room')
-  joinChannelRoom(
-    @MessageBody() room: any,
-    @ConnectedSocket() client: Socket,
-  ): void {
-    console.log('joinChannelRoom: ', room);
-    client.join(room);
-  }
-
-  @UseGuards(WsJwtGuard)
-  @SubscribeMessage('channel/leave-room')
-  leavehannelRoom(
-    @MessageBody() room: any,
-    @ConnectedSocket() client: Socket,
-  ): void {
-    console.log('leavehannelRoom: ', room);
-    client.leave(room);
-  }
-
-  @SubscribeMessage('channel/sendMsg')
-  async SendChannelMessage(
-    @MessageBody() data: any,
-    @ConnectedSocket() client: Socket,
-  ) {
-    console.log('SendChannelMessage: ', data);
-    try {
-      const createdMessage = await this.channelService.createMessage(
-        client.data,
-        data,
-      );
-      this.server.to(data.name).emit('channel/newMsg', createdMessage);
-    } catch (err) {
-      console.log('message not sent!');
-    }
-  }
 }

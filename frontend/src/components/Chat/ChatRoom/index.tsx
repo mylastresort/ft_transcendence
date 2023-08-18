@@ -35,10 +35,16 @@ function ChatRoomContent({ isChannel = false }) {
 
   const router = useRouter();
   useEffect(() => {
-    UserSocket.on('BlockedEvent', (data)=>{
-      if (!isChannel && chatContext.data.name == )
-      console.log("you have benn blocked", data);
-      router.push('/chat');
+    UserSocket.on('BlockedEvent', (data) => {
+      if (!isChannel && chatContext.data.memberId == data) {
+        console.log(`You have been blocked by ${chatContext.data.name}!`, data, chatContext.data.memberId);
+        notifications.show({
+          title: `You have been blocked by ${chatContext.data.name}!`,
+          message: '',
+          color: 'red',
+        });
+        router.push('/chat');
+      }
     });
     socket.on('action', (res) => {
       console.log('action ...', res.action);
@@ -94,7 +100,10 @@ function ChatRoomContent({ isChannel = false }) {
               {isChannel ? <ChannelInfo action={action} /> : <UserInfo />}
             </RoomHead>
           )}
-          <MsgList h={`calc(100% - ${matches ? 77 : 147}px)`} isChannel={isChannel} />
+          <MsgList
+            h={`calc(100% - ${matches ? 77 : 147}px)`}
+            isChannel={isChannel}
+          />
           <ChatInput isChannel={isChannel} />
         </Box>
         {matches && (
