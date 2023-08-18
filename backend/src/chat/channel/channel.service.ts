@@ -31,11 +31,10 @@ export class ChannelService {
 
   //create
   async createChannel(me: Me, channel: CreateChannel) {
-    let hashedPass = '';
     try {
-      if (channel.isProtected) {
-        hashedPass = await argon2.hash(channel.password);
-      }
+      const hashedPass = channel.isProtected
+        ? await argon2.hash(channel.password)
+        : '';
       return await this.prisma.channel.create({
         data: {
           channelName: channel.channelName,
@@ -404,11 +403,11 @@ export class ChannelService {
       );
     }
   }
-  
+
   //leave
   async leaveChannel(me: Me, channel: any) {
     try {
-      const res =  await this.prisma.member.findFirst({
+      const res = await this.prisma.member.findFirst({
         where: {
           userId: me.id,
           channleId: channel.id,
@@ -418,10 +417,10 @@ export class ChannelService {
           channel: {
             select: {
               channelName: true,
-            }
-          }
-        }
-      })
+            },
+          },
+        },
+      });
       await this.prisma.member.updateMany({
         where: {
           userId: me.id,
@@ -516,7 +515,7 @@ export class ChannelService {
           : {},
       });
       return await this.prisma.member.findFirst({
-        where:{
+        where: {
           nickname: member.nickname,
           channel: {
             channelName: member.channelName,
@@ -527,15 +526,15 @@ export class ChannelService {
           channel: {
             select: {
               channelName: true,
-            }
+            },
           },
-          user:{
-            select:{
+          user: {
+            select: {
               ChatSocketId: true,
-            }
-          }
-        }
-      })
+            },
+          },
+        },
+      });
     } catch (error) {
       console.log(error);
       throw new HttpException(

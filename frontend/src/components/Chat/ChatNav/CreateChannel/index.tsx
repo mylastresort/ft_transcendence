@@ -25,6 +25,7 @@ export function CreateChannel() {
   const form = useForm({
     initialValues: {
       name: '',
+      description: '',
       password: '',
     },
     validate: {
@@ -121,7 +122,8 @@ export function CreateChannel() {
               placeholder="Password"
               {...form.getInputProps('password')}
             />}
-            <Group position="right" mt="md">
+            <Group position="apart" mt="md">
+              <Button color='red' onClick={(e)=>{form.reset(); close()}}>Cancel</Button>
               <Button type="submit">Submit</Button>
             </Group>
           </form>
