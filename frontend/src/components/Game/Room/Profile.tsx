@@ -36,7 +36,15 @@ export default function Profile({ player, status, ready }) {
         />
       </Box>
       <Text className={styles.text_profile}>{player.username || 'N/A'}</Text>
-      <Text fw="lighter">{ready ? 'ready' : 'waiting to accept...'}</Text>
+      <Text color="whitesmoke" ff="" size="1rem" fw="lighter">
+        Level:
+        <Text pl=".4em" display="inline" color="white" size="1.2rem">
+          {player.userLevel ?? 'N/A'}
+        </Text>
+      </Text>
+      <Text fw="lighter" opacity={ready ? '1' : '0.7'}>
+        {ready ? 'ready' : 'waiting to accept...'}
+      </Text>
     </Flex>
   );
 }

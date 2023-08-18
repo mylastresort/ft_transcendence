@@ -17,6 +17,8 @@ export default function Lobby() {
       game.conf.map = conf.hostWishedGameMap;
       game.conf.name = conf.hostWishedGameName;
       game.conf.speed = conf.hostWishedGameSpeed;
+      if (member.currentUserRole === game.role)
+        game.role = game.role === 'host' ? 'guest' : 'host';
       game.opponent = member;
       game.ready = false;
       game.gameStatus = 'waiting';

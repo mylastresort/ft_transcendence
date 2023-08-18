@@ -8,7 +8,7 @@ import {
   Injectable,
   forwardRef,
 } from '@nestjs/common';
-import { interval, map, switchMap, zip } from 'rxjs';
+import { Observable, Subscriber, interval, map, switchMap } from 'rxjs';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Room } from './room.class';
 import { S3 } from 'aws-sdk';
@@ -29,15 +29,37 @@ export class GameService {
 
   private notifier$ = interval(3000)
     .pipe(
-      switchMap(() =>
-        zip(
-          [...this.hosts].sort((a, b) => a.data.userLevel - b.data.userLevel),
-          [...this.guests].sort((a, b) => a.data.userLevel - b.data.userLevel),
-        ),
+      switchMap(
+        () =>
+          new Observable((subscriber: Subscriber<[Player, Player]>) => {
+            const hosts = [...this.hosts].sort(
+              (a, b) => a.data.userLevel - b.data.userLevel,
+            );
+            const guests = [...this.guests].sort(
+              (a, b) => a.data.userLevel - b.data.userLevel,
+            );
+            while (hosts.length && guests.length) {
+              const host = hosts.pop();
+              const guest = guests.pop();
+              this.hosts.delete(host);
+              this.guests.delete(guest);
+              subscriber.next([host, guest]);
+            }
+            while (guests.length > 1) {
+              const host = guests.pop();
+              host.data.currentUserRole = 'host';
+              host.data.hostSettableGames = 5;
+              host.data.hostWishedGameMap = 'Classic';
+              host.data.hostWishedGameName = '';
+              host.data.hostWishedGameSpeed = 4;
+              const guest = guests.pop();
+              this.guests.delete(host);
+              this.guests.delete(guest);
+              subscriber.next([host, guest]);
+            }
+          }),
       ),
       map(([host, guest]) => {
-        this.hosts.delete(host);
-        this.guests.delete(guest);
         const room = new Room(host.data, guest.data);
         this.rooms.set(room.id, room);
         return { host, guest, room };

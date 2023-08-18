@@ -9,6 +9,7 @@
     justify-content: center;
     position: absolute;
     width: calc(100%);
+    padding-bottom: 7rem;
 }
 
 .home:first-child {
@@ -16,13 +17,14 @@
 }
 
 .home .headline {
-    font-size: 4rem;
+    font-size: 4.3rem;
+    margin-bottom: 2rem;
     text-transform: capitalize;
 }
 
 .home .description {
     line-height: 1.75em;
-    width: min(35rem, 100%);
+    width: min(38rem, 100%);
 }
 
 .home .actions {
