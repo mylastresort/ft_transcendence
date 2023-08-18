@@ -56,6 +56,13 @@ function UserInfo() {
             delete conversation
           </Button>
           </Link>
+        <Button
+          href={`/game/invite?user=${chatContext.data.name}`}
+          component={Link}
+          mx="1.55rem"
+        >
+          Invite
+        </Button>
       </Flex>
     </Box>
   );

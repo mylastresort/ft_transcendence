@@ -372,13 +372,18 @@ export class GameService {
     }
   }
 
-  async getPlayer(id: Player['data']['userId'], createOnNotFound = true) {
-    const sockets = this.players.get(id);
-    if (sockets && sockets.length) return sockets[sockets.length - 1].data;
+  async getPlayer(
+    id: Player['data']['userId'] | Player['data']['username'],
+    createOnNotFound = true,
+  ) {
+    const clients = this.players.values();
+    for (const [{ data }] of clients)
+      if (data[typeof id === 'number' ? 'userId' : 'username'] === id)
+        return data;
     if (!createOnNotFound) return null;
     try {
       const user = await this.prisma.user.findUniqueOrThrow({
-        where: { id },
+        where: { [typeof id === 'number' ? 'id' : 'username']: id },
         select: { username: true, imgProfile: true, id: true },
       });
       const select = {
@@ -393,12 +398,16 @@ export class GameService {
       };
       const player =
         (await this.prisma.player.findUnique({
-          where: { userId: id },
+          where: {
+            [typeof id === 'number' ? 'userId' : 'username']: id,
+          },
           select,
         })) ||
         (await this.prisma.player.create({
           data: {
-            user: { connect: { id } },
+            user: {
+              connect: { [typeof id === 'number' ? 'id' : 'username']: id },
+            },
             achievements: { connect: { name: 'New Comer' } },
             lastPlayed: new Date(new Date().setDate(new Date().getDate() - 1)),
           },
@@ -439,8 +448,8 @@ export class GameService {
   }
 
   async invite(socket: Player, body) {
-    if (socket.data.userId !== Number(body.userId)) {
-      const guest = await this.getPlayer(Number(body.userId));
+    if (socket.data.username !== body.username) {
+      const guest = await this.getPlayer(body.username, false);
       if (!guest)
         throw new HttpException('Player is offline', HttpStatus.BAD_REQUEST);
       socket.data.hostWishedGameSpeed = body.speed;

@@ -16,13 +16,13 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  id_42      Int     @unique
-  username   String  @unique
-  imgProfile String
-  firstName  String
-  lastName   String
-  location   String?
-  sammary    String  @default("No information given")
+  id_42       Int     @unique
+  username    String  @unique
+  imgProfile  String
+  firstName   String
+  lastName    String
+  location    String?
+  sammary     String  @default("No information given")
   isFirstTime Boolean @default(true)
 
   status String?
@@ -43,10 +43,12 @@ model User {
   notifications Notification[]
   player        Player?
 
-  chats    PrivateChat[]
-  messages PrivateMessage[]
-  Member   Member[]
+  chats        PrivateChat[]
+  messages     PrivateMessage[]
+  Member       Member[]
   ChatSocketId String?
+
+  @@unique([id, username])
 }
 
 model FriendRequest {
@@ -76,20 +78,18 @@ model Friend {
   status String?
 }
 
-
 model BlockedUser {
   id Int @id @default(autoincrement())
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user   User @relation( "BlockedUsers",  fields: [userId], references: [id])
+  user   User @relation("BlockedUsers", fields: [userId], references: [id])
   userId Int
 
   blockedUser   User @relation("BlockedBy", fields: [blockedUserId], references: [id])
   blockedUserId Int
 }
-
 
 model Notification {
   id        Int      @id @default(autoincrement())
@@ -98,11 +98,11 @@ model Notification {
   userId Int
   user   User @relation(fields: [userId], references: [id])
 
-  message String
-  gameid String?
+  message    String
+  gameid     String?
   receiverId Int?
-  senderId Int?
-  read    Boolean @default(false)
+  senderId   Int?
+  read       Boolean @default(false)
 }
 
 model Achievement {
@@ -121,9 +121,12 @@ model Player {
   longestStreak Int           @default(0)
   losses        Room[]        @relation("losses")
   rooms         Room[]        @relation("PlayerRooms")
-  user          User          @relation(fields: [userId], references: [id])
+  user          User          @relation(fields: [userId, username], references: [id, username])
   userId        Int           @id
+  username      String        @unique
   wins          Room[]        @relation("wins")
+
+  @@unique([userId, username])
 }
 
 model Room {
@@ -146,8 +149,8 @@ model Room {
   winner          Player?   @relation(fields: [winnerUserId], references: [userId], name: "wins")
   winnerPostLevel Float?
   winnerUserId    Int?
-  guestScore Int      @default(0)
-  hostScore  Int      @default(0)
+  guestScore      Int       @default(0)
+  hostScore       Int       @default(0)
 }
 
 // Private messages
@@ -176,7 +179,7 @@ model ChannelMessage {
   content   String
   sender    Member   @relation(fields: [senderId], references: [id], onDelete: Cascade)
   senderId  Int
-  channel   Channel?  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channel   Channel? @relation(fields: [channelId], references: [id], onDelete: Cascade)
   channelId Int?
 }
 

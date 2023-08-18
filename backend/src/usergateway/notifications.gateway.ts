@@ -375,14 +375,12 @@ export class NotificationsGateway {
     @MessageBody()
     data: {
       senderId: number;
-      receiverId: number;
+      receiverUsername: string;
       gameid: string;
     },
   ) {
     try {
-      const sockets = this.connectedSockets.get(data.receiverId);
-
-      const username = await this.prisma.user.findUnique({
+      const sender = await this.prisma.user.findUniqueOrThrow({
         where: {
           id: data.senderId,
         },
@@ -391,16 +389,28 @@ export class NotificationsGateway {
         },
       });
 
+      const receiver = await this.prisma.user.findUniqueOrThrow({
+        where: {
+          username: data.receiverUsername,
+        },
+        select: {
+          id: true,
+          username: true,
+        },
+      });
+
+      const sockets = this.connectedSockets.get(receiver.id);
+
       await this.prisma.user.update({
         where: {
-          id: data.receiverId,
+          id: receiver.id,
         },
         data: {
           notifications: {
             create: {
-              message: 'You have a game invite from ' + username.username,
+              message: 'You have a game invite from ' + sender.username,
               gameid: data.gameid,
-              receiverId: data.receiverId,
+              receiverId: receiver.id,
               senderId: data.senderId,
               read: false,
             },
@@ -412,15 +422,15 @@ export class NotificationsGateway {
         for (const socket of sockets) {
           await socket.emit('GameInviteNotification', {
             senderId: data.senderId,
-            receiverId: data.receiverId,
+            receiverId: receiver.id,
             gameid: data.gameid,
-            username: username.username,
+            username: receiver.username,
           });
         }
-        await this.SendNotification(data.receiverId);
+        await this.SendNotification(receiver.id);
       }
     } catch (err) {
-      console.log(err);
+      console.log(err.message);
     }
   }
 

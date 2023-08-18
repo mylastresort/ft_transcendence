@@ -11,14 +11,14 @@ import { MapsContext, PlayerContext } from '@/context/game';
 import { motion } from 'framer-motion';
 import { useForm } from '@mantine/form';
 import { useSwipeable } from 'react-swipeable';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import styles from './Customizer.module.css';
 import Link from 'next/link';
 import { GameContext } from '@/context/game';
 import { useRouter } from 'next/router';
 import { UserSocket } from '@/context/WsContext';
 
-export default function Customizer({ type = 'create', userId }) {
+export default function Customizer({ type = 'create', username }) {
   const game = useContext(GameContext);
   const maps = useContext(MapsContext);
   const form = useForm({
@@ -66,12 +66,13 @@ export default function Customizer({ type = 'create', userId }) {
                 {
                   ...form.values,
                   map: maps[selected].name,
-                  userId,
+                  username,
                 },
                 (gameId) => {
+                  console.log('here');
                   UserSocket.emit('SendGameInvite', {
                     gameid: gameId,
-                    receiverId: Number(userId),
+                    receiverUsername: username,
                     senderId: player?.userId,
                   });
                   router.push('/game');
