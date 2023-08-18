@@ -70,16 +70,6 @@ function FirstTimeModal() {
         });
     }
 
-    if (
-      Username !== '' &&
-      Username.length < 10 &&
-      FirstName !== '' &&
-      FirstName.length < 10 &&
-      LastName !== '' &&
-      LastName.length < 10 &&
-      Summary !== '' &&
-      Summary.length < 150
-    ) {
       const payload = {
         username: Username,
         firstName: FirstName,
@@ -94,9 +84,6 @@ function FirstTimeModal() {
         .catch((err) => {
           console.log(err);
         });
-    } else {
-      window.alert('Please fill all the fields');
-    }
   };
 
   return (
