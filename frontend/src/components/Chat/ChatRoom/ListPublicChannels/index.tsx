@@ -89,22 +89,24 @@ export function ListPublicChannels() {
           {channels.map((channel) => (
             <Card
               key={channel.id}
-              maw={'300px'}
+              w={300}
+              maw={'100%'}
               bg={'white'}
               m={20}
               style={{
                 borderRadius: '15px',
+                boxShadow: '0px 0px 10px grey',
               }}
-              shadow="xl"
             >
               <Card.Section>
                 <img
                   src={channel.image}
                   alt=""
                   style={{
-                    width: '100%',
-                    height: '200px',
-                    margin: '0px 50px',
+                    width: '200px',
+                    margin: '10px 50px',
+                    borderRadius: '100px',
+                    boxShadow: '0px 0px 10px grey',
                   }}
                 />
               </Card.Section>

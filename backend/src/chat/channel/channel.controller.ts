@@ -6,12 +6,15 @@ import {
   Post,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import ChannelGateway from './channel.gateway';
 import { ChannelService } from './channel.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('chat/channel')
 export class ChannelController {
@@ -154,7 +157,10 @@ export class ChannelController {
     console.log('joinChanned=>', req.body);
     const res = await this.channelService.joinChanned(req.user, req.body);
     await this.channelGateway.updateChannel(res.channel.members);
-    await this .channelGateway.notifyMember({channel: res.channel, nickname: req.user.username}, 'join');
+    await this.channelGateway.notifyMember(
+      { channel: res.channel, nickname: req.user.username },
+      'join',
+    );
     return res;
   }
 
