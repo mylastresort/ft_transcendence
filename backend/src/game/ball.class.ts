@@ -49,9 +49,14 @@ export default class Ball {
     ] as const;
   }
 
-  pong(key) {
+  pong(key, players: Room['players']) {
     if (this.dummyKey !== key) return null;
     this.dummyKey = randomInt(1000);
+    const [X, Y] = this.crd;
+    const [player] = X < 0 ? players.host : players.guest;
+    if (Y < player + Room.paddle / 2 && Y > player - Room.paddle / 2) {
+      console.log('pong');
+    }
     return this.ping();
   }
 }
