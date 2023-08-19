@@ -8,7 +8,6 @@ import {
   Injectable,
   forwardRef,
 } from '@nestjs/common';
-import { Observable, Subscriber, interval, map, switchMap } from 'rxjs';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Room } from './room.class';
 import { S3 } from 'aws-sdk';
@@ -27,52 +26,7 @@ export class GameService {
 
   private players = new Map<User['id'], Player[]>();
 
-  private notifier$ = interval(3000)
-    .pipe(
-      switchMap(
-        () =>
-          new Observable((subscriber: Subscriber<[Player, Player]>) => {
-            const hosts = [...this.hosts].sort(
-              (a, b) => a.data.userLevel - b.data.userLevel,
-            );
-            const guests = [...this.guests].sort(
-              (a, b) => a.data.userLevel - b.data.userLevel,
-            );
-            while (hosts.length && guests.length) {
-              const host = hosts.pop();
-              const guest = guests.pop();
-              this.hosts.delete(host);
-              this.guests.delete(guest);
-              subscriber.next([host, guest]);
-            }
-            while (guests.length > 1) {
-              const host = guests.pop();
-              host.data.currentUserRole = 'host';
-              host.data.hostSettableGames = 5;
-              host.data.hostWishedGameMap = 'Classic';
-              host.data.hostWishedGameName = '';
-              host.data.hostWishedGameSpeed = 4;
-              const guest = guests.pop();
-              this.guests.delete(host);
-              this.guests.delete(guest);
-              subscriber.next([host, guest]);
-            }
-          }),
-      ),
-      map(([host, guest]) => {
-        const room = new Room(host.data, guest.data);
-        this.rooms.set(room.id, room);
-        return { host, guest, room };
-      }),
-    )
-    .subscribe(async ({ host, guest, room: { id } }) => {
-      await host.join(id);
-      await guest.join(id);
-      host.data.currentGameId = id;
-      guest.data.currentGameId = id;
-      host.to(id).emit('joined', id, host.data, host.data);
-      guest.to(id).emit('joined', id, guest.data, host.data);
-    });
+  private notifier = setInterval(() => {});
 
   @Inject(forwardRef(() => GameGateway)) private gate: GameGateway;
 
@@ -230,6 +184,112 @@ export class GameService {
       }
       return next(params);
     });
+    clearInterval(this.notifier);
+    this.notifier = setInterval(async () => {
+      const subscriber = async ([host, guest]) => {
+        const room = new Room(host.data, guest.data);
+        this.rooms.set(room.id, room);
+        await host.join(room.id);
+        await guest.join(room.id);
+        host.data.currentGameId = room.id;
+        guest.data.currentGameId = room.id;
+        host.to(room.id).emit('joined', room.id, host.data, host.data);
+        guest.to(room.id).emit('joined', room.id, guest.data, host.data);
+      };
+      const hosts = [...this.hosts].sort(
+        (a, b) => a.data.userLevel - b.data.userLevel,
+      );
+      const guests = [...this.guests].sort(
+        (a, b) => a.data.userLevel - b.data.userLevel,
+      );
+      while (hosts.length && guests.length) {
+        const host = hosts.pop();
+        const host_data = await this.prisma.user.findUnique({
+          where: { id: host.data.userId },
+          select: { blockedUsers: { select: { blockedUserId: true } } },
+        });
+        if (!host_data) continue;
+        const guests_data = await this.prisma.player.findMany({
+          where: {
+            userId: { in: guests.map(({ data }) => data.userId) },
+          },
+          select: {
+            userId: true,
+            user: {
+              select: { blockedUsers: { select: { blockedUserId: true } } },
+            },
+          },
+        });
+        const first = guests_data.find(
+          ({ userId: guestID, user: { blockedUsers } }) => {
+            return (
+              host_data.blockedUsers.every(
+                ({ blockedUserId }) => blockedUserId != guestID,
+              ) &&
+              blockedUsers.every(
+                ({ blockedUserId }) => blockedUserId != host.data.userId,
+              )
+            );
+          },
+        );
+        if (!first) continue;
+        const guest = guests.findIndex(
+          ({ data }) => data.userId === first.userId,
+        );
+        const [opponent] = guests.splice(guest, 1);
+        this.hosts.delete(host);
+        this.guests.delete(opponent);
+        await subscriber([host, opponent]);
+      }
+      while (guests.length > 1) {
+        const host = guests.pop();
+        host.data.currentUserRole = 'host';
+        host.data.hostSettableGames = 5;
+        host.data.hostWishedGameMap = 'Classic';
+        host.data.hostWishedGameName = '';
+        host.data.hostWishedGameSpeed = 3;
+        const host_data = await this.prisma.user.findUnique({
+          where: { id: host.data.userId },
+          select: { blockedUsers: { select: { blockedUserId: true } } },
+        });
+        if (!host_data) continue;
+        const guests_data = await this.prisma.player.findMany({
+          where: {
+            userId: { in: guests.map(({ data }) => data.userId) },
+          },
+          select: {
+            userId: true,
+            user: {
+              select: { blockedUsers: { select: { blockedUserId: true } } },
+            },
+          },
+        });
+        const first = guests_data.find(
+          ({ userId: guestID, user: { blockedUsers } }) => {
+            return (
+              host_data.blockedUsers.every(
+                ({ blockedUserId }) => blockedUserId != guestID,
+              ) &&
+              blockedUsers.every(
+                ({ blockedUserId }) => blockedUserId != host.data.userId,
+              )
+            );
+          },
+        );
+        if (!first) continue;
+        const guest = guests.findIndex(
+          ({ data }) => data.userId === first.userId,
+        );
+        const [opponent] = guests.splice(guest, 1);
+        this.guests.delete(host);
+        this.guests.delete(opponent);
+        await subscriber([host, opponent]);
+      }
+    }, 3000);
+  }
+
+  onModuleDestroy() {
+    clearInterval(this.notifier);
   }
 
   async watchUserStatus(socket: Player, userId) {

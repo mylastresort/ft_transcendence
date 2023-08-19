@@ -172,7 +172,7 @@ export default function Canvas() {
   }
 
   return (
-    <Box onMouseMove={handleMouseMove}>
+    <Box onMouseMove={handleMouseMove} h="100%">
       <Box
         sx={{
           backgroundColor: '#141b26',
