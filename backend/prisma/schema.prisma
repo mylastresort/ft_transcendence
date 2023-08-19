@@ -16,13 +16,13 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  id_42       Int     @unique
-  username    String  @unique
-  imgProfile  String
-  firstName   String
-  lastName    String
-  location    String?
-  sammary     String  @default("No information given")
+  id_42      Int     @unique
+  username   String  @unique
+  imgProfile String
+  firstName  String
+  lastName   String
+  location   String?
+  sammary    String  @default("No information given")
   isFirstTime Boolean @default(true)
 
   status String?

@@ -1,14 +1,22 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ChatService } from '../chat.service';
 // import { Socket } from 'socket.io';
 
 @Injectable()
 export class PrivateChatService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private chatService: ChatService,
+  ) {}
 
   //create
   async createPrivateChat(me: any, chatUser: any) {
     try {
+      const blockedUsers = await this.chatService.GetBlockedUsers(me.id);
+      if (blockedUsers.includes(chatUser.id)) {
+        throw "this user is blocked";
+      }
       const createdChat = await this.prisma.privateChat.findFirst({
         where: {
           AND: [
@@ -55,9 +63,16 @@ export class PrivateChatService {
   //read
   async getPrivateChat(me: any) {
     try {
+      const blockedUsers = await this.chatService.GetBlockedUsers(me.id);
+      console.log('blocked users:', blockedUsers);
       return await this.prisma.privateChat.findMany({
         where: {
           members: {
+            none:{
+              id: {
+                in: blockedUsers
+              }
+            },
             some: {
               id: me.id,
             },
@@ -120,11 +135,11 @@ export class PrivateChatService {
           id: chatId,
         },
         select: {
-          Messages:{
+          Messages: {
             include: {
               sender: true,
-            }
-          }
+            },
+          },
         },
       });
       return messages.Messages;
@@ -159,7 +174,7 @@ export class PrivateChatService {
         },
         include: {
           sender: true,
-        }
+        },
       });
       return createdMessage;
     } catch (error) {
