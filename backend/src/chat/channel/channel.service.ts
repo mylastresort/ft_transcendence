@@ -2,13 +2,12 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 // import { Socket } from 'socket.io';
 import * as argon2 from 'argon2';
+import { S3 } from 'aws-sdk';
 
 interface CreateChannel {
   channelName: string;
-  image: string;
   description: string;
-  isProtected: boolean;
-  isPrivate: boolean;
+  chMode: string;
   password?: string;
 }
 interface Me {
@@ -29,19 +28,38 @@ interface CreateMember {
 export class ChannelService {
   constructor(private prisma: PrismaService) {}
 
+  async uploadFile(file) {
+    const s3 = new S3({
+      region: process.env.AWS_S3_REGION,
+      signatureVersion: 'v4',
+      credentials: {
+        accessKeyId: process.env.ACCESS_KEY_ID,
+        secretAccessKey: process.env.SECRET_ACCESS_KEY,
+      },
+    });
+    const params = {
+      Bucket: process.env.AWS_DEFAULT_S3_BUCKET,
+      Key: `${Date.now()}${file.originalname}`,
+      Body: file.buffer,
+    };
+
+    return await s3.upload(params).promise();
+  }
+
   //create
-  async createChannel(me: Me, channel: CreateChannel) {
+  async createChannel(me: Me, channel: CreateChannel, channelImg: string) {
     try {
-      const hashedPass = channel.isProtected
-        ? await argon2.hash(channel.password)
-        : '';
+      const hashedPass =
+        channel.chMode == 'protected'
+          ? await argon2.hash(channel.password)
+          : '';
       return await this.prisma.channel.create({
         data: {
           channelName: channel.channelName,
-          image: channel.image,
+          image: channelImg,
           description: channel.description,
-          isProtected: channel.isProtected,
-          isPrivate: channel.isPrivate,
+          isProtected: channel.chMode == 'protected',
+          isPrivate: channel.chMode == 'private',
           password: hashedPass,
           members: {
             create: {

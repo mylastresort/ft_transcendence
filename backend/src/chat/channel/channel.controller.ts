@@ -6,12 +6,15 @@ import {
   Post,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import ChannelGateway from './channel.gateway';
 import { ChannelService } from './channel.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('chat/channel')
 export class ChannelController {
@@ -25,8 +28,22 @@ export class ChannelController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  async createChannel(@Req() req: any): Promise<any> {
-    const res = await this.channelService.createChannel(req.user, req.body);
+  @UseInterceptors(FileInterceptor('image'))
+  async createChannel(@Req() req: any, @UploadedFile() file): Promise<any> {
+    let fileLocation = undefined;
+    if (file) {
+      try {
+        const uploaded = await this.channelService.uploadFile(file);
+        fileLocation = uploaded.Location;
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    const res = await this.channelService.createChannel(
+      req.user,
+      req.body,
+      fileLocation,
+    );
     await this.channelGateway.updateChannel(res.members);
     return res;
   }
@@ -141,7 +158,10 @@ export class ChannelController {
   async joinChanned(@Req() req: any): Promise<any> {
     const res = await this.channelService.joinChanned(req.user, req.body);
     await this.channelGateway.updateChannel(res.channel.members);
-    await this .channelGateway.notifyMember({channel: res.channel, nickname: req.user.username}, 'join');
+    await this.channelGateway.notifyMember(
+      { channel: res.channel, nickname: req.user.username },
+      'join',
+    );
     return res;
   }
 
