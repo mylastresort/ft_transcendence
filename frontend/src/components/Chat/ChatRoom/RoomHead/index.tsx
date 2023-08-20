@@ -29,8 +29,8 @@ export function RoomHead({ children }) {
       <Box
         display={open ? 'block' : 'none'}
         pos={'absolute'}
-        maw={'calc(100vw - 143px)'}
-        h={'calc(100vh - 78px)'}
+        w={'calc(100vw - 143px)'}
+        h={'calc(100vh - 77px)'}
         style={{
           zIndex: 1,
         }}

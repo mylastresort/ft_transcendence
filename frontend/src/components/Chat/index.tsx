@@ -26,7 +26,7 @@ export default function Chat(ChatRoom) {
             position: 'absolute',
             background: 'red',
             width: 'calc(100% - 88px)',
-            height: 'calc(100% - 78px)',
+            height: 'calc(100% - 77px)',
             top: '76px',
             left: '88px',
           })}>

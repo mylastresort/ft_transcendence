@@ -29,7 +29,7 @@ export function ListMembers({ members }: { members: Member[] }) {
     <List h={'60%'} m={'auto'} w={'80%'}>
       <ScrollArea
         h={'100%'}
-        // w={'100%'}
+        w={'100%'}
         p={10}
         style={{
           border: '1px solid var(--chat-red-color)',
@@ -37,31 +37,30 @@ export function ListMembers({ members }: { members: Member[] }) {
         }}
       >
         {members.map((member) => (
-          <List.Item w={'100%'} key={member.id}>
-            <Group
-              style={{
-                border: '1px solid var(--chat-red-color)',
-                borderRadius: '50px',
-              }}
-              position="apart"
-              p={4}
-              w={'100%'}
-            >
-              <Group>
-                <Avatar size={'sm'} radius={50} src={member.user.imgProfile} />
-                <Text>{member.nickname}</Text>
-              </Group>
-              {member.isOwner ? (
-                <Badge color="red" bg={'red'} children="Owner" />
-              ) : member.isMuted ? (
-                <Badge color="gray" bg={'gray'} children="Muted" />
-              ) : member.isAdministator ? (
-                <Badge color="grape" bg={'grape'} children="Admin" />
-              ) : (
-                <Badge color="blue" bg={'blue'} children="mumber" />
-              )}
+          <Group
+            style={{
+              border: '1px solid var(--chat-red-color)',
+              borderRadius: '50px',
+            }}
+            position="apart"
+            p={4}
+            w={'100%'}
+            key={member.id}
+          >
+            <Group>
+              <Avatar size={'sm'} radius={50} src={member.user.imgProfile} />
+              <Text>{member.nickname}</Text>
             </Group>
-          </List.Item>
+            {member.isOwner ? (
+              <Badge color="red" bg={'red'} children="Owner" />
+            ) : member.isMuted ? (
+              <Badge color="gray" bg={'gray'} children="Muted" />
+            ) : member.isAdministator ? (
+              <Badge color="grape" bg={'grape'} children="Admin" />
+            ) : (
+              <Badge color="blue" bg={'blue'} children="mumber" />
+            )}
+          </Group>
         ))}
       </ScrollArea>
     </List>

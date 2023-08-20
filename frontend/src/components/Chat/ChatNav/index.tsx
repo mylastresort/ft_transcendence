@@ -105,7 +105,7 @@ function ChatNav() {
         ref={ref}
         zIndex={2}
         id="chat-nav"
-        h={'calc(100vh - 76px)'}
+        h={'100%'}
         p="xs"
         w={350}
         maw={'calc(100vw - 88px)'}
