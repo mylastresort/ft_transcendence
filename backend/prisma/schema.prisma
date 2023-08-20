@@ -207,7 +207,7 @@ model Channel {
   updateAt    DateTime         @updatedAt
   channelName String           @unique
   image       String           @default("https://static.vecteezy.com/system/resources/thumbnails/000/426/510/small/Sports__28154_29.jpg")
-  description String?
+  description String
   password    String?
   isProtected Boolean
   isPrivate   Boolean

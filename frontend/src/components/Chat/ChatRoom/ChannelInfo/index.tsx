@@ -28,13 +28,27 @@ interface Member {
   };
 }
 
+interface ChannelI {
+  id: number;
+  createdAt: Date;
+  updateAt: Date;
+  channelName: string;
+  image: string;
+  description: string;
+  password?: string;
+  isProtected: boolean;
+  isPrivate: boolean;
+  members?: any;
+  messages?: any;
+}
+
 function ChannelInfo({ action }) {
   const chatContext = useContext(ChatContext);
   const userContext = useContext(UserContext);
   const jwtToken = localStorage.getItem('jwtToken');
   const theme = useMantineTheme();
   const [members, setMembers]: [Member[], any] = useState([]);
-  const [channel, setChannel] = useState();
+  const [channel, setChannel] = useState({} as ChannelI);
   const router = useRouter();
   useEffect(() => {
     request
@@ -98,8 +112,7 @@ function ChannelInfo({ action }) {
             borderRadius: '10px',
           }}
         >
-          this is description this is description this is description this is
-          description this is description
+          {channel.description}
         </Text>
       </Flex>
       <ListMembers members={members} />

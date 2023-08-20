@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
@@ -15,6 +16,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import ChannelGateway from './channel.gateway';
 import { ChannelService } from './channel.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { CreateChannelDto } from './dto/createChannel.dto';
 
 @Controller('chat/channel')
 export class ChannelController {
@@ -29,7 +31,8 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @UseInterceptors(FileInterceptor('image'))
-  async createChannel(@Req() req: any, @UploadedFile() file): Promise<any> {
+  async createChannel(@Req() req: any, @Body() body: CreateChannelDto, @UploadedFile() file): Promise<any> {
+    console.log("create channel: ", body);
     let fileLocation = undefined;
     if (file) {
       try {
@@ -41,7 +44,7 @@ export class ChannelController {
     }
     const res = await this.channelService.createChannel(
       req.user,
-      req.body,
+      body,
       fileLocation,
     );
     await this.channelGateway.updateChannel(res.members);

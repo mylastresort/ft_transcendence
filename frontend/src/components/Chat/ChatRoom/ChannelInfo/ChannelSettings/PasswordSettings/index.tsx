@@ -27,7 +27,10 @@ export function PasswordSettings({ channel }) {
     },
     validate: {
       password: (value) =>
-        (mode == 'remove' || value.trim().length >= 8) ? null : 'invalid password',
+        mode == 'remove' ||
+        (!value.includes(' ') && value.length >= 8 && value.length <= 16)
+          ? null
+          : 'invalid password',
     },
   });
 
@@ -38,10 +41,9 @@ export function PasswordSettings({ channel }) {
       ]
     : [{ label: 'Set Password', value: 'set' }];
 
-  function setPassword({password}) {
-    console.log( "mode", mode[0], "pass: ", password);
-    const req = 
-    request
+  function setPassword({ password }) {
+    console.log('mode', mode[0], 'pass: ', password);
+    const req = request
       .post('http://localhost:4400/api/chat/channel/settings/password')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send({ id: channel.id, mode: mode[0], pass: password })

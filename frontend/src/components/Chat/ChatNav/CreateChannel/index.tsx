@@ -29,10 +29,16 @@ export function CreateChannel() {
       password: '',
     },
     validate: {
-      name: (value) => (value.trim() ? null : 'Invalid channel name'),
+      name: (value) => (!value.includes(' ') && value.length >= 3 && value.length <= 15 ? null : 'Invalid channel name'),
       password: (value) =>
         controleValue == 'protected' &&
-        (value.trim().length > 8 ? null : 'Invalid password'),
+        (!value.includes(' ') && value.length >= 8 && value.length <= 16
+          ? null
+          : 'Invalid password'),
+      description: (value) =>
+        value.trim().length > 30 && value.trim().length < 150
+          ? null
+          : 'Invalid description',
     },
   });
 
@@ -52,25 +58,25 @@ export function CreateChannel() {
       .set('Authorization', `Bearer ${jwtToken}`)
       .send(data)
       .then((res) => {
-          chatContext.data = {
-            id: res.body.id,
-            name: value.name,
-            img: res.body.image,
-            me: res.body.members[0],
-          };
-          notifications.show({
-            title: `Channel ${value.name} has been created`,
-            message: 'New Channel Lesgooo..',
-            color: 'green'
-          })
-          router.push('/chat/channels');
+        chatContext.data = {
+          id: res.body.id,
+          name: value.name,
+          img: res.body.image,
+          me: res.body.members[0],
+        };
+        notifications.show({
+          title: `Channel ${value.name} has been created`,
+          message: 'New Channel Lesgooo..',
+          color: 'green',
+        });
+        router.push('/chat/channels');
       })
       .catch((err) => {
         notifications.show({
           title: `Channel ${value.name} not created`,
           message: '',
-          color: 'red'
-        })
+          color: 'red',
+        });
       });
   }
   return (
@@ -106,6 +112,7 @@ export function CreateChannel() {
               {...form.getInputProps('name')}
             />
             <TextInput
+              withAsterisk
               label="description"
               placeholder="Description (optional)"
               {...form.getInputProps('description')}
