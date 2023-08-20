@@ -67,10 +67,6 @@ function ChannelInfo({ action }) {
       .post('http://localhost:4400/api/chat/channel/leave')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send({ id: chatContext.data.id })
-      .then((res) => {
-        chatContext.data = undefined!;
-        router.push('/chat');
-      })
       .catch((err) => {
         return err;
       });

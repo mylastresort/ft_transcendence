@@ -98,6 +98,7 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async getMe(@Req() req: any, @Query('id') id: any) {
+    console.log("member: ", req.user, id);
     return await this.channelService.getMe(req.user, +id);
   }
   //leave

@@ -4,7 +4,6 @@ import { useElementSize, useMediaQuery } from '@mantine/hooks';
 import ChatNav from '@/components/Chat/ChatNav';
 import { User, UserContext } from '@/context/user';
 import { GetMe } from '@/pages/api/auth/auth';
-import { theme } from '@nextui-org/react';
 
 
 export default function Chat(ChatRoom) {

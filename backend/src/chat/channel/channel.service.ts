@@ -100,22 +100,36 @@ export class ChannelService {
   //read
   async getChannel(me: Me, channelId: number) {
     try {
-      await this.updateMemberState();
-      return await this.prisma.channel.findFirst({
+      const res = await this.prisma.member.findFirst({
         where: {
-          id: channelId,
-        },
-        include: {
-          members: {
-            where: {
-              isMember: true,
-            },
-            include: {
-              user: true,
-            },
-          },
+          channleId: channelId,
+          userId: me.id,
         },
       });
+      if (res.isBanned){
+        throw "you've been banned from this channel";
+      }
+      else if (!res.isMember){
+        throw "you're not a member of this channel";
+      }
+      else{
+        await this.updateMemberState();
+        return await this.prisma.channel.findFirst({
+          where: {
+            id: channelId,
+          },
+          include: {
+            members: {
+              where: {
+                isMember: true,
+              },
+              include: {
+                user: true,
+              },
+            },
+          },
+        });
+      }
     } catch (error) {
       throw new HttpException(
         {
@@ -229,18 +243,26 @@ export class ChannelService {
 
   async getMe(me: Me, channelId: number) {
     try {
-      return await this.prisma.member.findFirst({
+      const res = await this.prisma.member.findFirst({
         where: {
           channleId: channelId,
           userId: me.id,
-          isMember: true,
         },
       });
+      if (res.isBanned){
+        throw "you've been banned from this channel";
+      }
+      else if (!res.isMember){
+        throw "you're not a member of this channel";
+      }
+      else{
+        return res;
+      }
     } catch (error) {
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
-          error: 'getMe error',
+          error: error,
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -730,7 +752,7 @@ export class ChannelService {
         },
       });
     } catch (error) {
-      console.error('Error updating isMuted status:', error);
+      console.error('Error updating member state:', error);
     }
   }
 }

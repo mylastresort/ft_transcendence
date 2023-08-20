@@ -14,16 +14,34 @@ import { useRouter } from 'next/router';
 import { notifications } from '@mantine/notifications';
 import { UserContext } from '@/context/user';
 import { UserSocket } from '@/context/WsContext';
+import request from 'superagent';
 
 function ChatRoomContent({ isChannel = false }) {
+  const jwtToken = localStorage.getItem('jwtToken');
   const matches = useMediaQuery('(min-width:1000px)');
   const socket = useContext(ChatSocketContext);
   const chatContext = useContext(ChatContext);
   const userContext = useContext(UserContext);
   const route = isChannel ? 'channel' : 'private';
   const [action, setAction] = useState('');
+  const router = useRouter();
+
 
   useEffect(() => {
+    isChannel && request
+    .get(`http://localhost:4400/api/chat/channel/members/me`)
+    .set('Authorization', `Bearer ${jwtToken}`)
+    .query({ id: chatContext.data.id })
+    .catch((err) => {
+      router.push('/chat');
+      notifications.show({
+        title: `You can't join this channel`,
+        message: '',
+        color: 'red',
+      });
+      console.log(err);
+    });
+
     const roomName = isChannel ? chatContext.data.name : chatContext.data.id;
 
     socket.emit(`${route}/join-room`, roomName);
@@ -33,7 +51,6 @@ function ChatRoomContent({ isChannel = false }) {
     };
   }, [chatContext.data]);
 
-  const router = useRouter();
   useEffect(() => {
     UserSocket.on('BlockedEvent', (data) => {
       if (!isChannel && chatContext.data.memberId == data) {
@@ -48,11 +65,7 @@ function ChatRoomContent({ isChannel = false }) {
     });
     socket.on('action', (res) => {
       console.log('action ...', res.action);
-      if (!userContext.data) {
-        chatContext.data = undefined!;
-        router.push('/chat');
-      } else if (res.target == userContext.data.username) {
-        chatContext.data = undefined!;
+      if (res.target == userContext.data.username) {
         router.push('/chat');
         notifications.show({
           title: `You have been ${res.action}!`,
@@ -72,7 +85,7 @@ function ChatRoomContent({ isChannel = false }) {
       socket.off('action');
       UserSocket.off('BlockedEvent');
     };
-  }, [route]);
+  }, [route, userContext, chatContext]);
 
   return (
     <div
