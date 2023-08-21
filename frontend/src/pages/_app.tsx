@@ -144,33 +144,15 @@ export default function App({ Component, pageProps }: AppProps) {
     };
   }, []);
 
-  const [chatSocket, setChatSocket] = useState(useContext(ChatSocketContext));
-
-  useEffect(() => {
-    const socket = io(`http://localhost:4400/chat`, {
-      extraHeaders: {
-        Authorization: `Bearer ${localStorage.getItem('jwtToken')}`,
-      },
-    }).on('connect', () => {
-      console.log('chat socket connected...');
-    });
-    setChatSocket(socket);
-    return () => {
-      socket.off('disconnect', () => {
-        console.log('chat socket disconnecting...');
-      });
-    };
-  }, []);
-
   return (
     <>
-      {/* {IMuser?.isFirstTime && <FirstTimeModal />} */}
+      {IMuser?.isFirstTime && <FirstTimeModal />}
       <MantineProvider theme={Theme} withGlobalStyles withNormalizeCSS>
         <Notifications position="top-right" />
         <WsProvider token={Token}>
           <NextUIProvider>
             <UserContext.Provider value={user}>
-              <ChatSocketProvider value={chatSocket}>
+              <ChatSocketProvider token={Token}>
                 <MainNavbar Show={show} isTwoFactorAuth={isTwoFactorAuth} />
                 <User_Sidebar Show={show} />
                 <Component

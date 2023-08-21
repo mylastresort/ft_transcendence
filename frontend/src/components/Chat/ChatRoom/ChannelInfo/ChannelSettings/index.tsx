@@ -46,7 +46,7 @@ export function ChannelSettings({
   const [time, setTime] = useState('1');
   function deleteUser() {
     request
-      .post('http://localhost:4400/api/chat/channel/delete')
+      .post('http://10.13.1.7:4400/api/chat/channel/delete')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send({ id: chatContext.data.id })
       .catch((err) => {

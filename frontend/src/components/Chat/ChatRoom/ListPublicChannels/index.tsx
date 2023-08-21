@@ -36,7 +36,7 @@ export function ListPublicChannels() {
   const router = useRouter();
   useEffect(() => {
     request
-      .get(`http://localhost:4400/api/chat/channel/public`)
+      .get(`http://10.13.1.7:4400/api/chat/channel/public`)
       .set('Authorization', `Bearer ${jwtToken}`)
       .then((res) => {
         setChannels(res.body);
@@ -48,7 +48,7 @@ export function ListPublicChannels() {
 
   function joinChannel(channel, password: string = '') {
     request
-      .post('http://localhost:4400/api/chat/channel/join')
+      .post('http://10.13.1.7:4400/api/chat/channel/join')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send({ id: channel.id, password: password })
       .then((res) => {
@@ -104,6 +104,8 @@ export function ListPublicChannels() {
                   alt=""
                   style={{
                     width: '200px',
+                    height: '200px',
+                    objectFit: 'cover',
                     margin: '10px 50px',
                     borderRadius: '100px',
                     boxShadow: '0px 0px 10px grey',

@@ -13,6 +13,7 @@ import request from 'superagent';
 
 interface UserInfo{
   id: number;
+  username: string;
   firstName: string;
   lastName: string;
   sammary: string;
@@ -26,7 +27,7 @@ function UserInfo() {
   const chatContext = useContext(ChatContext);
   useEffect(() => {
     request
-      .get(`http://localhost:4400/api/chat/user/${chatContext.data.name}`)
+      .get(`http://10.13.1.7:4400/api/chat/user/${chatContext.data.name}`)
       .set('Authorization', `Bearer ${jwtToken}`)
       .then((res) => {
         setUserInfo(res.body);
@@ -38,7 +39,7 @@ function UserInfo() {
   const online = userInfo.status == 'online'
   function deleteUser() {
     request
-      .post('http://localhost:4400/api/chat/private/delete')
+      .post('http://10.13.1.7:4400/api/chat/private/delete')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send({ id: chatContext.data.id })
       .catch((err) => {
@@ -91,7 +92,7 @@ function UserInfo() {
           <Link href={`/profile/${chatContext.data.name}`}>
             <Button mr={'10%'} w={'45%'} color="blue">View Profile</Button>
           </Link>
-          <Link href={`/game/invite?userId=${userInfo.id}`}>
+          <Link href={`/game/invite?username=${userInfo.username}`}>
             <Button w={'45%'} color="blue">Invite to Play</Button>
           </Link>
           <Button

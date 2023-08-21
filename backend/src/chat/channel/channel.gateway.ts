@@ -13,7 +13,7 @@ import { ChannelService } from './channel.service';
 @WebSocketGateway({
   namespace: 'chat',
   cors: {
-    origin: 'http://localhost:3000',
+    origin: 'http://10.13.1.7:3000',
   },
 })
 @UseGuards(WsJwtGuard)

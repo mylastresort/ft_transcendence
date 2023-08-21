@@ -20,7 +20,7 @@ export function RoomsList({ closeNav }: any) {
   const socket = useContext(ChatSocketContext);
   useEffect(() => {
     request
-      .get('http://localhost:4400/api/chat/channel/me')
+      .get('http://10.13.1.7:4400/api/chat/channel/me')
       .set('Authorization', `Bearer ${jwtToken}`)
       .then((res) => {
         setChannelsList(res.body);
@@ -29,7 +29,7 @@ export function RoomsList({ closeNav }: any) {
         return err;
       });
     request
-      .get('http://localhost:4400/api/chat/private')
+      .get('http://10.13.1.7:4400/api/chat/private')
       .set('Authorization', `Bearer ${jwtToken}`)
       .then((res) => {
         setPrivateChatList(res.body);

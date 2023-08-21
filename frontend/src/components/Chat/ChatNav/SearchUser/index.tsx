@@ -16,7 +16,7 @@ export function SearchUser() {
     close();
     const jwtToken = localStorage.getItem('jwtToken');
     request
-      .post('http://localhost:4400/api/chat/private')
+      .post('http://10.13.1.7:4400/api/chat/private')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send({id: event.id, username: event.nickname })
       .then((res) => {
@@ -37,14 +37,14 @@ export function SearchUser() {
   const jwtToken = localStorage.getItem('jwtToken');
   function requestUsers(event) {
     request
-      .get('http://localhost:4400/api/chat/users')
+      .get('http://10.13.1.7:4400/api/chat/users')
       .set('Authorization', `Bearer ${jwtToken}`)
       .query({ username: event })
       .then((res) => {
         setSearch(
           res.body.map((user) => ({
             title: user.username,
-            description: 'new docs',
+            description: `${user.firstName} ${user.lastName}`,
             icon: <Avatar size="1.2rem" src={user.imgProfile} />,
             onTrigger: () =>
             createNewPrivateChat({ id: user.id, nickname: user.username, img: user.imgProfile}),

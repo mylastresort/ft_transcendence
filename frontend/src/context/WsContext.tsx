@@ -12,7 +12,7 @@ export const WsProvider = ({ children, token }) => {
         Authorization: `Bearer ${token}`,
       },
     };
-    UserSocket = io('http://localhost:4400/userws', socketOptions);
+    UserSocket = io('http://10.13.1.7:4400/userws', socketOptions);
     UserSocket.on('connect', () => {
       return;
     });
