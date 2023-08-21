@@ -13,6 +13,7 @@ import request from 'superagent';
 
 interface UserInfo{
   id: number;
+  username: string;
   firstName: string;
   lastName: string;
   sammary: string;
@@ -91,7 +92,7 @@ function UserInfo() {
           <Link href={`/profile/${chatContext.data.name}`}>
             <Button mr={'10%'} w={'45%'} color="blue">View Profile</Button>
           </Link>
-          <Link href={`/game/invite?userId=${userInfo.id}`}>
+          <Link href={`/game/invite?username=${userInfo.username}`}>
             <Button w={'45%'} color="blue">Invite to Play</Button>
           </Link>
           <Button

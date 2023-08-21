@@ -92,6 +92,7 @@ export class ChatService {
         },
         select: {
           id: true,
+          username: true,
           firstName: true,
           lastName: true,
           sammary: true,
