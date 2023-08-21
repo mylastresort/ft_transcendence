@@ -3,8 +3,7 @@ import Message from './Message';
 import { useContext, useEffect, useState } from 'react';
 import { ChatContext } from '@/context/chat';
 import request from 'superagent';
-import { ChatSocketContext, socket } from '@/context/chatSocketContext';
-import { UserContext } from '@/context/user';
+import { ChatSocketContext } from '@/context/chatSocketContext';
 import { UserSocket } from '@/context/WsContext';
 
 interface MessageI {
@@ -19,7 +18,6 @@ export default function MsgList({ h, isChannel = false }) {
   const jwtToken = localStorage.getItem('jwtToken');
   const socket = useContext(ChatSocketContext);
   const chatContext = useContext(ChatContext);
-  const userContext = useContext(UserContext);
 
   const route = isChannel ? 'channel' : 'private';
   const [messages, setMessages]: [
@@ -96,7 +94,6 @@ export default function MsgList({ h, isChannel = false }) {
       >
         {messages.map((message) => (
           <Message
-            me={userContext.data.username}
             key={message.id}
             content={message.content}
             sendBy={isChannel ? message.sender.user : message.sender}

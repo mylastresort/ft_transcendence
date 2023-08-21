@@ -104,6 +104,8 @@ export function ListPublicChannels() {
                   alt=""
                   style={{
                     width: '200px',
+                    height: '200px',
+                    objectFit: 'cover',
                     margin: '10px 50px',
                     borderRadius: '100px',
                     boxShadow: '0px 0px 10px grey',
