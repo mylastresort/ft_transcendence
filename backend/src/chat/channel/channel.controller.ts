@@ -16,7 +16,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import ChannelGateway from './channel.gateway';
 import { ChannelService } from './channel.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreateChannelDto } from './dto/createChannel.dto';
+import { CreateChannelDto } from './dto/CreateChannel.dto';
 
 @Controller('chat/channel')
 export class ChannelController {
