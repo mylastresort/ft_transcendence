@@ -27,7 +27,7 @@ function UserInfo() {
   const chatContext = useContext(ChatContext);
   useEffect(() => {
     request
-      .get(`http://localhost:4400/api/chat/user/${chatContext.data.name}`)
+      .get(`http://10.13.1.7:4400/api/chat/user/${chatContext.data.name}`)
       .set('Authorization', `Bearer ${jwtToken}`)
       .then((res) => {
         setUserInfo(res.body);
@@ -39,7 +39,7 @@ function UserInfo() {
   const online = userInfo.status == 'online'
   function deleteUser() {
     request
-      .post('http://localhost:4400/api/chat/private/delete')
+      .post('http://10.13.1.7:4400/api/chat/private/delete')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send({ id: chatContext.data.id })
       .catch((err) => {

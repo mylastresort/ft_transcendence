@@ -20,7 +20,7 @@ export function AddMember() {
       },
     };
     request
-      .post('http://localhost:4400/api/chat/channel/create-member')
+      .post('http://10.13.1.7:4400/api/chat/channel/create-member')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send(newMember)
       .then((res) => {
@@ -46,7 +46,7 @@ export function AddMember() {
   const jwtToken = localStorage.getItem('jwtToken');
   function requestUsers(event) {
     request
-      .get('http://localhost:4400/api/chat/users')
+      .get('http://10.13.1.7:4400/api/chat/users')
       .set('Authorization', `Bearer ${jwtToken}`)
       .query({ username: event })
       .then((res) => {

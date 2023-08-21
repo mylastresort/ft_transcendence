@@ -36,7 +36,7 @@ export function MemberSettings({ members }) {
       time: inputTime,
     };
     request
-      .post('http://localhost:4400/api/chat/channel/settings/members')
+      .post('http://10.13.1.7:4400/api/chat/channel/settings/members')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send(data)
       .then((res) => {

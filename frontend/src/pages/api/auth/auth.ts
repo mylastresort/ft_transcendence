@@ -13,7 +13,7 @@ export const PostTokens = (url: string) => {
 
 export const PostLogin = (AcToken: string) => {
   return request
-    .post('http://localhost:4400/api/v1/auth/register')
+    .post('http://10.13.1.7:4400/api/v1/auth/register')
     .set('Authorization', `Bearer ${AcToken}`)
     .then((res) => {
       return res;
@@ -27,7 +27,7 @@ export const GetMe = () => {
   const jwtToken = localStorage.getItem('jwtToken');
 
   return request
-    .get('http://localhost:4400/api/v1/auth/me')
+    .get('http://10.13.1.7:4400/api/v1/auth/me')
     .set('Authorization', `Bearer ${jwtToken}`)
     .then((res) => {
       return res;
@@ -40,7 +40,7 @@ export const GetMe = () => {
 export const Post2fa = (data: any) => {
   const jwtToken = localStorage.getItem('jwtToken');
   return request
-    .post('http://localhost:4400/api/v1/auth/Get2fa')
+    .post('http://10.13.1.7:4400/api/v1/auth/Get2fa')
     .set('Authorization', `Bearer ${jwtToken}`)
     .send(data)
     .then((res) => {
@@ -54,7 +54,7 @@ export const Post2fa = (data: any) => {
 export const PostVerify2fa = (data: any) => {
   const jwtToken = localStorage.getItem('jwtToken');
   return request
-    .post('http://localhost:4400/api/v1/auth/Verify2fa')
+    .post('http://10.13.1.7:4400/api/v1/auth/Verify2fa')
     .set('Authorization', `Bearer ${jwtToken}`)
     .send(data)
     .then((res) => {
@@ -68,7 +68,7 @@ export const PostVerify2fa = (data: any) => {
 export const PostVerify2faTmp = (data: any) => {
   const TmpJwt = localStorage.getItem('TmpJwt');
   return request
-    .post('http://localhost:4400/api/v1/auth/Verify2faTmp')
+    .post('http://10.13.1.7:4400/api/v1/auth/Verify2faTmp')
     .set('Authorization', `Bearer ${TmpJwt}`)
     .send(data)
     .then((res) => {

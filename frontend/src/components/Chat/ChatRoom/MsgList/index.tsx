@@ -31,7 +31,7 @@ export default function MsgList({ h, isChannel = false }) {
 
   useEffect(() => {
     request
-    .get(`http://localhost:4400/api/chat/users/blocked`)
+    .get(`http://10.13.1.7:4400/api/chat/users/blocked`)
     .set('Authorization', `Bearer ${jwtToken}`)
     .then((res) => {
       console.log("blocked users: ", res.body);
@@ -44,7 +44,7 @@ export default function MsgList({ h, isChannel = false }) {
 
   useEffect(() => {
     request
-      .get(`http://localhost:4400/api/chat/${route}/msgs`)
+      .get(`http://10.13.1.7:4400/api/chat/${route}/msgs`)
       .set('Authorization', `Bearer ${jwtToken}`)
       .query({ id: chatContext.data.id })
       .then((res) => {

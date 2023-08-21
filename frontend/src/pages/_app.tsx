@@ -147,7 +147,7 @@ export default function App({ Component, pageProps }: AppProps) {
   const [chatSocket, setChatSocket] = useState(useContext(ChatSocketContext));
 
   useEffect(() => {
-    const socket = io(`http://localhost:4400/chat`, {
+    const socket = io(`http://10.13.1.7:4400/chat`, {
       extraHeaders: {
         Authorization: `Bearer ${localStorage.getItem('jwtToken')}`,
       },

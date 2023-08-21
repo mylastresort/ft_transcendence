@@ -21,7 +21,7 @@ export function AdminSettings({ members }: any) {
   function setAdministrator({ member }) {
     console.log('member: ', member);
     request
-      .post('http://localhost:4400/api/chat/channel/settings/admin')
+      .post('http://10.13.1.7:4400/api/chat/channel/settings/admin')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send({nickname: member})
       .then((res) => {

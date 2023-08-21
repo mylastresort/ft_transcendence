@@ -22,7 +22,7 @@ export default async function handler(
         client_id: process.env.FORTYTWO_CLIENT_ID,
         client_secret: process.env.FORTYTWO_CLIENT_SECRET,
         code: access_code,
-        redirect_uri: 'http://localhost:3000/api/auth/callback',
+        redirect_uri: 'http://10.13.1.7:3000/api/auth/callback',
       }),
     });
     const data = await response.json();
