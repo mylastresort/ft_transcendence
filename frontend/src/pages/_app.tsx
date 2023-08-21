@@ -19,15 +19,11 @@ import {
   Stack,
   Text,
   Modal,
+  MantineThemeOverride,
 } from '@mantine/core';
 import Theme from './styles/theme.json';
 import { Notifications, notifications } from '@mantine/notifications';
 
-import {
-  ChatSocketContext,
-  ChatSocketProvider,
-} from '@/context/chatSocketContext';
-import { Socket, io } from 'socket.io-client';
 
 export default function App({ Component, pageProps }: AppProps) {
   let user = useContext(UserContext);
@@ -152,15 +148,13 @@ export default function App({ Component, pageProps }: AppProps) {
         <WsProvider token={Token}>
           <NextUIProvider>
             <UserContext.Provider value={user}>
-              <ChatSocketProvider token={Token}>
-                <MainNavbar Show={show} isTwoFactorAuth={isTwoFactorAuth} />
-                <User_Sidebar Show={show} />
-                <Component
-                  {...pageProps}
-                  setIsTwoFactorAuth={setIsTwoFactorAuth}
-                />
-                <Footer Show={show} isTwoFactorAuth={isTwoFactorAuth} />
-              </ChatSocketProvider>
+              <MainNavbar Show={show} isTwoFactorAuth={isTwoFactorAuth} />
+              <User_Sidebar Show={show} />
+              <Component
+                {...pageProps}
+                setIsTwoFactorAuth={setIsTwoFactorAuth}
+              />
+              <Footer Show={show} isTwoFactorAuth={isTwoFactorAuth} />
             </UserContext.Provider>
           </NextUIProvider>
         </WsProvider>
