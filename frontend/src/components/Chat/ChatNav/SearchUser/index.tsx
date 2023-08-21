@@ -44,7 +44,7 @@ export function SearchUser() {
         setSearch(
           res.body.map((user) => ({
             title: user.username,
-            description: 'new docs',
+            description: `${user.firstName} ${user.lastName}`,
             icon: <Avatar size="1.2rem" src={user.imgProfile} />,
             onTrigger: () =>
             createNewPrivateChat({ id: user.id, nickname: user.username, img: user.imgProfile}),

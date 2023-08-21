@@ -53,7 +53,7 @@ export function AddMember() {
         setSearch(
           res.body.map((user) => ({
             title: user.username,
-            description: 'new docs',
+            description: `${user.firstName} ${user.lastName}`,
             icon: <Avatar size="1.2rem" src={user.imgProfile} />,
             onTrigger: () =>
               createMember({ id: user.id, nickname: user.username }),
