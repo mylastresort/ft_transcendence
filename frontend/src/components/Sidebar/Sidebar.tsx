@@ -251,14 +251,14 @@ export const User_Sidebar = (Show: any) => {
       toggle = body.querySelector('.toggle'),
       searchBtn = body.querySelector('.search-box'),
       modeSwitch = body.querySelector('.toggle-switch'),
-      modeText = body.querySelector('.mode-text');
+      modeText = body.querySelector('.mode-text') as HTMLElement;
 
     const handleToggleClick = () => {
-      sidebar.classList.toggle('close');
+      sidebar?.classList.toggle('close');
     };
 
     const handleSearchClick = () => {
-      sidebar.classList.remove('close');
+      sidebar?.classList.remove('close');
     };
 
     const handleModeClick = () => {
@@ -272,7 +272,7 @@ export const User_Sidebar = (Show: any) => {
     };
 
     return () => {
-      modeSwitch.removeEventListener('click', handleModeClick);
+      modeSwitch?.removeEventListener('click', handleModeClick);
     };
   }, []);
 
@@ -317,6 +317,7 @@ export const User_Sidebar = (Show: any) => {
         <div className="menu-bar">
           <div className="menu">
             <li
+              key={1}
               className="search-box"
               style={{ backgroundColor: 'var(--body-color)' }}
             >
@@ -340,6 +341,7 @@ export const User_Sidebar = (Show: any) => {
             <Spacer y={0.5} />
             <ul className="menu-links">
               <li
+              key={11}
                 className={`nav-link ${Clickedon === 1 ? 'activeSelect' : ''}`}
                 onClick={() => {
                   HandleSelected(1);
@@ -366,6 +368,7 @@ export const User_Sidebar = (Show: any) => {
 
             <ul className="menu-links">
               <li
+              key={22}
                 className={`nav-link ${Clickedon === 2 ? 'activeSelect' : ''}`}
                 onClick={() => {
                   HandleSelected(2);
@@ -392,6 +395,7 @@ export const User_Sidebar = (Show: any) => {
 
             <ul className="menu-links">
               <li
+              key={33}
                 className={`nav-link ${Clickedon === 3 ? 'activeSelect' : ''}`}
                 onClick={() => {
                   HandleSelected(3);
@@ -418,6 +422,7 @@ export const User_Sidebar = (Show: any) => {
 
             <ul className="menu-links">
               <li
+              key={44}
                 className={`nav-link ${Clickedon === 5 ? 'activeSelect' : ''}`}
                 onClick={() => {
                   HandleSelected(5);
@@ -444,14 +449,14 @@ export const User_Sidebar = (Show: any) => {
           </div>
 
           <div className="bottom-content">
-            <li className="">
+            <li className="" key={55}>
               <a onClick={HandleLogout}>
                 <i className="bx bx-log-out icon"></i>
                 <span className="text nav-text">Logout</span>
               </a>
             </li>
 
-            <li className="mode">
+            <li className="mode" key={56}>
               <div className="sun-moon">
                 <i className="bx bx-moon icon moon"></i>
                 <i className="bx bx-sun icon sun"></i>
@@ -491,7 +496,7 @@ export const User_Sidebar = (Show: any) => {
               width={300}
               shadow="md"
               position="bottom-end"
-              closeOnItemClick={0}
+              closeOnItemClick={false}
             >
               <Menu.Target>
                 <Grid

@@ -25,20 +25,25 @@ export function CreateChannel() {
   const form = useForm({
     initialValues: {
       name: '',
-      description: '',
+      description: 'no description was given',
       password: '',
     },
     validate: {
-      name: (value) => (!value.includes(' ') && value.length >= 3 && value.length <= 15 ? null : 'Invalid channel name'),
+      name: (value) =>
+        !value.includes(' ') && value.length >= 3 && value.length <= 15
+          ? null
+          : 'Invalid channel name',
       password: (value) =>
         controleValue == 'protected' &&
         (!value.includes(' ') && value.length >= 8 && value.length <= 16
           ? null
           : 'Invalid password'),
       description: (value) =>
-        value.trim().length > 30 && value.trim().length < 150
-          ? null
-          : 'Invalid description',
+        value.trim().length < 20
+          ? 'description is too short'
+          : value.trim().length > 150
+          ? 'description is too long'
+          : null,
     },
   });
 
@@ -114,7 +119,7 @@ export function CreateChannel() {
             <TextInput
               withAsterisk
               label="description"
-              placeholder="Description (optional)"
+              placeholder="Description"
               {...form.getInputProps('description')}
             />
             <FileInput
