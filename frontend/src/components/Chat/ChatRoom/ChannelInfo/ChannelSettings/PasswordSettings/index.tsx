@@ -44,7 +44,7 @@ export function PasswordSettings({ channel }) {
   function setPassword({ password }) {
     console.log('mode', mode[0], 'pass: ', password);
     const req = request
-      .post('http://10.13.1.7:4400/api/chat/channel/settings/password')
+      .post(process.env.BACKEND_DOMAIN + '/api/chat/channel/settings/password')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send({ id: channel.id, mode: mode[0], pass: password })
       .then((res) => {

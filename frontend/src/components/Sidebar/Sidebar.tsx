@@ -81,7 +81,7 @@ export const User_Sidebar = (Show: any) => {
                 color="cyan"
                 onClick={() => {
                   request
-                    .get(`http://10.13.1.7:4400/api/v1/game/${data.gameid}`)
+                    .get(`${process.env.BACKEND_DOMAIN}/api/v1/game/${data.gameid}`)
                     .set(
                       'Authorization',
                       `Bearer ${localStorage.getItem('jwtToken')}`
@@ -108,7 +108,7 @@ export const User_Sidebar = (Show: any) => {
                   handleCleanNotifications();
                   request
                     .post(
-                      `http://10.13.1.7:4400/api/v1/game/invite/cancel/${data.gameid}`
+                      `${process.env.BACKEND_DOMAIN}/api/v1/game/invite/cancel/${data.gameid}`
                     )
                     .set(
                       'Authorization',
@@ -600,7 +600,7 @@ export const User_Sidebar = (Show: any) => {
                                     onClick={() => {
                                       request
                                         .get(
-                                          `http://10.13.1.7:4400/api/v1/game/${item.gameid}`
+                                          `${process.env.BACKEND_DOMAIN}/api/v1/game/${item.gameid}`
                                         )
                                         .set(
                                           'Authorization',
@@ -633,7 +633,7 @@ export const User_Sidebar = (Show: any) => {
                                     onClick={() => {
                                       request
                                         .post(
-                                          `http://10.13.1.7:4400/api/v1/game/invite/cancel/${item.gameid}`
+                                          `${process.env.BACKEND_DOMAIN}/api/v1/game/invite/cancel/${item.gameid}`
                                         )
                                         .set(
                                           'Authorization',

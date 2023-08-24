@@ -26,7 +26,7 @@ export default function Accept() {
       game.socket?.emit('watch-user-status', game.opponent.userId);
     let started = false;
     request
-      .get('http://10.13.1.7:4400/api/v1/game/player/me/currentGame')
+      .get(process.env.BACKEND_DOMAIN + '/api/v1/game/player/me/currentGame')
       .set('Authorization', `Bearer ${localStorage.getItem('jwtToken')}`)
       .then((res) => {
         if (res.status !== 200) return router.push('/game');
@@ -62,7 +62,7 @@ export default function Accept() {
   useEffect(() => {
     if (game.socket && !game.gameStatus && router.query.id) {
       request
-        .get(`http://10.13.1.7:4400/api/v1/game/${router.query.id}`)
+        .get(`${process.env.BACKEND_DOMAIN}/api/v1/game/${router.query.id}`)
         .set('Authorization', `Bearer ${localStorage.getItem('jwtToken')}`)
         .then((res) => {
           if (res.status !== 200) return router.push('/game');
@@ -196,7 +196,7 @@ export default function Accept() {
               onClick={() => {
                 request
                   .post(
-                    `http://10.13.1.7:4400/api/v1/game/invite/cancel/${game.gameId}`
+                    `${process.env.BACKEND_DOMAIN}/api/v1/game/invite/cancel/${game.gameId}`
                   )
                   .set(
                     'Authorization',

@@ -54,7 +54,7 @@ export function CreateChannel() {
     data.append('password', value.password);
     const jwtToken = localStorage.getItem('jwtToken');
     request
-      .post('http://10.13.1.7:4400/api/chat/channel')
+      .post(process.env.BACKEND_DOMAIN + '/api/chat/channel')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send(data)
       .then((res) => {

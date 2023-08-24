@@ -11,7 +11,7 @@ export default function Chat(ChatRoom) {
   return () => {
     const [user, setUser] = useState({} as User);
     const jwtToken = localStorage.getItem('jwtToken');
-    const chatSocketContext = io('http://10.13.1.7:4400/chat', {
+    const chatSocketContext = io(process.env.BACKEND_DOMAIN + '/chat', {
       extraHeaders: {
         Authorization: `Bearer ${jwtToken}`,
       },
