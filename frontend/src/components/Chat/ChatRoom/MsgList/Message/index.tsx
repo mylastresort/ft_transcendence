@@ -6,7 +6,7 @@ import { useContext, useEffect, useState } from 'react';
 export default function Message({content, sendBy}) {
   const userContext = useContext(UserContext);
    return (
-    sendBy.username === userContext.data.username ?
+    userContext.data && sendBy.username === userContext.data.username ?
         <Group pb={15} w={'100%'}
         style={{
           display: 'flex',

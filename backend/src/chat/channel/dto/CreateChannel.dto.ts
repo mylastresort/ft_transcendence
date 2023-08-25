@@ -21,7 +21,7 @@ export class CreateChannelDto {
   password: string;
 
   @IsString()
-  @MinLength(30)
+  @MinLength(20)
   @MaxLength(150)
   description: string;
 

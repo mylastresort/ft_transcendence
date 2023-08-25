@@ -29,7 +29,7 @@ function ChatRoomContent({ isChannel = false }) {
 
   useEffect(() => {
     isChannel && request
-    .get(`http://10.13.1.7:4400/api/chat/channel/members/me`)
+    .get(process.env.BACKEND_DOMAIN + '/api/chat/channel/members/me')
     .set('Authorization', `Bearer ${jwtToken}`)
     .query({ id: chatContext.data.id })
     .catch((err) => {

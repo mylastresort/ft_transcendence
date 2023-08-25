@@ -10,7 +10,8 @@ const nextConfig = {
     ];
   },
   env: {
-    // BACKEND_URL:http://10.13.1.7:4400/api/chat
+    FRONTEND_DOMAIN:'http://10.13.1.5:3000',
+    BACKEND_DOMAIN:'http://10.13.1.5:4400'
   }
 };
 

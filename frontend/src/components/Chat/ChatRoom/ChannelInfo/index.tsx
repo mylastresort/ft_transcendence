@@ -52,7 +52,7 @@ function ChannelInfo({ action }) {
   const router = useRouter();
   useEffect(() => {
     request
-      .get('http://10.13.1.7:4400/api/chat/channel')
+      .get(process.env.BACKEND_DOMAIN + '/api/chat/channel')
       .set('Authorization', `Bearer ${jwtToken}`)
       .query({ id: chatContext.data.id })
       .then((res) => {
@@ -66,7 +66,7 @@ function ChannelInfo({ action }) {
 
   useEffect(() => {
     request
-      .get('http://10.13.1.7:4400/api/chat/channel/members')
+      .get(process.env.BACKEND_DOMAIN + '/api/chat/channel/members')
       .set('Authorization', `Bearer ${jwtToken}`)
       .query({ id: chatContext.data.id })
       .then((res) => {
@@ -78,7 +78,7 @@ function ChannelInfo({ action }) {
   }, [action]);
   function leaveChannel() {
     request
-      .post('http://10.13.1.7:4400/api/chat/channel/leave')
+      .post(process.env.BACKEND_DOMAIN + '/api/chat/channel/leave')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send({ id: chatContext.data.id })
       .catch((err) => {

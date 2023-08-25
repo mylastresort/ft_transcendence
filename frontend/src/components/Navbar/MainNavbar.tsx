@@ -9,7 +9,7 @@ export const MainNavbar = ({ Show, isTwoFactorAuth }) => {
 
   const router = useRouter();
   const handleLogin = () => {
-    router.push('http://10.13.1.7:4400/api/v1/auth/42');
+    router.push(process.env.BACKEND_DOMAIN + '/api/v1/auth/42');
   };
 
   return (
