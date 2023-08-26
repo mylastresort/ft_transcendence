@@ -1,6 +1,7 @@
 import { Grid, Image, Button } from '@nextui-org/react';
 import '@fontsource/poppins';
 import { useRouter } from 'next/router';
+import { LoginButton } from '../LandingPage/LoginButton';
 
 export const MainNavbar = ({ Show, isTwoFactorAuth }) => {
   if (!Show || isTwoFactorAuth) {
@@ -24,22 +25,10 @@ export const MainNavbar = ({ Show, isTwoFactorAuth }) => {
       }}
     >
       <div>
-        <img src="/images/LOGO.png" alt="Logo" style={{ width: '100px' }} />
+        <img src="/logo.svg" alt="Logo" style={{ height: '50px' }} />
       </div>
       <div>
-        <Button
-          auto
-          color="error"
-          css={{
-            fontFamily: 'poppins',
-            fontSize: '1.1rem',
-            fontWeight: '600',
-            padding: '0 1.8em 0 1.8em',
-          }}
-          onClick={handleLogin}
-        >
-          Login
-        </Button>
+        <LoginButton s={'sm'}/>
       </div>
     </nav>
   );

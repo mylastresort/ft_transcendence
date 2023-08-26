@@ -154,7 +154,7 @@ export default function App({ Component, pageProps }: AppProps) {
                 {...pageProps}
                 setIsTwoFactorAuth={setIsTwoFactorAuth}
               />
-              <Footer Show={show} isTwoFactorAuth={isTwoFactorAuth} />
+              {/* <Footer Show={show} isTwoFactorAuth={isTwoFactorAuth} /> */}
             </UserContext.Provider>
           </NextUIProvider>
         </WsProvider>

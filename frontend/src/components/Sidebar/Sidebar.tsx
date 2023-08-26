@@ -304,7 +304,7 @@ export const User_Sidebar = (Show: any) => {
         <header>
           <div className="image-text">
             <span className="image">
-              <Image src="/images/LOGO.png" />
+              <Image src="logo.svg" />
             </span>
 
             <div className="text logo-text">
