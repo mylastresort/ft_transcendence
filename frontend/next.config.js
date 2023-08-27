@@ -5,13 +5,13 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://10.13.10.18:4400/api/:path*',
+        destination: 'http://localhost:4400/api/:path*',
       },
     ];
   },
   env: {
-    FRONTEND_DOMAIN:'http://10.13.10.18:3000',
-    BACKEND_DOMAIN:'http://10.13.10.18:4400'
+    FRONTEND_DOMAIN:'http://localhost:3000',
+    BACKEND_DOMAIN:'http://localhost:4400'
   }
 };
 
