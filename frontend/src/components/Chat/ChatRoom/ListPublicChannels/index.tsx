@@ -1,5 +1,4 @@
 import { ChatContext } from '@/context/chat';
-import { UserContext } from '@/context/user';
 import { useDisclosure } from '@mantine/hooks';
 import {
   Badge,
