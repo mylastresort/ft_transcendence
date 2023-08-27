@@ -14,6 +14,7 @@ import {
 import { useRouter } from 'next/router';
 import { LoginButton } from './LoginButton';
 import { useMediaQuery } from '@mui/material';
+import { FlashLight } from './flashLight';
 
 const useStyles = createStyles((theme) => ({
   button: {
@@ -33,6 +34,12 @@ const useStyles = createStyles((theme) => ({
 }));
 
 function LandingPage() {
+  var doc = document.documentElement;
+  const handleEvent = (ev: any) => {
+    console.log('flash event: ', ev);
+    doc.style.setProperty('--x', ev.clientX + 'px');
+    doc.style.setProperty('--y', ev.clientY + 'px');
+  };
   const matches = useMediaQuery('(min-width: 1000px)');
   const { classes } = useStyles();
   return (
@@ -42,10 +49,12 @@ function LandingPage() {
       align={'center'}
       justify={'space-between'}
       style={{
-        flexDirection: 'column'
+        flexDirection: 'column',
       }}
+      onMouseMove={handleEvent}
     >
       <Box w={'100vw'} h={'100vh'} pos={'fixed'} bg={'#D9DBD4'} />
+      {/* <FlashLight /> */}
       <Flex
         h={'100%'}
         w={'100%'}
