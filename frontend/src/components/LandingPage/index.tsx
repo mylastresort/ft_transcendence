@@ -7,6 +7,7 @@ import {
   Center,
   Flex,
   List,
+  ScrollArea,
   Text,
   createStyles,
 } from '@mantine/core';
@@ -22,46 +23,56 @@ const useStyles = createStyles((theme) => ({
     padding: '4px',
     margin: '10px',
     '&:hover': {
-        cursor: 'pointer',
-        borderColor: '#F31260',
-        color: '#F31260',
-        boxShadow: '0px 0px 10px #F31260',
-        textShadow: '0px 0px 3px #F31260',
-    }
+      cursor: 'pointer',
+      borderColor: '#F31260',
+      color: '#F31260',
+      boxShadow: '0px 0px 10px #F31260',
+      textShadow: '0px 0px 3px #F31260',
+    },
   },
 }));
 
 function LandingPage() {
-const matches = useMediaQuery('(min-width: 1000px)');
+  const matches = useMediaQuery('(min-width: 1000px)');
   const { classes } = useStyles();
   return (
     <Flex
-      pos={'fixed'}
-      align="center"
-      justify={'center'}
-      style={{ width: '100vw', height: '100vh', flexDirection: 'column' }}
-      bg={'#D9DBD4'}
-    >
-      <Flex
+      w={'100vw'}
+      h={'100vh'}
+      align={'center'}
+      justify={'space-between'}
       style={{
-        flexDirection: matches ? 'row' : 'column'
-      }}>
+        flexDirection: 'column'
+      }}
+    >
+      <Box w={'100vw'} h={'100vh'} pos={'fixed'} bg={'#D9DBD4'} />
+      <Flex
+        h={'100%'}
+        w={'100%'}
+        maw={'2600px'}
+        mt={'100px'}
+        align={'center'}
+        justify={'space-evenly'}
+        style={{
+          flexDirection: matches ? 'row' : 'column',
+        }}
+      >
         <Box
           w={matches ? '50%' : '100%'}
+          maw={'900px'}
           h={'50%'}
           pl={'10%'}
           sx={{
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'flex-start',
             justifyContent: 'center',
+            zIndex: 1,
           }}
         >
           <img
             src="/logo.svg"
             style={{
               width: '70%',
-              left: '0px',
               objectFit: 'cover',
               zIndex: 0,
             }}
@@ -76,6 +87,7 @@ const matches = useMediaQuery('(min-width: 1000px)');
         </Box>
         <Box
           w={matches ? '50%' : '100%'}
+          maw={'900px'}
           h={'50%'}
           mt={10}
           sx={{
@@ -84,9 +96,8 @@ const matches = useMediaQuery('(min-width: 1000px)');
           }}
         >
           <img
-            src="https://cdn.dribbble.com/users/1449753/screenshots/4579883/media/6a81f249bd433ea0bd4ea80e17e127fc.gif"
+            src="/images/PingPongBg2.gif"
             style={{
-              width: '100%',
               zIndex: 0,
             }}
           />
@@ -94,16 +105,12 @@ const matches = useMediaQuery('(min-width: 1000px)');
       </Flex>
       <Box
         w={'100%'}
-        h={'190px'}
+        h={'120px'}
         sx={{
-          position: 'absolute',
-          bottom: '0px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          '&a': {
-            color: 'red',
-          },
+          zIndex: 100,
         }}
       >
         <Text color="black">Made By:</Text>

@@ -16,12 +16,15 @@ export const MainNavbar = ({ Show, isTwoFactorAuth }) => {
   return (
     <nav
       style={{
-        backgroundColor: 'var(--sidebar-color)',
         display: 'flex',
+        width: '100vw',
+        position: 'fixed',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '15px 20px',
         borderBottom: '1px solid #2C3A4A',
+        padding: '15px 20px',
+        backgroundColor: 'var(--sidebar-color)',
+        zIndex: 2,
       }}
     >
       <div>
