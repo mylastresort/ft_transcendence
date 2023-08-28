@@ -32,7 +32,6 @@ export default function MsgList({ h, isChannel = false }) {
     .get(process.env.BACKEND_DOMAIN + '/api/chat/users/blocked')
     .set('Authorization', `Bearer ${jwtToken}`)
     .then((res) => {
-      console.log("blocked users: ", res.body);
       setBlocked(res.body);
     })
     .catch((err) => {

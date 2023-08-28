@@ -55,6 +55,11 @@ export function PasswordSettings({ channel }) {
         });
       })
       .catch((err) => {
+        notifications.show({
+          title: `There was an error ${mode}ing the password`,
+          message: '',
+          color: 'red',
+        });
         return err;
       });
     form.reset();

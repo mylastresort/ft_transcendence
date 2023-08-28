@@ -603,6 +603,7 @@ export class ChannelService {
         },
         data: {
           isAdministator: true,
+          isMuted: false,
         },
       });
     } catch (error) {

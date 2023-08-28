@@ -118,7 +118,7 @@ function LandingPage() {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          zIndex: 100,
+          zIndex: 2,
         }}
       >
         <Text color="black">Made By:</Text>

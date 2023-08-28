@@ -17,6 +17,7 @@ import ChannelGateway from './channel.gateway';
 import { ChannelService } from './channel.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateChannelDto } from './dto/createChannel.dto';
+import { AdminDto, MembersDto, PasswordDto } from './dto/ChannelSettings.dto';
 
 @Controller('chat/channel')
 export class ChannelController {
@@ -120,8 +121,8 @@ export class ChannelController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  async membersSettings(@Req() req: any): Promise<any> {
-    const res = await this.channelService.membersSettings(req.user, req.body);
+  async membersSettings(@Req() req: any, @Body() body: MembersDto): Promise<any> {
+    const res = await this.channelService.membersSettings(req.user, body);
 
     this.channelGateway.notifyMember(res, req.body);
 
@@ -132,7 +133,7 @@ export class ChannelController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  async adminSettings(@Req() req: any): Promise<any> {
+  async adminSettings(@Req() req: any, @Body() body :AdminDto): Promise<any> {
     return this.channelService.adminSettings(req.user, req.body);
   }
 
@@ -140,8 +141,8 @@ export class ChannelController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  async passwordSettings(@Req() req: any): Promise<any> {
-    return this.channelService.passwordSettings(req.user, req.body);
+  async passwordSettings(@Req() req: any, @Body() body: PasswordDto): Promise<any> {
+    return this.channelService.passwordSettings(req.user, body);
   }
 
   //create

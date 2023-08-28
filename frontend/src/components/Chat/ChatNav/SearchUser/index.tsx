@@ -24,6 +24,7 @@ export function SearchUser() {
           id: res.body.id,
           name: event.nickname,
           img: event.img,
+          memberId: res.body.members[0].id,
         };
         router.push('/chat/private');
       })

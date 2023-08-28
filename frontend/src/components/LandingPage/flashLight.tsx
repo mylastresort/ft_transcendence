@@ -15,7 +15,7 @@ export function FlashLight() {
         pointerEvents: 'none',
         background: theme
           ? 'transparent'
-          : 'radial-gradient(circle at var(--x) var(--y), transparent 10%, rgba(0, 0, 0, 0.9) 20%)',
+          : 'radial-gradient(circle at var(--x) var(--y), transparent 10%, rgba(0, 0, 0, 0.94) 20%)',
         zIndex: 100,
       }}
     >
