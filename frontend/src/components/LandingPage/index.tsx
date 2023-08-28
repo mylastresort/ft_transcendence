@@ -36,7 +36,6 @@ const useStyles = createStyles((theme) => ({
 function LandingPage() {
   var doc = document.documentElement;
   const handleEvent = (ev: any) => {
-    console.log('flash event: ', ev);
     doc.style.setProperty('--x', ev.clientX + 'px');
     doc.style.setProperty('--y', ev.clientY + 'px');
   };
@@ -54,7 +53,7 @@ function LandingPage() {
       onMouseMove={handleEvent}
     >
       <Box w={'100vw'} h={'100vh'} pos={'fixed'} bg={'#D9DBD4'} />
-      {/* <FlashLight /> */}
+      <FlashLight />
       <Flex
         h={'100%'}
         w={'100%'}
