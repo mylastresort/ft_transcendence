@@ -52,27 +52,30 @@ export default function MsgList({ h, isChannel = false }) {
       .catch((err) => {
         console.log(err);
       });
-  }, [chatContext.data.id, blocked]);
+      socket.on(`${route}/newMsg`, (newMessage) => {
+        const senderId : number = isChannel ? newMessage.sender.userId : newMessage.senderId;
+        if (!blocked.includes(senderId)){
+          setMessages((prevMessages) => [...prevMessages, newMessage]);
+        }
+      });
+      return ()=>{
+        socket.off(`${route}/newMsg`);
+      }
+  }, [chatContext.data.id, blocked, socket]);
 
   useEffect(() => {
-    socket.on(`${route}/newMsg`, (newMessage) => {
-      const senderId : number = isChannel ? newMessage.sender.userId : newMessage.senderId;
-      if (!blocked.includes(senderId)){
-        setMessages((prevMessages) => [...prevMessages, newMessage]);
-      }
-    });
     UserSocket.on('BlockedEvent', (data) => {
+      console.log("I'm i blocked ...");
       setUpdateBlocked((state)=>!state);
     });
     UserSocket.on('UnBlockedEvent', (data) => {
       setUpdateBlocked((state)=>!state);
     });
     return ()=>{
-      socket.off(`${route}/newMsg`);
-      socket.off('BlockedEvent');
-      socket.off('UnBlockedEvent');
+      UserSocket.off('BlockedEvent');
+      UserSocket.off('UnBlockedEvent');
     }
-  }, [route]);
+  }, [route, UserSocket, socket]);
 
   return (
     <Container

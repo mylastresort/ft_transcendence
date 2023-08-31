@@ -135,10 +135,11 @@ function ChatRoomContent({ isChannel = false }) {
 
 function ChatRoom({ isChannel = false }) {
   const chatContext = useContext(ChatContext);
+  const router = useRouter();
   if (chatContext.data) {
     return <ChatRoomContent isChannel={isChannel} />;
   } else {
-    return <ListPublicChannels />;
+    router.push('/chat');
   }
 }
 
