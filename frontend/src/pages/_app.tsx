@@ -5,10 +5,10 @@ import './styles/fonts.css';
 import type { AppProps } from 'next/app';
 import { NextUIProvider } from '@nextui-org/react';
 import { MainNavbar } from '@/components/Navbar/MainNavbar';
-import { Footer } from '@/components/Footer/Footer';
+import Footer from '@/components/Footer/Footer';
 import { GetMe } from '@/pages/api/auth/auth';
 import { useRouter } from 'next/router';
-import { User_Sidebar } from '../components/Sidebar/Sidebar';
+import User_Sidebar from '../components/Sidebar/Sidebar';
 import { UserContext } from '@/context/user';
 import { WsProvider, UserSocket } from '@/context/WsContext';
 import FirstTimeModal from '@/components/Modals/FIrstTImeModal';
@@ -21,9 +21,8 @@ import {
   Modal,
   MantineThemeOverride,
 } from '@mantine/core';
-import Theme from './styles/theme.json';
+import Theme from '../config/theme';
 import { Notifications, notifications } from '@mantine/notifications';
-
 
 export default function App({ Component, pageProps }: AppProps) {
   let user = useContext(UserContext);
@@ -36,23 +35,21 @@ export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
     const token = localStorage.getItem('jwtToken');
     setToken(token);
-    console.log('token', token);
+
     if (token) {
       setShow(false);
       GetMe()
         .then((res) => {
           user.data = res.body;
           setUser(res.body);
-          console.log('ok user', res.body);
+
           if (res.status !== 200) {
             UserSocket.disconnect();
             localStorage.removeItem('jwtToken');
             router.push('/');
           }
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => {});
     }
   }, []);
 
@@ -67,16 +64,14 @@ export default function App({ Component, pageProps }: AppProps) {
           .then((res) => {
             user = res.body;
             setUser(res.body);
-            console.log('ok user', res.body);
+
             if (res.status !== 200) {
               UserSocket.disconnect();
               localStorage.removeItem('jwtToken');
               router.push('/');
             }
           })
-          .catch((err) => {
-            console.log(err);
-          });
+          .catch((err) => {});
       } else {
         setShow(true);
         setIsTwoFactorAuth(false);
@@ -148,13 +143,13 @@ export default function App({ Component, pageProps }: AppProps) {
         <WsProvider token={Token}>
           <NextUIProvider>
             <UserContext.Provider value={user}>
-              <MainNavbar Show={show} isTwoFactorAuth={isTwoFactorAuth} />
-              <User_Sidebar Show={show} />
+              {show && !isTwoFactorAuth && <MainNavbar />}
+              {!show && <User_Sidebar />}
               <Component
                 {...pageProps}
                 setIsTwoFactorAuth={setIsTwoFactorAuth}
               />
-              <Footer Show={show} isTwoFactorAuth={isTwoFactorAuth} />
+              {show && !isTwoFactorAuth && <Footer />}
             </UserContext.Provider>
           </NextUIProvider>
         </WsProvider>

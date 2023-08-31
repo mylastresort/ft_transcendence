@@ -38,8 +38,8 @@ type FooterProps = {
   isTwoFactorAuth: boolean;
 };
 
-export const Footer: React.FC<FooterProps> = ({ Show, isTwoFactorAuth }) => {
-  if (!Show || isTwoFactorAuth) return;
+function Footer() {
+  // if (!Show || isTwoFactorAuth) return null;
   const { classes } = useStyles();
 
   return (
@@ -48,16 +48,18 @@ export const Footer: React.FC<FooterProps> = ({ Show, isTwoFactorAuth }) => {
         <Image src="/images/LOGO.png" />
         <Group spacing={0} className={classes.links} position="right" noWrap>
           <ActionIcon size="lg">
-            <AiFillGithub size="1.05rem" stroke={1.5} />
+            <AiFillGithub size="1.05rem" stroke={'1.5'} />
           </ActionIcon>
           <ActionIcon size="lg">
-            <AiFillLinkedin size="1.05rem" stroke={1.5} />
+            <AiFillLinkedin size="1.05rem" stroke={'1.5'} />
           </ActionIcon>
           <ActionIcon size="lg">
-            <AiFillFacebook size="1.05rem" stroke={1.5} />
+            <AiFillFacebook size="1.05rem" stroke={'1.5'} />
           </ActionIcon>
         </Group>
       </Container>
     </div>
   );
-};
+}
+
+export default Footer;

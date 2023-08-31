@@ -36,23 +36,20 @@ export function ListPublicChannels() {
   const router = useRouter();
   useEffect(() => {
     request
-      .get(process.env.BACKEND_DOMAIN + '/api/chat/channel/public')
+      .get('/api/chat/channel/public')
       .set('Authorization', `Bearer ${jwtToken}`)
       .then((res) => {
         setChannels(res.body);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   }, []);
 
   function joinChannel(channel, password: string = '') {
     request
-      .post(process.env.BACKEND_DOMAIN + '/api/chat/channel/join')
+      .post('/api/chat/channel/join')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send({ id: channel.id, password: password })
       .then((res) => {
-        console.log(res.body);
         chatContext.data = {
           id: res.body.channel.id,
           name: res.body.channel.channelName,
@@ -79,7 +76,7 @@ export function ListPublicChannels() {
 
   return (
     <Box
-      sx={(theme)=>({
+      sx={(theme) => ({
         background: '#EAEAEA',
         paddingLeft: '55px',
       })}

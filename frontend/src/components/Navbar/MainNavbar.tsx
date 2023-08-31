@@ -2,14 +2,14 @@ import { Grid, Image, Button } from '@nextui-org/react';
 import '@fontsource/poppins';
 import { useRouter } from 'next/router';
 
-export const MainNavbar = ({ Show, isTwoFactorAuth }) => {
-  if (!Show || isTwoFactorAuth) {
-    return null;
-  }
+export const MainNavbar = () => {
+  // if (!Show || isTwoFactorAuth) {
+  //   return null;
+  // }
 
   const router = useRouter();
   const handleLogin = () => {
-    router.push(process.env.BACKEND_DOMAIN + '/api/v1/auth/42');
+    router.push('/api/v1/auth/42');
   };
 
   return (

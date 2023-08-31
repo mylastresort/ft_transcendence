@@ -48,10 +48,9 @@ const data = [
 function SideLink({ active, setActive }) {
   const items = data.map((item, index) => (
     <NavLink
-      key={index}
+      key={item.label}
       style={{ borderRadius: '5px' }}
       color="cyan"
-      key={item.label}
       active={index === active}
       label={item.label}
       onClick={() => setActive(index)}
@@ -72,7 +71,6 @@ function General() {
   useEffect(() => {
     GetMe()
       .then((res) => {
-        console.log(res);
         setUserData(res.body);
         setUsername(res.body.username);
         setFirstName(res.body.firstName);
@@ -80,9 +78,7 @@ function General() {
         setCountry(res.body.location);
         setSummary(res.body.sammary);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   }, []);
 
   const HandleUpdateProfile = () => () => {
@@ -104,12 +100,8 @@ function General() {
         summary: Summary,
       };
       PostUpdateProfile(payload)
-        .then((res) => {
-          console.log(res);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+        .then((res) => {})
+        .catch((err) => {});
     } else {
       window.alert('Please fill all the fields');
     }
@@ -269,9 +261,7 @@ function UserAvatar() {
         setUserData(res.body);
         setProfileImg(res.body.imgProfile);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   }, []);
 
   useEffect(() => {
@@ -289,20 +279,14 @@ function UserAvatar() {
 
   const HandleUpdateProfile = () => () => {
     if (file) {
-      PostUpload(file).then((res) => {
-        console.log(res);
-      });
+      PostUpload(file).then((res) => {});
     } else if (!file && SelectedImg) {
       const payload = {
         imgProfile: ProfileImg,
       };
       PostLocalImg(payload)
-        .then((res) => {
-          console.log(res);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+        .then((res) => {})
+        .catch((err) => {});
     } else {
       window.alert('Please choose a image');
     }
@@ -325,14 +309,7 @@ function UserAvatar() {
             <Image src={ProfileImg} width={220} height={220} radius="md" />
           </div>
           <Stack w={250}>
-            <FileButton
-              onChange={setFile}
-              accept="image/png,image/jpeg"
-              variant="light"
-              color="cyan"
-              radius="xs"
-              style={{ marginTop: '10px' }}
-            >
+            <FileButton onChange={setFile} accept="image/png,image/jpeg">
               {(props) => <Button {...props}>Upload your avatar</Button>}
             </FileButton>
 
@@ -410,9 +387,7 @@ function Security() {
         setVerified2FA(res.body.verified2FA);
         setLoading(false);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   }, []);
 
   const HandleCode = (e: any) => {
@@ -422,7 +397,7 @@ function Security() {
         code: e.target.value,
         login: true,
       };
-      console.log(e.target.value);
+
       PostVerify2fa(data)
         .then((res) => {
           if (res.status === 200) {
@@ -432,9 +407,7 @@ function Security() {
             setError2FA(true);
           }
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => {});
     }
   };
 
@@ -449,9 +422,7 @@ function Security() {
         setQr(res.body.qrCodeUrl);
         setLoading(false);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   };
 
   return (

@@ -42,9 +42,7 @@ function FirstTimeModal() {
         setCountry(res.body.location);
         setSummary(res.body.sammary);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   }, []);
 
   const HandleSelectedImg = (img) => () => {
@@ -54,36 +52,28 @@ function FirstTimeModal() {
 
   const HandleUpdateProfile = () => () => {
     if (file) {
-      PostUpload(file).then((res) => {
-        console.log(res);
-      });
+      PostUpload(file).then((res) => {});
     } else if (!file && SelectedImg) {
       const payload = {
         imgProfile: ProfileImg,
       };
       PostLocalImg(payload)
-        .then((res) => {
-          console.log(res);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+        .then((res) => {})
+        .catch((err) => {});
     }
 
-      const payload = {
-        username: Username,
-        firstName: FirstName,
-        lastName: LastName,
-        location: Country ? Country : '',
-        summary: Summary,
-      };
-      PostUpdateProfile(payload)
-        .then((res) => {
-          setUserData(res.body);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    const payload = {
+      username: Username,
+      firstName: FirstName,
+      lastName: LastName,
+      location: Country ? Country : '',
+      summary: Summary,
+    };
+    PostUpdateProfile(payload)
+      .then((res) => {
+        setUserData(res.body);
+      })
+      .catch((err) => {});
   };
 
   return (

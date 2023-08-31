@@ -88,7 +88,6 @@ function AllFriends({ friends }) {
 }
 
 function RequestFriends({ friendReq }) {
-  console.log(friendReq);
   const router = useRouter();
   return (
     <Flex direction="column" w="100%">
@@ -283,9 +282,7 @@ function Friends() {
 
       const notFriends = await Get_Not_Friends();
       setAddfriends(notFriends.body);
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   };
 
   useEffect(() => {

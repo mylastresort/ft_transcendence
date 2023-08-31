@@ -26,7 +26,7 @@ export function MemberSettings({ members }) {
   });
   function manageMember({ member }) {
     const date = new Date();
-    const inputTime = date.getTime() + (Number(time) * 3600000);
+    const inputTime = date.getTime() + Number(time) * 3600000;
     const data = {
       nickname: member,
       channelName: chatContext.data.name,
@@ -36,11 +36,10 @@ export function MemberSettings({ members }) {
       time: inputTime,
     };
     request
-      .post(process.env.BACKEND_DOMAIN + '/api/chat/channel/settings/members')
+      .post('/api/chat/channel/settings/members')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send(data)
-      .then((res) => {
-      })
+      .then((res) => {})
       .catch((err) => {
         return err;
       });

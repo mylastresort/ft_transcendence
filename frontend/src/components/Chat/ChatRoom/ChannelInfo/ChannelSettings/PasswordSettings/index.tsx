@@ -42,9 +42,8 @@ export function PasswordSettings({ channel }) {
     : [{ label: 'Set Password', value: 'set' }];
 
   function setPassword({ password }) {
-    console.log('mode', mode[0], 'pass: ', password);
     const req = request
-      .post(process.env.BACKEND_DOMAIN + '/api/chat/channel/settings/password')
+      .post('/api/chat/channel/settings/password')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send({ id: channel.id, mode: mode[0], pass: password })
       .then((res) => {

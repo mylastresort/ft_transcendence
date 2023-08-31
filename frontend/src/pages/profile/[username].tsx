@@ -65,7 +65,6 @@ function Pofile() {
     try {
       const Username = window.location.pathname.split('/')[2];
       const player = await GetPlayerStats({ username: Username });
-      console.log(player.body);
       setPlayerStats(player.body);
 
       const matches = await GetGameMatches({ username: Username });
@@ -102,7 +101,6 @@ function Pofile() {
       const blockedFriendsResponse = await GetBLockedFriends();
       const blockedUsers = blockedFriendsResponse.body.blockedUsers;
       const blockedby = blockedFriendsResponse.body.blockedby;
-      console.log('blocked users ', blockedUsers);
       const BlockedUsers = blockedUsers.find(
         (item: any) => item.blockedUser.username === Username
       );
@@ -110,8 +108,6 @@ function Pofile() {
       const BlockedBy = blockedby.find(
         (item: any) => item.user.username === Username
       );
-
-      console.log('blocked by ', BlockedBy);
 
       if (BlockedUsers) {
         setIsBlocked(true);
@@ -142,20 +138,15 @@ function Pofile() {
         (item: any) => item.username === Username
       );
 
-      console.log('pending friend ', PendingFriend);
       setPendingFriend(PendingFriend);
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   };
 
   useEffect(() => {
     try {
       fetchData();
       UserSocket.on('RerenderFriends', fetchData);
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
 
     router.events.on('routeChangeComplete', fetchData);
 
@@ -172,9 +163,7 @@ function Pofile() {
 
     PostUnfriend(payload)
       .then((res) => {})
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   };
 
   const HandleAddFriend = (data: any) => () => {
@@ -186,9 +175,7 @@ function Pofile() {
         if (res.status === 200) {
         }
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   };
 
   const HandleCancelRequest = (data: any) => () => {
@@ -201,13 +188,10 @@ function Pofile() {
         if (res.status === 200) {
         }
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   };
 
   const CancelRequest = (data: any) => () => {
-    console.log(data);
     const payload = {
       receiverId: userMe?.id,
       senderId: data.sentRequests[0].senderId,
@@ -217,9 +201,7 @@ function Pofile() {
         if (res.status === 200) {
         }
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   };
 
   const HandleAcceptRequest = (data: any) => () => {
@@ -229,9 +211,7 @@ function Pofile() {
 
     PostAcceptFriendRequest(payload)
       .then((res) => {})
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   };
 
   const HandleBlockFriend = (data: any) => () => {
@@ -241,9 +221,7 @@ function Pofile() {
 
     PostBlockFriend(payload)
       .then((res) => {})
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   };
 
   const HandleUnblockFriend = (data: any) => () => {
@@ -254,426 +232,427 @@ function Pofile() {
       .then((res) => {
         // setRefresh(!Refresh);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   };
 
   return (
-    <div className="dash_container">
-      <Container size="xl">
-        <ProfileNotFound isNotFound={isNotFound} />
-        <Stack style={{ display: isLoaded || isNotFound ? 'none' : '' }}>
-          <Flex
-            mih={240}
-            bg="var(--sidebar-color)"
-            gap="lg"
-            justify="space-around"
-            align="center"
-            direction="row"
-            wrap="wrap"
-            style={{ borderRadius: '5px', display: isBlockedBy ? 'none' : '' }}
-          >
-            <Group align="start" spacing="30px">
-              <Indicator
-                inline
-                size={20}
-                offset={3}
-                position="bottom-end"
-                color={
-                  isBlocked
-                    ? 'red'
-                    : userProfile?.status === 'online'
-                    ? 'green'
-                    : userProfile?.status === 'offline'
-                    ? 'red'
-                    : userProfile?.status === 'In Game'
-                    ? 'cyan'
-                    : 'red'
-                }
-                withBorder
-              >
-                <Image
-                  width={180}
-                  height={180}
-                  src={userProfile?.imgProfile}
-                  alt="profile picture"
-                  withPlaceholder
-                  radius="xs"
-                  fit="contain"
-                />
-              </Indicator>
-              <Flex direction="column">
-                <Text className={Styles.font_1}>{userProfile?.username}</Text>
-                <Text className={Styles.font_2}>
-                  {userProfile?.firstName} {userProfile?.lastName}
-                </Text>
-                <Spacer y={1.3} />
-                <Text w={320}>{userProfile?.sammary}.</Text>
-              </Flex>
-            </Group>
+    <>
+      <div className="dash_container">
+        <Container size="xl">
+          <ProfileNotFound isNotFound={isNotFound} />
+          <Stack style={{ display: isLoaded || isNotFound ? 'none' : '' }}>
             <Flex
-              w={300}
-              justify="center"
-              align="center"
-              wrap="wrap"
-              gap="md"
-              style={{}}
-            >
-              <Group spacing="xs">
-                <ThemeIcon color="cyan" variant="light" size="xl">
-                  <FaGamepad size="1.5rem" />
-                </ThemeIcon>
-                <Text>
-                  {PlayerStats?.userWins + PlayerStats?.userLoses} Games
-                </Text>
-              </Group>
-              <Group spacing="xs">
-                <ThemeIcon color="green" variant="light" size="xl">
-                  <FaSmileWink size="1.5rem" />
-                </ThemeIcon>
-                <Text>{PlayerStats?.userWins} Wins</Text>
-              </Group>
-              <Group spacing="xs">
-                <ThemeIcon color="red" variant="light" size="xl">
-                  <HiEmojiSad size="1.5rem" />
-                </ThemeIcon>
-                <Text>{PlayerStats?.userLoses} Lost</Text>
-              </Group>
-            </Flex>
-            <Flex
-              gap="md"
-              justify="flex-start"
-              align="start"
-              direction="column"
-              wrap="wrap"
-            >
-              <Group spacing="10px">
-                <Text size={25}>Level</Text>
-                <Avatar color="cyan" radius="xl">
-                  {PlayerStats?.userLevel?.toFixed(1)}
-                </Avatar>
-              </Group>
-              <Group spacing="10px">
-                {isMe ? (
-                  <Button
-                    variant="light"
-                    radius="xs"
-                    color="cyan"
-                    onClick={() => router.push('/edit/info')}
-                  >
-                    Edit Profile
-                  </Button>
-                ) : (
-                  <Group spacing="10px">
-                    {friends?.find(
-                      (friend: any) => friend.username === userMe?.username
-                    ) ? (
-                      <Button
-                        variant="light"
-                        radius="xs"
-                        color="cyan"
-                        //   onClick={HandleAddFriend(data)}
-                      >
-                        Message
-                      </Button>
-                    ) : PendingFriend?.receivedRequests?.length > 0 ? (
-                      <Button
-                        variant="light"
-                        radius="xs"
-                        color="red"
-                        onClick={HandleCancelRequest(PendingFriend)}
-                      >
-                        Cancel
-                      </Button>
-                    ) : PendingFriend?.sentRequests?.length > 0 ? (
-                      <Button
-                        variant="light"
-                        radius="xs"
-                        color="cyan"
-                        onClick={HandleAcceptRequest(PendingFriend)}
-                      >
-                        Accept Request
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="light"
-                        radius="xs"
-                        color="cyan"
-                        disabled={isBlocked}
-                        onClick={HandleAddFriend(userProfile)}
-                      >
-                        Add Friend
-                      </Button>
-                    )}
-
-                    <Menu shadow="md" width={200} position="bottom-end">
-                      <Menu.Target>
-                        <ActionIcon size="lg" variant="filled" radius="xs">
-                          <BsThreeDots size="1.2rem" />
-                        </ActionIcon>
-                      </Menu.Target>
-                      <Menu.Dropdown>
-                        {PendingFriend?.sentRequests?.length > 0 && (
-                          <Menu.Item
-                            icon={<BiUserX size={14} color="#f57e07" />}
-                            onClick={CancelRequest(PendingFriend)}
-                          >
-                            Cancel Request
-                          </Menu.Item>
-                        )}
-
-                        {friends?.find(
-                          (friend: any) => friend.username === userMe?.username
-                        ) && (
-                          <Menu.Item
-                            icon={<BiUserX size={14} color="#f57e07" />}
-                            onClick={HandleUnfriend(userProfile)}
-                          >
-                            Unfriend
-                          </Menu.Item>
-                        )}
-                        {isBlocked ? (
-                          <Menu.Item
-                            icon={
-                              <BiBlock
-                                size={14}
-                                color="var(--secondary-color)"
-                              />
-                            }
-                            onClick={HandleUnblockFriend(userProfile)}
-                          >
-                            Unblock
-                          </Menu.Item>
-                        ) : (
-                          <Menu.Item
-                            icon={
-                              <BiBlock
-                                size={14}
-                                color="var(--secondary-color)"
-                              />
-                            }
-                            onClick={HandleBlockFriend(userProfile)}
-                          >
-                            Block
-                          </Menu.Item>
-                        )}
-                      </Menu.Dropdown>
-                    </Menu>
-                  </Group>
-                )}
-              </Group>
-            </Flex>
-          </Flex>
-          <Spacer y={0.5} />
-          <BlockedPanel isBlocked={isBlocked} isBlockedBy={isBlockedBy} />
-          <Flex
-            justify="space-between"
-            align="start"
-            direction="row"
-            wrap="wrap"
-            mih="65em"
-            style={{
-              display: isBlocked || isLoaded ? 'none' : '',
-            }}
-          >
-            <Flex
-              mih="65em"
-              bg="rgba(0, 0, 0, .3)"
-              gap="md"
+              mih={240}
+              bg="var(--sidebar-color)"
+              gap="lg"
               justify="space-around"
-              align="top"
+              align="center"
               direction="row"
               wrap="wrap"
               style={{
                 borderRadius: '5px',
-                width: '74%',
+                display: isBlockedBy ? 'none' : 'flex',
               }}
             >
-              <StyledTabs
-                defaultValue="overview"
+              <Group align="start" spacing="30px">
+                <Indicator
+                  inline
+                  size={20}
+                  offset={3}
+                  position="bottom-end"
+                  color={
+                    isBlocked
+                      ? 'red'
+                      : userProfile?.status === 'online'
+                      ? 'green'
+                      : userProfile?.status === 'offline'
+                      ? 'red'
+                      : userProfile?.status === 'In Game'
+                      ? 'cyan'
+                      : 'red'
+                  }
+                  withBorder
+                >
+                  <Image
+                    width={180}
+                    height={180}
+                    src={userProfile?.imgProfile}
+                    alt="profile picture"
+                    withPlaceholder
+                    radius="xs"
+                    fit="contain"
+                  />
+                </Indicator>
+                <Flex direction="column">
+                  <Text className={Styles.font_1}>{userProfile?.username}</Text>
+                  <Text className={Styles.font_2}>
+                    {userProfile?.firstName} {userProfile?.lastName}
+                  </Text>
+                  <Spacer y={1.3} />
+                  <Text w={320}>{userProfile?.sammary}.</Text>
+                </Flex>
+              </Group>
+              <Flex
+                w={300}
+                justify="center"
+                align="center"
+                wrap="wrap"
+                gap="md"
+                style={{}}
+              >
+                <Group spacing="xs">
+                  <ThemeIcon color="cyan" variant="light" size="xl">
+                    <FaGamepad size="1.5rem" />
+                  </ThemeIcon>
+                  <Text>
+                    {PlayerStats?.userWins + PlayerStats?.userLoses} Games
+                  </Text>
+                </Group>
+                <Group spacing="xs">
+                  <ThemeIcon color="green" variant="light" size="xl">
+                    <FaSmileWink size="1.5rem" />
+                  </ThemeIcon>
+                  <Text>{PlayerStats?.userWins} Wins</Text>
+                </Group>
+                <Group spacing="xs">
+                  <ThemeIcon color="red" variant="light" size="xl">
+                    <HiEmojiSad size="1.5rem" />
+                  </ThemeIcon>
+                  <Text>{PlayerStats?.userLoses} Lost</Text>
+                </Group>
+              </Flex>
+              <Flex
+                gap="md"
+                justify="flex-start"
+                align="start"
+                direction="column"
+                wrap="wrap"
+              >
+                <Group spacing="10px">
+                  <Text size={25}>Level</Text>
+                  <Avatar color="cyan" radius="xl">
+                    {PlayerStats?.userLevel?.toFixed(1)}
+                  </Avatar>
+                </Group>
+                <Group spacing="10px">
+                  {isMe ? (
+                    <Button
+                      variant="light"
+                      radius="xs"
+                      color="cyan"
+                      onClick={() => router.push('/edit/info')}
+                    >
+                      Edit Profile
+                    </Button>
+                  ) : (
+                    <Group spacing="10px">
+                      {friends?.find(
+                        (friend: any) => friend.username === userMe?.username
+                      ) ? (
+                        <Button
+                          variant="light"
+                          radius="xs"
+                          color="cyan"
+                          //   onClick={HandleAddFriend(data)}
+                        >
+                          Message
+                        </Button>
+                      ) : PendingFriend?.receivedRequests?.length > 0 ? (
+                        <Button
+                          variant="light"
+                          radius="xs"
+                          color="red"
+                          onClick={HandleCancelRequest(PendingFriend)}
+                        >
+                          Cancel
+                        </Button>
+                      ) : PendingFriend?.sentRequests?.length > 0 ? (
+                        <Button
+                          variant="light"
+                          radius="xs"
+                          color="cyan"
+                          onClick={HandleAcceptRequest(PendingFriend)}
+                        >
+                          Accept Request
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="light"
+                          radius="xs"
+                          color="cyan"
+                          disabled={isBlocked}
+                          onClick={HandleAddFriend(userProfile)}
+                        >
+                          Add Friend
+                        </Button>
+                      )}
+
+                      <Menu shadow="md" width={200} position="bottom-end">
+                        <Menu.Target>
+                          <ActionIcon size="lg" variant="filled" radius="xs">
+                            <BsThreeDots size="1.2rem" />
+                          </ActionIcon>
+                        </Menu.Target>
+                        <Menu.Dropdown>
+                          {PendingFriend?.sentRequests?.length > 0 && (
+                            <Menu.Item
+                              icon={<BiUserX size={14} color="#f57e07" />}
+                              onClick={CancelRequest(PendingFriend)}
+                            >
+                              Cancel Request
+                            </Menu.Item>
+                          )}
+
+                          {friends?.find(
+                            (friend: any) =>
+                              friend.username === userMe?.username
+                          ) && (
+                            <Menu.Item
+                              icon={<BiUserX size={14} color="#f57e07" />}
+                              onClick={HandleUnfriend(userProfile)}
+                            >
+                              Unfriend
+                            </Menu.Item>
+                          )}
+                          {isBlocked ? (
+                            <Menu.Item
+                              icon={
+                                <BiBlock
+                                  size={14}
+                                  color="var(--secondary-color)"
+                                />
+                              }
+                              onClick={HandleUnblockFriend(userProfile)}
+                            >
+                              Unblock
+                            </Menu.Item>
+                          ) : (
+                            <Menu.Item
+                              icon={
+                                <BiBlock
+                                  size={14}
+                                  color="var(--secondary-color)"
+                                />
+                              }
+                              onClick={HandleBlockFriend(userProfile)}
+                            >
+                              Block
+                            </Menu.Item>
+                          )}
+                        </Menu.Dropdown>
+                      </Menu>
+                    </Group>
+                  )}
+                </Group>
+              </Flex>
+            </Flex>
+            <Spacer y={0.5} />
+            <BlockedPanel isBlocked={isBlocked} isBlockedBy={isBlockedBy} />
+            <Flex
+              justify="space-between"
+              align="start"
+              direction="row"
+              wrap="wrap"
+              mih="65em"
+              style={{
+                display: isBlocked || isLoaded ? 'none' : '',
+              }}
+            >
+              <Flex
+                mih="65em"
+                bg="rgba(0, 0, 0, .3)"
+                gap="md"
+                justify="space-around"
+                align="top"
+                direction="row"
+                wrap="wrap"
                 style={{
-                  position: 'relative',
-                  top: '-20px',
-                  width: '100%',
+                  borderRadius: '5px',
+                  width: '74%',
                 }}
               >
-                <Tabs.List style={{ justifyContent: 'center' }} pb="lg">
-                  <Tabs.Tab
-                    value="overview"
-                    icon={<AiFillProfile size="1rem" />}
-                  >
-                    overview
-                  </Tabs.Tab>
-                  <Tabs.Tab value="messages" icon={<HiEmojiSad size="1rem" />}>
-                    Messages
-                  </Tabs.Tab>
-                  <Tabs.Tab value="gallery" icon={<HiEmojiSad size="1rem" />}>
-                    Gallery
-                  </Tabs.Tab>
-                </Tabs.List>
-                <Tabs.Panel value="overview">
-                  <Flex
-                    justify="left"
-                    align="left"
-                    direction="column"
-                    wrap="wrap"
-                    style={{ borderRadius: '5px', padding: '20px 15px' }}
-                  >
-                    <Stack>
-                      <Flex
-                        mih="10vh"
-                        bg="var(--sidebar-color)"
-                        gap="md"
-                        justify="space-around"
-                        align="center"
-                        direction="row"
-                        wrap="wrap"
-                        style={{ borderRadius: '5px' }}
-                      >
-                        <UnstyledButton>
-                          <Group>
-                            <ThemeIcon color="green" variant="light" size="xl">
-                              <FaSmileWink size="1.5rem" />
-                            </ThemeIcon>
-                            <Text size="1.2rem" weight={600}>
-                              {PlayerStats?.userWins} Wins
-                            </Text>
-                          </Group>
-                        </UnstyledButton>
-                        {/* <Divider orientation="vertical" /> */}
-                        <UnstyledButton>
-                          <Group>
-                            <ThemeIcon color="red" variant="light" size="xl">
-                              <HiEmojiSad size="1.5rem" />
-                            </ThemeIcon>
-                            <Text size="1.2rem" weight={600}>
-                              {PlayerStats?.userLoses} Lost
-                            </Text>
-                          </Group>
-                        </UnstyledButton>
-                        <Group spacing={10}>
-                          {PlayerStats?.userAchievements
-                            ?.slice(0, 4)
-                            .map((item, index) => (
-                              <Avatar
-                                src={item.icon}
-                                radius="md"
-                                size={45}
-                                color="cyan"
-                                key={index}
-                              />
-                            ))}
-                        </Group>
-                      </Flex>
-                      <Spacer y={0.5} />
-                      <div>
-                        <Text size="1.2rem" weight={500}>
-                          Completed Games
-                        </Text>
-                        <Spacer y={1} />
-                        <Last_Matches />
-                      </div>
-                    </Stack>
-                  </Flex>
-                </Tabs.Panel>
-                {/* <Tabs.Panel value="second">Second panel</Tabs.Panel> */}
-              </StyledTabs>
-            </Flex>
-            <Flex
-              mih="49em"
-              bg="rgba(0, 0, 0, .3)"
-              direction="column"
-              style={{
-                borderRadius: '5px',
-                width: '25%',
-                padding: '20px 15px',
-              }}
-            >
-              {userProfile?.status === 'online' ? (
-                <Text size="1.3rem" weight={300} color="green">
-                  Currently Online
-                </Text>
-              ) : userProfile?.status === 'In Game' ? (
-                <Text size="1.3rem" weight={300} color="blue">
-                  Currently in Game
-                </Text>
-              ) : (
-                <Text size="1.3rem" weight={300}>
-                  Currently Offline
-                </Text>
-              )}
-              <Spacer y={2} />
-              <Stack>
-                <Anchor
-                  size="1.1rem"
-                  weight={300}
-                  onClick={() => {
-                    router.push(`/id/${userProfile?.username}/achievements`);
+                <StyledTabs
+                  defaultValue="overview"
+                  style={{
+                    position: 'relative',
+                    top: '-20px',
+                    width: '100%',
                   }}
                 >
-                  Achievements ({PlayerStats?.userAchievements?.length})
-                </Anchor>
-                <Group spacing="xs">
-                  {PlayerStats?.userAchievements
-                    ?.slice(0, 4)
-                    .map((item, index) => (
-                      <UnstyledButton key={index}>
-                        <Avatar
-                          src={item.icon}
-                          size={60}
-                          color="cyan"
-                          variant="light"
-                        />
-                      </UnstyledButton>
-                    ))}
-                </Group>
-              </Stack>
-              <Spacer y={2} />
-              <Stack>
-                <Anchor
-                  size="1.1rem"
-                  weight={300}
-                  onClick={() => {
-                    router.push(`/id/${userProfile?.username}/friends`);
-                  }}
-                >
-                  Friends ({friends?.length})
-                </Anchor>
-                {friends?.slice(0, 5).map((item: any, index: number) => (
-                  <UnstyledButton
-                    key={index}
-                    className={Styles.UnstyledButton}
+                  <Tabs.List style={{ justifyContent: 'center' }} pb="lg">
+                    <Tabs.Tab
+                      value="overview"
+                      icon={<AiFillProfile size="1rem" />}
+                    >
+                      overview
+                    </Tabs.Tab>
+                  </Tabs.List>
+                  <Tabs.Panel value="overview">
+                    <Flex
+                      justify="left"
+                      align="left"
+                      direction="column"
+                      wrap="wrap"
+                      style={{ borderRadius: '5px', padding: '20px 15px' }}
+                    >
+                      <Stack>
+                        <Flex
+                          mih="10vh"
+                          bg="var(--sidebar-color)"
+                          gap="md"
+                          justify="space-around"
+                          align="center"
+                          direction="row"
+                          wrap="wrap"
+                          style={{ borderRadius: '5px' }}
+                        >
+                          <UnstyledButton>
+                            <Group>
+                              <ThemeIcon
+                                color="green"
+                                variant="light"
+                                size="xl"
+                              >
+                                <FaSmileWink size="1.5rem" />
+                              </ThemeIcon>
+                              <Text size="1.2rem" weight={600}>
+                                {PlayerStats?.userWins} Wins
+                              </Text>
+                            </Group>
+                          </UnstyledButton>
+                          {/* <Divider orientation="vertical" /> */}
+                          <UnstyledButton>
+                            <Group>
+                              <ThemeIcon color="red" variant="light" size="xl">
+                                <HiEmojiSad size="1.5rem" />
+                              </ThemeIcon>
+                              <Text size="1.2rem" weight={600}>
+                                {PlayerStats?.userLoses} Lost
+                              </Text>
+                            </Group>
+                          </UnstyledButton>
+                          <Group spacing={10}>
+                            {PlayerStats?.userAchievements
+                              ?.slice(0, 4)
+                              .map((item, index) => (
+                                <Avatar
+                                  src={item.icon}
+                                  radius="md"
+                                  size={45}
+                                  color="cyan"
+                                  key={index}
+                                />
+                              ))}
+                          </Group>
+                        </Flex>
+                        <Spacer y={0.5} />
+                        <div>
+                          <Text size="1.2rem" weight={500}>
+                            Completed Games
+                          </Text>
+                          <Spacer y={1} />
+                          <Last_Matches />
+                        </div>
+                      </Stack>
+                    </Flex>
+                  </Tabs.Panel>
+                  {/* <Tabs.Panel value="second">Second panel</Tabs.Panel> */}
+                </StyledTabs>
+              </Flex>
+              <Flex
+                mih="49em"
+                bg="rgba(0, 0, 0, .3)"
+                direction="column"
+                style={{
+                  borderRadius: '5px',
+                  width: '25%',
+                  padding: '20px 15px',
+                }}
+              >
+                {userProfile?.status === 'online' ? (
+                  <Text size="1.3rem" weight={300} color="green">
+                    Currently Online
+                  </Text>
+                ) : userProfile?.status === 'In Game' ? (
+                  <Text size="1.3rem" weight={300} color="blue">
+                    Currently in Game
+                  </Text>
+                ) : (
+                  <Text size="1.3rem" weight={300}>
+                    Currently Offline
+                  </Text>
+                )}
+                <Spacer y={2} />
+                <Stack>
+                  <Anchor
+                    size="1.1rem"
+                    weight={300}
                     onClick={() => {
-                      console.log(`/profile/${item?.username}`);
-                      router.push(`/profile/${item?.username}`);
+                      router.push(`/id/${userProfile?.username}/achievements`);
                     }}
                   >
-                    <Group>
-                      <Avatar src={item?.imgProfile} />
+                    Achievements ({PlayerStats?.userAchievements?.length})
+                  </Anchor>
+                  <Group spacing="xs">
+                    {PlayerStats?.userAchievements
+                      ?.slice(0, 4)
+                      .map((item, index) => (
+                        <UnstyledButton key={index}>
+                          <Avatar
+                            src={item.icon}
+                            size={60}
+                            color="cyan"
+                            variant="light"
+                          />
+                        </UnstyledButton>
+                      ))}
+                  </Group>
+                </Stack>
+                <Spacer y={2} />
+                <Stack>
+                  <Anchor
+                    size="1.1rem"
+                    weight={300}
+                    onClick={() => {
+                      router.push(`/id/${userProfile?.username}/friends`);
+                    }}
+                  >
+                    Friends ({friends?.length})
+                  </Anchor>
+                  {friends?.slice(0, 5).map((item: any, index: number) => (
+                    <UnstyledButton
+                      key={index}
+                      className={Styles.UnstyledButton}
+                      onClick={() => {
+                        router.push(`/profile/${item?.username}`);
+                      }}
+                    >
+                      <Group>
+                        <Avatar src={item?.imgProfile} />
 
-                      <div style={{ flex: 1 }}>
-                        <Text size="md" weight={500}>
-                          {item?.username}
-                        </Text>
-                        <Text size="xs" weight={500}>
-                          {item.status}
-                        </Text>
-                      </div>
+                        <div style={{ flex: 1 }}>
+                          <Text size="md" weight={500}>
+                            {item?.username}
+                          </Text>
+                          <Text size="xs" weight={500}>
+                            {item.status}
+                          </Text>
+                        </div>
 
-                      <Avatar color="cyan" radius="xl" size={30}>
-                        12
-                      </Avatar>
-                    </Group>
-                  </UnstyledButton>
-                ))}
-              </Stack>
+                        <Avatar color="cyan" radius="xl" size={30}>
+                          12
+                        </Avatar>
+                      </Group>
+                    </UnstyledButton>
+                  ))}
+                </Stack>
+              </Flex>
             </Flex>
-          </Flex>
-        </Stack>
-        <Spacer y={4} />
-      </Container>
-    </div>
+          </Stack>
+          <Spacer y={4} />
+        </Container>
+      </div>
+    </>
   );
 }
 

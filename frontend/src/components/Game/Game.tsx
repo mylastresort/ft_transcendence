@@ -16,13 +16,13 @@ function GameWrapper(Component) {
 
     useEffect(() => {
       if (!game.socket)
-        game.socket = io(process.env.BACKEND_DOMAIN + '/game', {
+        game.socket = io(`${process.env.BACKEND_DOMAIN}/ws/game`, {
           autoConnect: false,
           forceNew: true,
           auth: { token: localStorage.getItem('jwtToken') },
         });
       request
-        .get(process.env.BACKEND_DOMAIN + '/api/v1/game/player/me')
+        .get('/api/v1/game/player/me')
         .set('Authorization', `Bearer ${localStorage.getItem('jwtToken')}`)
         .then((res) => {
           if (res.status === 200) setPlayer(res.body);

@@ -19,11 +19,10 @@ export function AdminSettings({ members }: any) {
   });
 
   function setAdministrator({ member }) {
-    console.log('member: ', member);
     request
-      .post(process.env.BACKEND_DOMAIN + '/api/chat/channel/settings/admin')
+      .post('/api/chat/channel/settings/admin')
       .set('Authorization', `Bearer ${jwtToken}`)
-      .send({nickname: member})
+      .send({ nickname: member })
       .then((res) => {
         notifications.show({
           title: `You have set ${member} as Channel Administrator`,
@@ -46,18 +45,21 @@ export function AdminSettings({ members }: any) {
           borderRadius: '20px',
         }}
       >
-        <form style={{width:'100%'}} onSubmit={form.onSubmit(setAdministrator)}>
-            <Select
-              mt={0}
-              label={'New Administrator:'}
-              placeholder="Select member"
-              data={members}
-              w={'100%'}
-              {...form.getInputProps('member')}
-            />
-            <Button type='submit' color="red" w={'100%'}>
-              Add Administrator
-            </Button>
+        <form
+          style={{ width: '100%' }}
+          onSubmit={form.onSubmit(setAdministrator)}
+        >
+          <Select
+            mt={0}
+            label={'New Administrator:'}
+            placeholder="Select member"
+            data={members}
+            w={'100%'}
+            {...form.getInputProps('member')}
+          />
+          <Button type="submit" color="red" w={'100%'}>
+            Add Administrator
+          </Button>
         </form>
       </Group>
     </>

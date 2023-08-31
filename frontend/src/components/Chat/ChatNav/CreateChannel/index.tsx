@@ -49,7 +49,6 @@ export function CreateChannel() {
 
   const router = useRouter();
   function createNewChannel(value) {
-    console.log('form data: ', value);
     close();
     const data = new FormData();
     data.append('channelName', value.name);
@@ -59,7 +58,7 @@ export function CreateChannel() {
     data.append('password', value.password);
     const jwtToken = localStorage.getItem('jwtToken');
     request
-      .post(process.env.BACKEND_DOMAIN + '/api/chat/channel')
+      .post('/api/chat/channel')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send(data)
       .then((res) => {

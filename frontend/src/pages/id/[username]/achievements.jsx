@@ -21,19 +21,13 @@ function Achievements() {
 
   useEffect(() => {
     GetAchievements()
+      .then((res) => {})
+      .catch((err) => {});
+    GetPlayerStats({ username: window.location.pathname.split('/')[2] })
       .then((res) => {
-        console.log(res.body);
+        setPlayerAchievements(res.body.userAchievements);
       })
-      .catch((err) => {
-        console.log(err);
-      });
-      GetPlayerStats({ username: window.location.pathname.split('/')[2] })
-        .then((res) => {
-          setPlayerAchievements(res.body.userAchievements);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      .catch((err) => {});
   }, []);
 
   return (
