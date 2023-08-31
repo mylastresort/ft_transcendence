@@ -68,8 +68,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('leave')
-  handlePlayerLeave(socket: Player) {
-    return this.game.leave(socket);
+  async handlePlayerLeave(socket: Player) {
+    return await this.game.leave(socket);
   }
 
   @SubscribeMessage('join')

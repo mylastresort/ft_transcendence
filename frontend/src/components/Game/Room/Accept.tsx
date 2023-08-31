@@ -3,7 +3,7 @@ import { Box, Flex } from '@mantine/core';
 import React, { useContext, useEffect, useState } from 'react';
 import styles from '../Lobby/Lobby.module.css';
 import Profile from './Profile';
-import { GameContext, PlayerContext } from '@/context/game';
+import { GameContext, Player, PlayerContext } from '@/context/game';
 import { useRouter } from 'next/router';
 import Canvas from './Canvas';
 import request from 'superagent';
@@ -44,12 +44,47 @@ export default function Accept() {
       })
       .on('cancelled', () => {
         setStatus({ gameStatus: 'cancelled' });
-        setTimeout(() => router.push('/game'), 2000);
+        router.push('/game');
       })
       .on('user-status', (_, status) => setOpponent(status))
       .on('disconnect', setOffline);
     return () => {
-      if (!started) game.socket?.emit('leave');
+      if (!started) {
+        if (!game.conf.isInvite)
+          game.socket?.emit('leave');
+        else {
+          request
+            .post(
+              `${process.env.BACKEND_DOMAIN}/api/v1/game/invite/cancel/${game.gameId}`
+            )
+            .set(
+              'Authorization',
+              `Bearer ${localStorage.getItem('jwtToken')}`
+            )
+            .catch(() => { });
+          ws.emit('ClearNotification', {
+            gameid: game.gameId,
+            receiverId: player?.userId,
+            senderId: game.opponent.userId,
+          });
+        }
+        game.gameId = '';
+        game.ready = false;
+        game.winner = '';
+        game.role = '';
+        game.gameStatus = '';
+        game.conf = {
+          isInvite: false,
+          map: 0,
+          games: 3,
+          speed: 5,
+          name: '',
+        }
+        game.opponent = {
+          username: '',
+          userImgProfile: '',
+        } as Player;
+      }
       game.socket
         ?.emit('unwatch-user-status', game.opponent.userId)
         .off('started')
@@ -126,12 +161,12 @@ export default function Accept() {
             {game.conf.speed >= 5
               ? 'Very fast'
               : game.conf.speed >= 4
-              ? 'Fast'
-              : game.conf.speed >= 3
-              ? 'Normal'
-              : game.conf.speed >= 2
-              ? 'Slow'
-              : 'Very slow'}
+                ? 'Fast'
+                : game.conf.speed >= 3
+                  ? 'Normal'
+                  : game.conf.speed >= 2
+                    ? 'Slow'
+                    : 'Very slow'}
           </b>
           <Space h="1em" />
           <b>No Rounds: {game.conf.games}</b>
@@ -202,7 +237,7 @@ export default function Accept() {
                     'Authorization',
                     `Bearer ${localStorage.getItem('jwtToken')}`
                   )
-                  .catch(() => {});
+                  .catch(() => { });
                 ws.emit('ClearNotification', {
                   gameid: game.gameId,
                   receiverId: player?.userId,
@@ -213,16 +248,21 @@ export default function Accept() {
               Cancel Invite
             </Button>
           )}
-          <Button
-            h="2.7em"
-            w="12rem"
-            variant="subtle"
-            onClick={() =>
-              game.socket?.emit('leave', () => router.push('/game'))
-            }
-          >
-            Leave
-          </Button>
+          {
+            !game.conf.isInvite &&
+            <Button
+              h="2.7em"
+              w="12rem"
+              variant="subtle"
+              onClick={() => {
+                game.socket?.emit('leave')
+                router.push('/game')
+              }
+              }
+            >
+              Leave
+            </Button>
+          }
         </Flex>
       </Box>
     </Flex>
