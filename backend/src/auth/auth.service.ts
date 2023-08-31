@@ -6,6 +6,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import * as speakeasy from 'speakeasy';
 import * as qrcode from 'qrcode';
+import axios from 'axios';
 
 @Injectable()
 export class AuthService {
@@ -15,72 +16,110 @@ export class AuthService {
     return bcrypt.hash(value, 10);
   }
 
-  async register(User: any): Promise<any> {
-    const user = await this.Prisma.user.findUnique({
-      where: {
-        id_42: User.id,
-      },
-    });
+  async register(code: string) {
+    try {
+      const response = await axios.post('https://api.intra.42.fr/oauth/token', {
+        grant_type: 'authorization_code',
+        client_id: process.env.FORTYTWO_CLIENT_ID,
+        client_secret: process.env.FORTYTWO_CLIENT_SECRET,
+        code: code,
+        redirect_uri: `${process.env.FRONTEND_DOMAIN}/login`,
+      });
 
-    if (user) {
-      if (user.twoFactorAuth) {
-        const token = await this.JwtService.signAsync(
-          {
-            id: user.id,
-            username: user.username,
-            id_42: user.id_42,
-          },
-          {
-            secret: process.env.TMP_JWT_SECRET,
-            expiresIn: process.env.TMP_JWT_TOKEN_EXPIRES_IN,
-          },
-        );
-        return {
-          token,
-          twoFactorAuth: user.twoFactorAuth,
-        };
-      } else {
-        const token = await this.JwtService.sign({
-          id: user.id,
-          username: user.username,
-          id_42: user.id_42,
-        });
-        return {
-          user,
-          token,
-        };
-      }
-    }
-    if (!user) {
-      const newUser = await this.Prisma.user.create({
-        data: {
-          id_42: User.id,
-          username: User.login,
-          imgProfile: User.image.link,
-          firstName: User.first_name,
-          lastName: User.last_name,
+      const token = response.data.access_token;
+
+      const res = await axios.get('https://api.intra.42.fr/v2/me', {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
       });
 
-      if (newUser) {
-        const token = await this.JwtService.sign({
-          id: newUser.id,
-          username: newUser.username,
-          id_42: newUser.id_42,
+      const User = res.data;
+
+      if (res.status === 200) {
+        const user = await this.Prisma.user.findUnique({
+          where: {
+            id_42: User.id,
+          },
         });
-        return {
-          newUser,
-          token,
-        };
+
+        if (user) {
+          if (user.twoFactorAuth) {
+            const token = await this.JwtService.signAsync(
+              {
+                id: user.id,
+                username: user.username,
+                id_42: user.id_42,
+              },
+              {
+                secret: process.env.TMP_JWT_SECRET,
+                expiresIn: process.env.TMP_JWT_TOKEN_EXPIRES_IN,
+              },
+            );
+            return {
+              token,
+              twoFactorAuth: user.twoFactorAuth,
+            };
+          } else {
+            const token = await this.JwtService.sign({
+              id: user.id,
+              username: user.username,
+              id_42: user.id_42,
+            });
+            return {
+              user,
+              token,
+            };
+          }
+        }
+        if (!user) {
+          const newUser = await this.Prisma.user.create({
+            data: {
+              id_42: User.id,
+              username: User.login,
+              imgProfile: User.image.link,
+              firstName: User.first_name,
+              lastName: User.last_name,
+            },
+          });
+
+          if (newUser) {
+            const token = await this.JwtService.sign({
+              id: newUser.id,
+              username: newUser.username,
+              id_42: newUser.id_42,
+            });
+            return {
+              newUser,
+              token,
+            };
+          } else {
+            throw new HttpException(
+              {
+                status: HttpStatus.BAD_REQUEST,
+                error: 'User not found',
+              },
+              HttpStatus.BAD_REQUEST,
+            );
+          }
+        }
       } else {
         throw new HttpException(
           {
-            status: HttpStatus.BAD_REQUEST,
-            error: 'User not found',
+            status: HttpStatus.UNAUTHORIZED,
+            error: 'Unauthorized',
           },
-          HttpStatus.BAD_REQUEST,
+          HttpStatus.UNAUTHORIZED,
         );
       }
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: 'Internal server error',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -128,16 +167,11 @@ export class AuthService {
 
   async generateQRCode() {
     const secret = speakeasy.generateSecret({ length: 20 });
-    const otpauthUrl = speakeasy.otpauthURL({
-      secret: secret.base32,
-      label: 'My App',
-      issuer: 'My Company',
-    });
     const qrCode = await qrcode.toDataURL(secret.otpauth_url);
-    return { secret, otpauthUrl: secret.otpauth_url, qrCode };
+    return { secret: secret.base32, qrCode };
   }
 
-  async GettwoFactorAuth(User: any, body: any): Promise<any> {
+  async GettwoFactorAuth(User: any, body: any) {
     const user = await this.Prisma.user.findUnique({
       where: {
         id: User.id,
@@ -164,7 +198,7 @@ export class AuthService {
             },
             data: {
               qr2fa: generated2FA.qrCode,
-              twoFactorAuthSecret: generated2FA.secret.base32,
+              twoFactorAuthSecret: generated2FA.secret,
             },
           });
           return { qrCodeUrl: generated2FA.qrCode };
@@ -194,16 +228,16 @@ export class AuthService {
   }
 
   async verify2FACode(user: any, code: string) {
-    const verified = speakeasy.totp.verify({
+    const verified = await speakeasy.totp.verify({
       secret: user.twoFactorAuthSecret,
       encoding: 'base32',
       token: code,
-      window: 2,
+      window: 6,
     });
     return verified;
   }
 
-  async VerifytwoFactorAuth(User: any, body: any): Promise<any> {
+  async VerifytwoFactorAuth(User: any, body: any) {
     const code = body.code;
     const login = body.login;
 

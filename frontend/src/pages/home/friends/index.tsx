@@ -34,33 +34,24 @@ function friends() {
     UserSocket.on('NewRequestNotification', (data) => {
       Get_Not_Friends()
         .then((res) => {
-          console.log(res);
           setUsers(res.body);
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => {});
     });
     UserSocket.on('CandelFriendReq', (data) => {
       Get_Not_Friends()
         .then((res) => {
-          console.log(res);
           setUsers(res.body);
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => {});
     });
 
     UserSocket.on('AcceptFriendReq', (data) => {
       Get_Not_Friends()
         .then((res) => {
-          console.log(res);
           setUsers(res.body);
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => {});
     });
 
     return () => {
@@ -73,12 +64,9 @@ function friends() {
   useEffect(() => {
     Get_Not_Friends()
       .then((res) => {
-        console.log('not my friends', res.body);
         setUsers(res.body);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   }, [ReFetch]);
 
   const HandleAddFriend = (data: any) => () => {
@@ -87,32 +75,25 @@ function friends() {
     };
     PostSendFriendRequest(payload)
       .then((res) => {
-        console.log(res);
         if (res.status === 200) {
           setReFetch(!ReFetch);
         }
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   };
 
   const HandleCancelRequest = (data: any) => () => {
-    console.log(data);
     const payload = {
       receiverId: data.id,
       senderId: data.receivedRequests[0].senderId,
     };
     PostCancelFriendRequest(payload)
       .then((res) => {
-        console.log(res);
         if (res.status === 200) {
           setReFetch(!ReFetch);
         }
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   };
 
   const HandleCancelRequestReceiver = (data: any) => () => {
@@ -120,17 +101,14 @@ function friends() {
       senderId: data.sentRequests[0].senderId,
       receiverId: data.sentRequests[0].receiverId,
     };
-    console.log(payload);
+
     PostCancelFriendRequest(payload)
       .then((res) => {
-        console.log(res);
         if (res.status === 200) {
           setReFetch(!ReFetch);
         }
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   };
 
   const HandleRemoveUser = (data: any) => () => {
@@ -142,11 +120,8 @@ function friends() {
         if (res.status === 200) {
           setReFetch(!ReFetch);
         }
-        console.log(res);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   };
 
   const HandleAcceptRequest = (data: any) => () => {
@@ -154,15 +129,11 @@ function friends() {
       id: data.sentRequests[0].senderId,
     };
 
-    console.log(payload);
-
     PostAcceptFriendRequest(payload)
       .then((res) => {
         setReFetch(!ReFetch);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   };
 
   return (

@@ -20,11 +20,14 @@ export function AddMember() {
       },
     };
     request
-      .post(process.env.BACKEND_DOMAIN + '/api/chat/channel/create-member')
+      .post('/api/chat/channel/create-member')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send(newMember)
       .then((res) => {
-        socket.emit('addMember', {name: chatContext.data.name, target: data.nickname});
+        socket.emit('addMember', {
+          name: chatContext.data.name,
+          target: data.nickname,
+        });
         notifications.show({
           title: 'New Member has been Added',
           message: '',
@@ -46,7 +49,7 @@ export function AddMember() {
   const jwtToken = localStorage.getItem('jwtToken');
   function requestUsers(event) {
     request
-      .get(process.env.BACKEND_DOMAIN + '/api/chat/users')
+      .get('/api/chat/users')
       .set('Authorization', `Bearer ${jwtToken}`)
       .query({ username: event })
       .then((res) => {
@@ -72,8 +75,10 @@ export function AddMember() {
       nothingFoundMessage="Nothing found..."
       onQueryChange={requestUsers}
     >
-      <Group position="center" >
-        <Button w={'80%'} onClick={(event) => spotlight.open()}>Add Member</Button>
+      <Group position="center">
+        <Button w={'80%'} onClick={(event) => spotlight.open()}>
+          Add Member
+        </Button>
       </Group>
     </SpotlightProvider>
   );

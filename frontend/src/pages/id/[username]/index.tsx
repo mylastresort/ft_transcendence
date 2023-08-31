@@ -5,9 +5,9 @@ function Index() {
   const router = useRouter();
   const { username } = router.query;
 
-  useEffect(() => {
-    console.log(username);
-  }, [username]);
+  // useEffect(() => {
+  //   console.log(username);
+  // }, [username]);
 
   return <div>Index</div>;
 }

@@ -26,7 +26,7 @@ export default function Accept() {
       game.socket?.emit('watch-user-status', game.opponent.userId);
     let started = false;
     request
-      .get(process.env.BACKEND_DOMAIN + '/api/v1/game/player/me/currentGame')
+      .get('/api/v1/game/player/me/currentGame')
       .set('Authorization', `Bearer ${localStorage.getItem('jwtToken')}`)
       .then((res) => {
         if (res.status !== 200) return router.push('/game');

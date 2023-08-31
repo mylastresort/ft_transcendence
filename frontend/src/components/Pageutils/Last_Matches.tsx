@@ -31,6 +31,30 @@ interface UsersTableProps {
   }[];
 }
 
+type ItemType = {
+  winner?: {
+    user?: {
+      username?: string;
+      imgProfile?: string;
+    };
+  };
+  loser?: {
+    user?: {
+      username?: string;
+      imgProfile?: string;
+    };
+  };
+  status?: string;
+  winnerPostLevel?: number;
+  losserLevel?: number;
+  startedat?: any;
+  duration?: {
+    hours?: number;
+    minutes?: number;
+    seconds?: number;
+  };
+};
+
 export function Last_Matches() {
   const [currentPage, setCurrentPage] = useState(1);
   const [GameMatches, setGameMatches] = useState<[]>([]);
@@ -40,7 +64,7 @@ export function Last_Matches() {
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentData = GameMatches?.slice(startIndex, endIndex);
+  const currentData: ItemType[] = GameMatches?.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -50,14 +74,11 @@ export function Last_Matches() {
     const usernameUrl = window.location.pathname.split('/')[2];
     setUsername(usernameUrl);
 
-    GetGameMatches()
+    GetGameMatches({ username: usernameUrl })
       .then((res) => {
-        console.log(res.body);
         setGameMatches(res.body.reverse());
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   }, []);
 
   return (
@@ -156,7 +177,7 @@ export function Last_Matches() {
                       </Avatar>
                     </td>
                     <td>
-                      {item && new Date(item.startedat).toLocaleDateString()}
+                      {item && new Date(item?.startedat).toLocaleDateString()}
                     </td>
                     <td>
                       {item?.duration?.hours}h:{item?.duration?.minutes}m:

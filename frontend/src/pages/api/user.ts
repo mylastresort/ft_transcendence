@@ -3,7 +3,7 @@ import request from 'superagent';
 export const GetUserData = () => {
   const jwtToken = localStorage.getItem('jwtToken');
   return request
-    .get(process.env.BACKEND_DOMAIN + '/api/v1/users/me')
+    .get('/api/v1/users/me')
     .set('Authorization', `Bearer ${jwtToken}`)
     .then((res) => {
       return res;
@@ -16,7 +16,7 @@ export const GetUserData = () => {
 export const PostUpdateProfile = (data: any) => {
   const jwtToken = localStorage.getItem('jwtToken');
   return request
-    .post(process.env.BACKEND_DOMAIN + '/api/v1/users/updateProfile')
+    .post('/api/v1/users/updateProfile')
     .set('Authorization', `Bearer ${jwtToken}`)
     .send(data)
     .then((res) => {
@@ -30,7 +30,7 @@ export const PostUpdateProfile = (data: any) => {
 export const GetAvailableFriends = () => {
   const jwtToken = localStorage.getItem('jwtToken');
   return request
-    .get(process.env.BACKEND_DOMAIN + '/api/v1/users/available-friends')
+    .get('/api/v1/users/available-friends')
     .set('Authorization', `Bearer ${jwtToken}`)
     .then((res) => {
       return res;
@@ -43,7 +43,7 @@ export const GetAvailableFriends = () => {
 export const PostUserProfile = (data: any) => {
   const jwtToken = localStorage.getItem('jwtToken');
   return request
-    .post(process.env.BACKEND_DOMAIN + '/api/v1/users/userProfile')
+    .post('/api/v1/users/userProfile')
     .set('Authorization', `Bearer ${jwtToken}`)
     .send(data)
     .then((res) => {

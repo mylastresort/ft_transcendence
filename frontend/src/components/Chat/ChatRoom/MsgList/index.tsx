@@ -29,15 +29,12 @@ export default function MsgList({ h, isChannel = false }) {
 
   useEffect(() => {
     request
-    .get(process.env.BACKEND_DOMAIN + '/api/chat/users/blocked')
-    .set('Authorization', `Bearer ${jwtToken}`)
-    .then((res) => {
-      console.log("blocked users: ", res.body);
-      setBlocked(res.body);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+      .get('/api/chat/users/blocked')
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .then((res) => {
+        setBlocked(res.body);
+      })
+      .catch((err) => {});
   }, [updateBlocked]);
 
   useEffect(() => {
@@ -46,33 +43,34 @@ export default function MsgList({ h, isChannel = false }) {
       .set('Authorization', `Bearer ${jwtToken}`)
       .query({ id: chatContext.data.id })
       .then((res) => {
-        const msgs = res.body.filter((msg)=>
-          !blocked.includes(msg.sender.userId))
+        const msgs = res.body.filter(
+          (msg) => !blocked.includes(msg.sender.userId)
+        );
         setMessages(msgs);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   }, [chatContext.data.id, blocked]);
 
   useEffect(() => {
     socket.on(`${route}/newMsg`, (newMessage) => {
-      const senderId : number = isChannel ? newMessage.sender.userId : newMessage.senderId;
-      if (!blocked.includes(senderId)){
+      const senderId: number = isChannel
+        ? newMessage.sender.userId
+        : newMessage.senderId;
+      if (!blocked.includes(senderId)) {
         setMessages((prevMessages) => [...prevMessages, newMessage]);
       }
     });
     UserSocket.on('BlockedEvent', (data) => {
-      setUpdateBlocked((state)=>!state);
+      setUpdateBlocked((state) => !state);
     });
     UserSocket.on('UnBlockedEvent', (data) => {
-      setUpdateBlocked((state)=>!state);
+      setUpdateBlocked((state) => !state);
     });
-    return ()=>{
+    return () => {
       socket.off(`${route}/newMsg`);
       socket.off('BlockedEvent');
       socket.off('UnBlockedEvent');
-    }
+    };
   }, [route]);
 
   return (

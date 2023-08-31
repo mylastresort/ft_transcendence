@@ -27,31 +27,20 @@ function login({ setIsTwoFactorAuth }: any) {
   useEffect(() => {
     const QueryCode = window.location.search.split('code=')[1];
     if (QueryCode) {
-      const url = `/api/auth/callback?access_code=${QueryCode}`;
-      PostTokens(url)
+      PostLogin({ code: QueryCode })
         .then((res) => {
-          if (res.status === 200) {
-            PostLogin(res.body.accessToken)
-              .then((res) => {
-                if (res.body.twoFactorAuth) {
-                  setIsTwoFactorAuth(true);
-                  setIs2fa(true);
-                  localStorage.setItem('TmpJwt', res.body.token);
-                } else {
-                  localStorage.setItem('jwtToken', res.body.token);
-                  if (res.status === 201) {
-                    router.push('/game');
-                  }
-                }
-              })
-              .catch((err) => {
-                console.log(err);
-              });
+          if (res.body.twoFactorAuth) {
+            setIsTwoFactorAuth(true);
+            setIs2fa(true);
+            localStorage.setItem('TmpJwt', res.body.token);
+          } else {
+            localStorage.setItem('jwtToken', res.body.token);
+            if (res.status === 201) {
+              router.push('/game');
+            }
           }
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => {});
     }
   }, []);
 
@@ -70,9 +59,7 @@ function login({ setIsTwoFactorAuth }: any) {
             setIsError(true);
           }
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => {});
     } else if (e.target.value.length < 6) {
       setCode(e.target.value);
     }
@@ -108,4 +95,4 @@ function login({ setIsTwoFactorAuth }: any) {
   );
 }
 
-export default withAuth(login);
+export default login;

@@ -52,33 +52,29 @@ function ChannelInfo({ action }) {
   const router = useRouter();
   useEffect(() => {
     request
-      .get(process.env.BACKEND_DOMAIN + '/api/chat/channel')
+      .get('/api/chat/channel')
       .set('Authorization', `Bearer ${jwtToken}`)
       .query({ id: chatContext.data.id })
       .then((res) => {
         setMembers(res.body.members);
         setChannel(res.body);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   }, [chatContext.data]);
 
   useEffect(() => {
     request
-      .get(process.env.BACKEND_DOMAIN + '/api/chat/channel/members')
+      .get('/api/chat/channel/members')
       .set('Authorization', `Bearer ${jwtToken}`)
       .query({ id: chatContext.data.id })
       .then((res) => {
         setMembers(res.body);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   }, [action]);
   function leaveChannel() {
     request
-      .post(process.env.BACKEND_DOMAIN + '/api/chat/channel/leave')
+      .post('/api/chat/channel/leave')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send({ id: chatContext.data.id })
       .catch((err) => {

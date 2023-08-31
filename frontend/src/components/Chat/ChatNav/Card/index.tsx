@@ -79,7 +79,7 @@ export function ChannelCard({
   function getMe() {
     const jwtToken = localStorage.getItem('jwtToken');
     request
-      .get(process.env.BACKEND_DOMAIN + '/api/chat/channel/members/me')
+      .get('/api/chat/channel/members/me')
       .set('Authorization', `Bearer ${jwtToken}`)
       .query({ id: channel.id })
       .then((res) => {

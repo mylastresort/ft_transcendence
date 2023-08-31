@@ -14,9 +14,7 @@ function index() {
             router.push(`/profile/${res.body.username}`);
           }
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => {});
     }
   }, [username]);
 

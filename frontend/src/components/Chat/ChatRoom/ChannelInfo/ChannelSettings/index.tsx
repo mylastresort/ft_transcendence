@@ -46,7 +46,7 @@ export function ChannelSettings({
   const [time, setTime] = useState('1');
   function deleteUser() {
     request
-      .post(process.env.BACKEND_DOMAIN + '/api/chat/channel/delete')
+      .post('/api/chat/channel/delete')
       .set('Authorization', `Bearer ${jwtToken}`)
       .send({ id: chatContext.data.id })
       .catch((err) => {
@@ -58,7 +58,8 @@ export function ChannelSettings({
     return members
       .map(
         (m) =>
-          userContext.data && userContext.data.id != m.user.id &&
+          userContext.data &&
+          userContext.data.id != m.user.id &&
           !m.isOwner && { label: m.nickname, value: m.nickname }
       )
       .filter((e) => e);
@@ -93,7 +94,12 @@ export function ChannelSettings({
         </Flex>
       </Modal>
 
-      <Button w={'80%'} m={'auto'} onClick={open} rightIcon={<Settings size="0.9rem" />}>
+      <Button
+        w={'80%'}
+        m={'auto'}
+        onClick={open}
+        rightIcon={<Settings size="0.9rem" />}
+      >
         settings
       </Button>
     </>
