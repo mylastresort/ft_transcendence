@@ -33,7 +33,7 @@ export type Player = Socket<
 @UsePipes(new ValidationPipe())
 @UseFilters(BaseWsExceptionFilter, HttpGatewayExceptionFilter)
 @WebSocketGateway({
-  namespace: 'game',
+  namespace: 'ws/game',
   cors: {
     origin: process.env.FRONTEND_DOMAIN,
   },

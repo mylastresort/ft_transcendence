@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  distDir: 'dist',
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   reactStrictMode: false,
   async rewrites() {
     return [

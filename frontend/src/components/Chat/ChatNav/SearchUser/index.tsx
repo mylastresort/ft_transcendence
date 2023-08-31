@@ -16,9 +16,9 @@ export function SearchUser() {
     close();
     const jwtToken = localStorage.getItem('jwtToken');
     request
-      .post(process.env.BACKEND_DOMAIN + '/api/chat/private')
+      .post('/api/chat/private')
       .set('Authorization', `Bearer ${jwtToken}`)
-      .send({id: event.id, username: event.nickname })
+      .send({ id: event.id, username: event.nickname })
       .then((res) => {
         chatContext.data = {
           id: res.body.id,
@@ -32,13 +32,13 @@ export function SearchUser() {
         return err;
       });
   }
-  
+
   const [search, setSearch] = useState([]);
   const actions: SpotlightAction[] = search;
   const jwtToken = localStorage.getItem('jwtToken');
   function requestUsers(event) {
     request
-      .get(process.env.BACKEND_DOMAIN + '/api/chat/users')
+      .get('/api/chat/users')
       .set('Authorization', `Bearer ${jwtToken}`)
       .query({ username: event })
       .then((res) => {
@@ -48,7 +48,11 @@ export function SearchUser() {
             description: `${user.firstName} ${user.lastName}`,
             icon: <Avatar size="1.2rem" src={user.imgProfile} />,
             onTrigger: () =>
-            createNewPrivateChat({ id: user.id, nickname: user.username, img: user.imgProfile}),
+              createNewPrivateChat({
+                id: user.id,
+                nickname: user.username,
+                img: user.imgProfile,
+              }),
           }))
         );
       })
@@ -64,34 +68,37 @@ export function SearchUser() {
       nothingFoundMessage="Nothing found..."
       onQueryChange={requestUsers}
     >
-      <Group position="center" >
-      <Button
-        h={70}
-        w={'100%'}
-        maw={300}
-        mx="auto"
-        onMouseOver={() => {
-          setBgColor('var(--secondary-color)');
-        }}
-        onMouseLeave={() => {
-          setBgColor('var(--white-color)');
-        }}
-        style={{
-          display: 'block',
-          cursor: 'pointer',
-          backgroundColor: bgColor,
-          borderRadius: '10px',
-          border: '2px solid',
-          borderColor: 'var(--secondary-color)',
-          padding: '10px',
-          marginTop: '0px',
-          color: bgColor == 'var(--secondary-color)' ? 'var(--white-color)' : 'var(--secondary-color)',
-          fontSize: 40,
-        }}
-        onClick={(event) => spotlight.open()}
-      >
-        +
-      </Button>
+      <Group position="center">
+        <Button
+          h={70}
+          w={'100%'}
+          maw={300}
+          mx="auto"
+          onMouseOver={() => {
+            setBgColor('var(--secondary-color)');
+          }}
+          onMouseLeave={() => {
+            setBgColor('var(--white-color)');
+          }}
+          style={{
+            display: 'block',
+            cursor: 'pointer',
+            backgroundColor: bgColor,
+            borderRadius: '10px',
+            border: '2px solid',
+            borderColor: 'var(--secondary-color)',
+            padding: '10px',
+            marginTop: '0px',
+            color:
+              bgColor == 'var(--secondary-color)'
+                ? 'var(--white-color)'
+                : 'var(--secondary-color)',
+            fontSize: 40,
+          }}
+          onClick={(event) => spotlight.open()}
+        >
+          +
+        </Button>
       </Group>
     </SpotlightProvider>
   );

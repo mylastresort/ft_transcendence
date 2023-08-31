@@ -5,7 +5,7 @@ export const PostUpload = (file: any) => {
   data.append('image', file);
   const jwtToken = localStorage.getItem('jwtToken');
   return request
-    .post(process.env.BACKEND_DOMAIN + '/api/v1/users/upload')
+    .post('/api/v1/users/upload')
     .set('Authorization', `Bearer ${jwtToken}`)
     .send(data)
     .then((res) => {
@@ -19,7 +19,7 @@ export const PostUpload = (file: any) => {
 export const PostLocalImg = (body: any) => {
   const jwtToken = localStorage.getItem('jwtToken');
   return request
-    .post(process.env.BACKEND_DOMAIN + '/api/v1/users/updateProfileImg')
+    .post('/api/v1/users/updateProfileImg')
     .set('Authorization', `Bearer ${jwtToken}`)
     .send(body)
     .then((res) => {

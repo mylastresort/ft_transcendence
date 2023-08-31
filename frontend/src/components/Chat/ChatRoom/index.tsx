@@ -26,21 +26,20 @@ function ChatRoomContent({ isChannel = false }) {
   const [action, setAction] = useState('');
   const router = useRouter();
 
-
   useEffect(() => {
-    isChannel && request
-    .get(process.env.BACKEND_DOMAIN + '/api/chat/channel/members/me')
-    .set('Authorization', `Bearer ${jwtToken}`)
-    .query({ id: chatContext.data.id })
-    .catch((err) => {
-      router.push('/chat');
-      notifications.show({
-        title: `You can't join this channel`,
-        message: '',
-        color: 'red',
-      });
-      console.log(err);
-    });
+    isChannel &&
+      request
+        .get('/api/chat/channel/members/me')
+        .set('Authorization', `Bearer ${jwtToken}`)
+        .query({ id: chatContext.data.id })
+        .catch((err) => {
+          router.push('/chat');
+          notifications.show({
+            title: `You can't join this channel`,
+            message: '',
+            color: 'red',
+          });
+        });
 
     const roomName = isChannel ? chatContext.data.name : chatContext.data.id;
 
@@ -63,7 +62,6 @@ function ChatRoomContent({ isChannel = false }) {
       }
     });
     socket.on('action', (res) => {
-      console.log('action ...', res.action);
       if (res.target == userContext.data.username) {
         router.push('/chat');
         notifications.show({

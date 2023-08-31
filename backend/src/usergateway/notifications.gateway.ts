@@ -11,7 +11,7 @@ import { SocketAuthMiddleware } from 'src/auth/ws.middleware';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @WebSocketGateway({
-  namespace: 'userws',
+  namespace: 'ws/userws',
   cors: {
     origin: process.env.FRONTEND_DOMAIN,
   },
@@ -85,9 +85,7 @@ export class NotificationsGateway {
           }
         });
       });
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   }
 
   async NewFriendReq(UserId: number, senderId: number) {
@@ -147,9 +145,7 @@ export class NotificationsGateway {
         }
         await this.SendNotification(senderId);
       }
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   }
 
   async CandelFriendReq(UserId: number, senderId: number) {
@@ -200,9 +196,7 @@ export class NotificationsGateway {
         }
         await this.SendNotification(UserId);
       }
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   }
 
   async CandelFriendReqNotif(receiverId: number) {
@@ -215,9 +209,7 @@ export class NotificationsGateway {
         }
         await this.SendNotification(receiverId);
       }
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   }
 
   async SendNotification(UserId: number) {
@@ -237,9 +229,7 @@ export class NotificationsGateway {
           await socket.emit('GetNotifications', Notifications);
         }
       }
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   }
 
   async AcceptFriendReq(UserId: number, senderId: number) {
@@ -294,9 +284,7 @@ export class NotificationsGateway {
       // if (socket2) {
       //   socket2.emit('AcceptFriendReq', 'Accepted');
       // }
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   }
 
   async RerenderFriends(UserId: number, senderId: number) {
@@ -312,9 +300,7 @@ export class NotificationsGateway {
         for (const socket2 of sockets2)
           await socket2.emit('RerenderFriends', UserId);
       }
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   }
 
   async BlockedEvent(UserId: number, senderId: number) {
@@ -330,9 +316,7 @@ export class NotificationsGateway {
         for (const socket2 of sockets2)
           await socket2.emit('BlockedEvent', UserId);
       }
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   }
 
   async UnBlockedEvent(UserId: number, senderId: number) {
@@ -348,9 +332,7 @@ export class NotificationsGateway {
         for (const socket2 of sockets2)
           await socket2.emit('UnBlockedEvent', UserId);
       }
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   }
 
   @SubscribeMessage('ReadNotifications')
@@ -365,9 +347,7 @@ export class NotificationsGateway {
         },
       });
       await this.SendNotification(client.data.id);
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   }
 
   @SubscribeMessage('SendGameInvite')
@@ -484,9 +464,7 @@ export class NotificationsGateway {
       }
 
       await this.SendNotification(data.senderId);
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   }
 
   @SubscribeMessage('InGame')
@@ -529,9 +507,7 @@ export class NotificationsGateway {
           await socket2.emit('InGame', 'InGame');
         }
       }
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   }
 
   @SubscribeMessage('GameEnded')
@@ -574,9 +550,7 @@ export class NotificationsGateway {
           await socket2.emit('GameEnded', 'GameEnded');
         }
       }
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   }
 
   @SubscribeMessage('UserStatus')
@@ -602,9 +576,7 @@ export class NotificationsGateway {
       for (const socket2 of sockets2) {
         await socket2.emit('UserStatus', status.status);
       }
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   }
 
   @SubscribeMessage('ClearNotification')
@@ -626,8 +598,6 @@ export class NotificationsGateway {
     await this.SendNotification(data.user1);
     await this.SendNotification(data.user2);
     try {
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   }
 }

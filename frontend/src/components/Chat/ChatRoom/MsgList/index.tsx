@@ -45,8 +45,9 @@ export default function MsgList({ h, isChannel = false }) {
       .set('Authorization', `Bearer ${jwtToken}`)
       .query({ id: chatContext.data.id })
       .then((res) => {
-        const msgs = res.body.filter((msg)=>
-          !blocked.includes(msg.sender.userId))
+        const msgs = res.body.filter(
+          (msg) => !blocked.includes(msg.sender.userId)
+        );
         setMessages(msgs);
       })
       .catch((err) => {
@@ -69,7 +70,7 @@ export default function MsgList({ h, isChannel = false }) {
       setUpdateBlocked((state)=>!state);
     });
     UserSocket.on('UnBlockedEvent', (data) => {
-      setUpdateBlocked((state)=>!state);
+      setUpdateBlocked((state) => !state);
     });
     return ()=>{
       UserSocket.off('BlockedEvent');

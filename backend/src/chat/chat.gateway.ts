@@ -12,16 +12,14 @@ import { SocketAuthMiddleware } from 'src/auth/ws.middleware';
 import { ChatService } from './chat.service';
 
 @WebSocketGateway({
-  namespace: 'chat',
+  namespace: 'ws/chat',
   cors: {
     origin: process.env.FRONTEND_DOMAIN,
   },
 })
 @UseGuards(WsJwtGuard)
 export default class ChatGateway {
-  constructor(
-    private chatService: ChatService,
-  ) {}
+  constructor(private chatService: ChatService) {}
   @WebSocketServer()
   server: Server;
 
@@ -30,10 +28,9 @@ export default class ChatGateway {
     client.on('connection', (socket) => {
       this.chatService.updateSocketId(socket.id, socket.data.id);
     });
-    
-    client.on('disconnect', ()=>{
-      console.log('disconnecting...');
-    })
-  }
 
+    client.on('disconnect', () => {
+      console.log('disconnecting...');
+    });
+  }
 }

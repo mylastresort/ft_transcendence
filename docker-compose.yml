@@ -1,0 +1,39 @@
+version: "3"
+services:
+  ft_postgres:
+    image: postgres:15.2-alpine
+    container_name: ft_postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - ./backend/.data/db:/var/lib/postgresql/data
+    env_file:
+      - ./backend/.env
+    restart: always
+
+  ft_backend:
+    container_name: ft_backend
+    build:
+      context: ./backend
+      dockerfile: backend.Dockerfile
+    ports:
+      - 3000:3000
+    volumes:
+      - ./backend/prisma:/app/prisma
+      - ./backend/node_modules:/app/node_modules
+    depends_on:
+      - ft_postgres
+    env_file:
+      - ./backend/.env
+    restart: always
+
+  ft_frontend:
+    container_name: ft_frontend
+    build:
+      context: ./frontend
+      dockerfile: frontend.Dockerfile
+    ports:
+      - 5173:5173
+    depends_on:
+      - ft_backend
+    restart: always

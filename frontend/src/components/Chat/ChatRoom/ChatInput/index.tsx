@@ -44,17 +44,15 @@ export default function ChatInput({ isChannel = false }) {
     };
     try{
       socketContext.emit(`${route}/sendMsg`, req);
-    }catch(err){
-      console.log(err);
-    }
+    } catch (err) {}
   }
   const form = useForm({
     initialValues: {
       message: '',
     },
     validate: {
-      message: msg => (msg.trim() == '' )
-    }
+      message: (msg) => msg.trim() == '',
+    },
   });
 
   const inputStyles = useInputStyle();

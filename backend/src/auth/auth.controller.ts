@@ -26,10 +26,10 @@ export class AuthController {
   async fortyTwoLogin() {}
 
   @Post('register')
-  @UseGuards(AuthGuard('token'))
+  // @UseGuards(AuthGuard('token'))
   @ApiBearerAuth()
-  async register(@Req() req: any) {
-    return this.service.register(req.user);
+  async register(@Body() body: any) {
+    return this.service.register(body.code);
   }
 
   @Get('me')

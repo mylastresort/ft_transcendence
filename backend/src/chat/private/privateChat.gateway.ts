@@ -11,7 +11,7 @@ import { WsJwtGuard } from 'src/auth/ws-jwt/ws-jwt.guard';
 import { PrivateChatService } from './privateChat.service';
 
 @WebSocketGateway({
-  namespace: 'chat',
+  namespace: 'ws/chat',
   cors: {
     origin: process.env.FRONTEND_DOMAIN,
   },

@@ -15,7 +15,7 @@ export class PrivateChatService {
     try {
       const blockedUsers = await this.chatService.GetBlockedUsers(me.id);
       if (blockedUsers.includes(chatUser.id)) {
-        throw "this user is blocked";
+        throw 'this user is blocked';
       }
       const createdChat = await this.prisma.privateChat.findFirst({
         where: {
@@ -82,14 +82,13 @@ export class PrivateChatService {
   async getPrivateChat(me: any) {
     try {
       const blockedUsers = await this.chatService.GetBlockedUsers(me.id);
-      console.log('blocked users:', blockedUsers);
       return await this.prisma.privateChat.findMany({
         where: {
           members: {
-            none:{
+            none: {
               id: {
-                in: blockedUsers
-              }
+                in: blockedUsers,
+              },
             },
             some: {
               id: me.id,

@@ -30,18 +30,16 @@ import {
 } from '@mantine/core';
 import { IoNotifications } from 'react-icons/io5';
 import { UserSocket } from '@/context/WsContext';
-import { MdExplore, MdLabelImportantOutline, MdOutlineExplore } from 'react-icons/md';
+import {
+  MdExplore,
+  MdLabelImportantOutline,
+  MdOutlineExplore,
+} from 'react-icons/md';
 import { notifications } from '@mantine/notifications';
 import request from 'superagent';
 import { AiOutlineCompass } from 'react-icons/ai';
 
-export const User_Sidebar = (Show: any) => {
-  if (Show.Show) {
-    return null;
-  }
-
-  // const UserSocket = useContext(WsContext);
-
+function User_Sidebar() {
   const router = useRouter();
 
   const [FirstName, setFirstName] = useState('');
@@ -81,7 +79,9 @@ export const User_Sidebar = (Show: any) => {
                 color="cyan"
                 onClick={() => {
                   request
-                    .get(`${process.env.BACKEND_DOMAIN}/api/v1/game/${data.gameid}`)
+                    .get(
+                      `${process.env.BACKEND_DOMAIN}/api/v1/game/${data.gameid}`
+                    )
                     .set(
                       'Authorization',
                       `Bearer ${localStorage.getItem('jwtToken')}`
@@ -114,9 +114,7 @@ export const User_Sidebar = (Show: any) => {
                       'Authorization',
                       `Bearer ${localStorage.getItem('jwtToken')}`
                     )
-                    .then((res) => {
-                      console.log(res);
-                    })
+                    .then((res) => {})
                     .catch(console.error);
                   UserSocket.emit('ClearNotification', {
                     gameid: data.gameid,
@@ -242,9 +240,7 @@ export const User_Sidebar = (Show: any) => {
         setUsername(res.body.username);
         setPhotoUrl(res.body.imgProfile);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
 
     const body = document.querySelector('body') as HTMLBodyElement,
       sidebar = body.querySelector('nav'),
@@ -333,7 +329,7 @@ export const User_Sidebar = (Show: any) => {
               </i>
               <span
                 className="text nav-text"
-                style={{ color: Clickedon === 1 ? '#fff' : '' }}
+                style={{ color: Clickedon === 1 ? '#fff' : 'white' }}
               >
                 LOGO MENU
               </span>
@@ -341,8 +337,10 @@ export const User_Sidebar = (Show: any) => {
             <Spacer y={0.5} />
             <ul className="menu-links">
               <li
-              key={11}
-                className={`nav-link ${Clickedon === 1 ? 'activeSelect' : ''}`}
+                key={11}
+                className={`nav-link ${
+                  Clickedon === 1 ? 'activeSelect' : 'white'
+                }`}
                 onClick={() => {
                   HandleSelected(1);
                 }}
@@ -351,14 +349,15 @@ export const User_Sidebar = (Show: any) => {
                   <i
                     className=" icon"
                     style={{
-                      color: Clickedon === 1 ? 'var(--secondary-color)' : '',
+                      color:
+                        Clickedon === 1 ? 'var(--secondary-color)' : 'white',
                     }}
                   >
                     <GiPingPongBat />
                   </i>
                   <span
                     className="text nav-text"
-                    style={{ color: Clickedon === 1 ? '#fff' : '' }}
+                    style={{ color: Clickedon === 1 ? '#fff' : 'white' }}
                   >
                     Game
                   </span>
@@ -368,8 +367,10 @@ export const User_Sidebar = (Show: any) => {
 
             <ul className="menu-links">
               <li
-              key={22}
-                className={`nav-link ${Clickedon === 2 ? 'activeSelect' : ''}`}
+                key={22}
+                className={`nav-link ${
+                  Clickedon === 2 ? 'activeSelect' : 'white'
+                }`}
                 onClick={() => {
                   HandleSelected(2);
                 }}
@@ -378,14 +379,15 @@ export const User_Sidebar = (Show: any) => {
                   <i
                     className=" icon"
                     style={{
-                      color: Clickedon === 2 ? 'var(--secondary-color)' : '',
+                      color:
+                        Clickedon === 2 ? 'var(--secondary-color)' : 'white',
                     }}
                   >
                     <HiOutlineChatAlt2 />
                   </i>
                   <span
                     className="text nav-text"
-                    style={{ color: Clickedon === 2 ? '#fff' : '' }}
+                    style={{ color: Clickedon === 2 ? '#fff' : 'white' }}
                   >
                     Chat
                   </span>
@@ -395,8 +397,10 @@ export const User_Sidebar = (Show: any) => {
 
             <ul className="menu-links">
               <li
-              key={33}
-                className={`nav-link ${Clickedon === 3 ? 'activeSelect' : ''}`}
+                key={33}
+                className={`nav-link ${
+                  Clickedon === 3 ? 'activeSelect' : 'white'
+                }`}
                 onClick={() => {
                   HandleSelected(3);
                 }}
@@ -405,14 +409,15 @@ export const User_Sidebar = (Show: any) => {
                   <i
                     className=" icon"
                     style={{
-                      color: Clickedon === 3 ? 'var(--secondary-color)' : '',
+                      color:
+                        Clickedon === 3 ? 'var(--secondary-color)' : 'white',
                     }}
                   >
                     <FiUsers />
                   </i>
                   <span
                     className="text nav-text"
-                    style={{ color: Clickedon === 3 ? '#fff' : '' }}
+                    style={{ color: Clickedon === 3 ? '#fff' : 'white' }}
                   >
                     Friends
                   </span>
@@ -422,8 +427,10 @@ export const User_Sidebar = (Show: any) => {
 
             <ul className="menu-links">
               <li
-              key={44}
-                className={`nav-link ${Clickedon === 5 ? 'activeSelect' : ''}`}
+                key={44}
+                className={`nav-link ${
+                  Clickedon === 5 ? 'activeSelect' : 'white'
+                }`}
                 onClick={() => {
                   HandleSelected(5);
                 }}
@@ -432,14 +439,15 @@ export const User_Sidebar = (Show: any) => {
                   <i
                     className=" icon"
                     style={{
-                      color: Clickedon === 5 ? 'var(--secondary-color)' : '',
+                      color:
+                        Clickedon === 5 ? 'var(--secondary-color)' : 'white',
                     }}
                   >
                     <FaUserAlt />
                   </i>
                   <span
                     className="text nav-text"
-                    style={{ color: Clickedon === 5 ? '#fff' : '' }}
+                    style={{ color: Clickedon === 5 ? '#fff' : 'white' }}
                   >
                     Account
                   </span>
@@ -481,7 +489,7 @@ export const User_Sidebar = (Show: any) => {
                 fontWeight: '500',
               }}
             >
-              Welcome zakaia kasmi
+              Welcome {FirstName} {LastName}
             </Text>
           </Grid>
           <Grid
@@ -549,7 +557,7 @@ export const User_Sidebar = (Show: any) => {
                       <Menu.Item
                         icon={
                           item.read ? (
-                            ''
+                            <></>
                           ) : (
                             <MdLabelImportantOutline
                               size={17}
@@ -646,9 +654,7 @@ export const User_Sidebar = (Show: any) => {
                                             'jwtToken'
                                           )}`
                                         )
-                                        .then((res) => {
-                                          console.log(res);
-                                        })
+                                        .then((res) => {})
                                         .catch(console.error);
                                       UserSocket.emit('ClearNotification', {
                                         gameid: item.gameid,
@@ -670,7 +676,9 @@ export const User_Sidebar = (Show: any) => {
                       <Divider
                         style={{
                           display:
-                            index === Notifications.length - 1 ? 'none' : '',
+                            index === Notifications.length - 1
+                              ? 'none'
+                              : 'flex',
                         }}
                       />
                     </div>
@@ -702,10 +710,7 @@ export const User_Sidebar = (Show: any) => {
                   </Text>
                 </Dropdown.Item>
                 <Dropdown.Item key="settings" withDivider>
-                  <Link href="/home/settings">My Settings</Link>
-                </Dropdown.Item>
-                <Dropdown.Item key="help_and_feedback" withDivider>
-                  <Link href="/home/contact">Help & Feedback</Link>
+                  <Link href="/edit/info">My Settings</Link>
                 </Dropdown.Item>
                 <Dropdown.Item key="logout" withDivider color="error">
                   Log Out
@@ -717,4 +722,6 @@ export const User_Sidebar = (Show: any) => {
       </Grid>
     </React.Fragment>
   );
-};
+}
+
+export default User_Sidebar;

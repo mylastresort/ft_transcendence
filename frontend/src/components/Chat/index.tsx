@@ -11,7 +11,7 @@ export default function Chat(ChatRoom) {
   return () => {
     const [user, setUser] = useState({} as User);
     const jwtToken = localStorage.getItem('jwtToken');
-    const chatSocketContext = io(process.env.BACKEND_DOMAIN + '/chat', {
+    const chatSocketContext = io(`${process.env.BACKEND_DOMAIN}/ws/chat`, {
       extraHeaders: {
         Authorization: `Bearer ${jwtToken}`,
       },
@@ -22,22 +22,18 @@ export default function Chat(ChatRoom) {
         .then((res) => {
           setUser({ data: res.body });
         })
-        .catch((err) => {
-          console.log(err);
-        });
+        .catch((err) => {});
     }, []);
 
     useEffect(() => {
-      if(!chatSocket.connected){
+      if (!chatSocket.connected) {
         chatSocket.on('connect', () => {
-          console.log('chat socket connected...');
           return;
         });
       }
       return () => {
         chatSocket && chatSocket.disconnect();
-        console.log('chat socket disconnecting...');
-      }
+      };
     }, []);
     return (
       <UserContext.Provider value={user}>
