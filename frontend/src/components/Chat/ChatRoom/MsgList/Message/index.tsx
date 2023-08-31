@@ -19,7 +19,7 @@ export default function Message({content, sendBy}) {
           maw={400}
           style={{
             border: '2px solid var(--secondary-color)',
-            borderRadius: 20,
+            borderRadius: "20px 20px 0px 20px",
           }}
         >
           {content}
@@ -34,8 +34,8 @@ export default function Message({content, sendBy}) {
               p={10}
               maw={400}
               style={{
-                border: '2px solid var(--secondary-color)',
-                borderRadius: 20,
+                border: '2px solid var(--chat-red-color)',
+                borderRadius: "20px 20px 20px 0px",
               }}
             >
               {content}

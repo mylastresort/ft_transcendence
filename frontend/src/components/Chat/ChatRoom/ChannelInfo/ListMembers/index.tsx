@@ -3,14 +3,11 @@ import { UserContext } from '@/context/user';
 import {
   Avatar,
   Badge,
-  Button,
   Group,
   List,
   ScrollArea,
   Text,
 } from '@mantine/core';
-import { useContext, useEffect, useState } from 'react';
-import request from 'superagent';
 
 interface Member {
   id: number;
@@ -41,6 +38,7 @@ export function ListMembers({ members }: { members: Member[] }) {
             style={{
               border: '1px solid var(--chat-red-color)',
               borderRadius: '50px',
+              margin: "6px 0px"
             }}
             position="apart"
             p={4}
