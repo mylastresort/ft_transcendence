@@ -14,8 +14,8 @@ const nextConfig = {
     ];
   },
   env: {
-    FRONTEND_DOMAIN: 'http://192.168.1.9:5173',
-    BACKEND_DOMAIN: 'http://192.168.1.9:3000',
+    FRONTEND_DOMAIN: 'http://137.184.7.150:5173',
+    BACKEND_DOMAIN: 'http://137.184.7.150:3000',
     FORTYTWO_CLIENT_ID:
       'u-s4t2ud-5bb57665a5f45d59c6ca9a2d310d6a1a17052426b99d6f59c371a3a696daa8c8',
     FORTYTWO_CLIENT_SECRET:
