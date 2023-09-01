@@ -9,18 +9,18 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://137.184.7.150:3000/api/:path*',
+        destination: 'http://10.13.1.15:3000/api/:path*',
       },
     ];
   },
   env: {
-    FRONTEND_DOMAIN: 'http://137.184.7.150:5173',
-    BACKEND_DOMAIN: 'http://137.184.7.150:3000',
+    FRONTEND_DOMAIN: 'http://10.13.1.15:5173',
+    BACKEND_DOMAIN: 'http://10.13.1.15:3000',
     FORTYTWO_CLIENT_ID:
-      'u-s4t2ud-5bb57665a5f45d59c6ca9a2d310d6a1a17052426b99d6f59c371a3a696daa8c8',
+      'u-s4t2ud-5980f22b8a44c6b6f182b3c4ae059cb1abdad774f4fe24988c70d81374caaa44',
     FORTYTWO_CLIENT_SECRET:
-      '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',
-  }
+      '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',
+  },
 };
 
 module.exports = nextConfig;
