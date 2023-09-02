@@ -13,7 +13,7 @@ import { PrivateChatService } from './privateChat.service';
 @WebSocketGateway({
   namespace: 'ws/chat',
   cors: {
-    origin: process.env.FRONTEND_DOMAIN,
+    origin: '*',
   },
 })
 @UseGuards(WsJwtGuard)

@@ -37,7 +37,7 @@ import {
 } from 'react-icons/md';
 import { notifications } from '@mantine/notifications';
 import request from 'superagent';
-import { AiOutlineCompass } from 'react-icons/ai';
+// import { AiOutlineCompass } from 'react-icons/ai';
 
 function User_Sidebar() {
   const router = useRouter();
@@ -79,9 +79,7 @@ function User_Sidebar() {
                 color="cyan"
                 onClick={() => {
                   request
-                    .get(
-                      `${process.env.BACKEND_DOMAIN}/api/v1/game/${data.gameid}`
-                    )
+                    .get(`/api/v1/game/${data.gameid}`)
                     .set(
                       'Authorization',
                       `Bearer ${localStorage.getItem('jwtToken')}`
@@ -107,9 +105,7 @@ function User_Sidebar() {
                 onClick={() => {
                   handleCleanNotifications();
                   request
-                    .post(
-                      `${process.env.BACKEND_DOMAIN}/api/v1/game/invite/cancel/${data.gameid}`
-                    )
+                    .post(`/api/v1/game/invite/cancel/${data.gameid}`)
                     .set(
                       'Authorization',
                       `Bearer ${localStorage.getItem('jwtToken')}`
@@ -463,18 +459,6 @@ function User_Sidebar() {
                 <span className="text nav-text">Logout</span>
               </a>
             </li>
-
-            <li className="mode" key={56}>
-              <div className="sun-moon">
-                <i className="bx bx-moon icon moon"></i>
-                <i className="bx bx-sun icon sun"></i>
-              </div>
-              <span className="mode-text text">Dark mode</span>
-
-              <div className="toggle-switch">
-                <span className="switch"></span>
-              </div>
-            </li>
           </div>
         </div>
       </nav>
@@ -553,7 +537,7 @@ function User_Sidebar() {
                   </Center>
                 ) : (
                   Notifications.map((item: any, index: number) => (
-                    <div>
+                    <div key={index}>
                       <Menu.Item
                         icon={
                           item.read ? (
@@ -612,9 +596,7 @@ function User_Sidebar() {
                                     variant="light"
                                     onClick={() => {
                                       request
-                                        .get(
-                                          `${process.env.BACKEND_DOMAIN}/api/v1/game/${item.gameid}`
-                                        )
+                                        .get(`/api/v1/game/${item.gameid}`)
                                         .set(
                                           'Authorization',
                                           `Bearer ${localStorage.getItem(
@@ -646,7 +628,7 @@ function User_Sidebar() {
                                     onClick={() => {
                                       request
                                         .post(
-                                          `${process.env.BACKEND_DOMAIN}/api/v1/game/invite/cancel/${item.gameid}`
+                                          `/api/v1/game/invite/cancel/${item.gameid}`
                                         )
                                         .set(
                                           'Authorization',

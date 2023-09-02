@@ -11,9 +11,8 @@ const PORT = process.env.APP_PORT || 3000;
 async function bootstrap() {
   const app = (await NestFactory.create(AppModule)).setGlobalPrefix('api');
   app.enableCors({
-    origin: process.env.FRONTEND_DOMAIN,
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    methods: ['GET', 'POST', 'DELETE', 'PATCH'],
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   });
 
   app.enableVersioning({

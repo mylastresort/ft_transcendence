@@ -36,7 +36,7 @@ function Achievements() {
         <SimpleGrid cols={3}>
           {PlayerAchievements?.map((item, index) => {
             return (
-              <Stack className={Styles.css_div}>
+              <Stack key={index} className={Styles.css_div}>
                 <Flex justify="space-between" h="100%">
                   <Stack p="lg">
                     <Text fz="lg" fw={500} c="#fff">

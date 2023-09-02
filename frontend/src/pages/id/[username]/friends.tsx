@@ -87,7 +87,7 @@ function AllFriends({ friends }) {
   );
 }
 
-function RequestFriends({ friendReq }) {
+function RequestFriends({ friendReq, username }) {
   const router = useRouter();
   return (
     <Flex direction="column" w="100%">
@@ -98,32 +98,59 @@ function RequestFriends({ friendReq }) {
         <Divider />
         <Spacer y={0.5} />
         <Group position="left">
-          {friendReq?.map((item, index) => (
-            <UnstyledButton
-              key={index}
-              className={Styles.UnstyledButton}
-              onClick={() => {
-                router.push(`/profile/${item?.sender.username}`);
-              }}
-            >
-              <Group>
-                <Avatar src={item?.sender.imgProfile} />
+          {friendReq?.map((item, index) =>
+            item?.sender.username !== username ? (
+              <UnstyledButton
+                key={index}
+                className={Styles.UnstyledButton}
+                onClick={() => {
+                  router.push(`/profile/${item?.sender.username}`);
+                }}
+              >
+                <Group>
+                  <Avatar src={item?.sender.imgProfile} />
 
-                <div style={{ flex: 1 }}>
-                  <Text size="md" weight={500}>
-                    {item?.sender.username}
-                  </Text>
-                  <Text size="xs" weight={500}>
-                    {item?.sender.status}
-                  </Text>
-                </div>
+                  <div style={{ flex: 1 }}>
+                    <Text size="md" weight={500}>
+                      {item?.sender.username}
+                    </Text>
+                    <Text size="xs" weight={500}>
+                      {item?.sender.status}
+                    </Text>
+                  </div>
 
-                <Avatar color="cyan" radius="xl" size={30}>
-                  12
-                </Avatar>
-              </Group>
-            </UnstyledButton>
-          ))}
+                  <Avatar color="cyan" radius="xl" size={30}>
+                    12
+                  </Avatar>
+                </Group>
+              </UnstyledButton>
+            ) : (
+              <UnstyledButton
+                key={index}
+                className={Styles.UnstyledButton}
+                onClick={() => {
+                  router.push(`/profile/${item?.receiver.username}`);
+                }}
+              >
+                <Group>
+                  <Avatar src={item?.receiver.imgProfile} />
+
+                  <div style={{ flex: 1 }}>
+                    <Text size="md" weight={500}>
+                      {item?.receiver.username}
+                    </Text>
+                    <Text size="xs" weight={500}>
+                      {item?.receiver.status}
+                    </Text>
+                  </div>
+
+                  <Avatar color="cyan" radius="xl" size={30}>
+                    12
+                  </Avatar>
+                </Group>
+              </UnstyledButton>
+            )
+          )}
         </Group>
       </Stack>
     </Flex>
@@ -185,32 +212,35 @@ function AddFriends({ Addfriends }) {
         <Divider />
         <Spacer y={0.5} />
         <Group position="left">
-          {Addfriends?.map((item, index) => (
-            <UnstyledButton
-              key={index}
-              className={Styles.UnstyledButton}
-              onClick={() => {
-                router.push(`/profile/${item?.username}`);
-              }}
-            >
-              <Group>
-                <Avatar src={item?.imgProfile} />
+          {Addfriends?.map(
+            (item, index) =>
+              item.receivedRequests.length === 0 && (
+                <UnstyledButton
+                  key={index}
+                  className={Styles.UnstyledButton}
+                  onClick={() => {
+                    router.push(`/profile/${item?.username}`);
+                  }}
+                >
+                  <Group>
+                    <Avatar src={item?.imgProfile} />
 
-                <div style={{ flex: 1 }}>
-                  <Text size="md" weight={500}>
-                    {item?.username}
-                  </Text>
-                  <Text size="xs" weight={500}>
-                    {item.status}
-                  </Text>
-                </div>
+                    <div style={{ flex: 1 }}>
+                      <Text size="md" weight={500}>
+                        {item?.username}
+                      </Text>
+                      <Text size="xs" weight={500}>
+                        {item.status}
+                      </Text>
+                    </div>
 
-                <Avatar color="cyan" radius="xl" size={30}>
-                  12
-                </Avatar>
-              </Group>
-            </UnstyledButton>
-          ))}
+                    <Avatar color="cyan" radius="xl" size={30}>
+                      12
+                    </Avatar>
+                  </Group>
+                </UnstyledButton>
+              )
+          )}
         </Group>
       </Stack>
     </Flex>
@@ -260,6 +290,7 @@ function Friends() {
   const fetchData = async () => {
     try {
       const friendRequests = await GetFriendRequests();
+      console.log(friendRequests.body);
       setFriendReq(friendRequests.body);
 
       const payload = {
@@ -281,6 +312,7 @@ function Friends() {
       setBlockedFriends(blockedFriends.body.blockedUsers);
 
       const notFriends = await Get_Not_Friends();
+      console.log(notFriends.body);
       setAddfriends(notFriends.body);
     } catch (err) {}
   };
@@ -336,7 +368,9 @@ function Friends() {
             >
               {active === 0 && <AllFriends friends={friends} />}
               {active === 1 && <AddFriends Addfriends={Addfriends} />}
-              {active === 2 && <RequestFriends friendReq={friendReq} />}
+              {active === 2 && (
+                <RequestFriends friendReq={friendReq} username={username} />
+              )}
               {active === 3 && (
                 <BlockedFriends blockedFriends={blockedFriends} />
               )}

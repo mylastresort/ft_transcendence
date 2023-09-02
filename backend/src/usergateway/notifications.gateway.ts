@@ -13,7 +13,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 @WebSocketGateway({
   namespace: 'ws/userws',
   cors: {
-    origin: process.env.FRONTEND_DOMAIN,
+    origin: '*',
   },
 })
 @UseGuards(WsJwtGuard)
@@ -62,7 +62,8 @@ export class NotificationsGateway {
         await this.SendNotification(socket.data.id);
 
         socket.on('disconnect', async () => {
-          try {
+          const sockets = this.connectedSockets.get(socket.data.id);
+          if (sockets.length === 1) {
             await this.prisma.user.update({
               where: {
                 id: socket.data.id,
@@ -71,12 +72,6 @@ export class NotificationsGateway {
                 status: 'offline',
               },
             });
-          } catch (err) {
-            console.log('Error updating user status:', err);
-          }
-
-          const sockets = this.connectedSockets.get(socket.data.id);
-          if (sockets.length === 1) {
             this.connectedSockets.delete(socket.data.id);
           }
           if (sockets.length > 1) {

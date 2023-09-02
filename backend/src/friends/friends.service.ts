@@ -96,6 +96,54 @@ export class FriendsService {
 
   async SendFriendRequest(senderId: number, receiverId: number) {
     try {
+      const isFriendRequestExist = await this.Prisma.friendRequest.findFirst({
+        where: {
+          senderId: senderId,
+          receiverId: receiverId,
+        },
+      });
+
+      const isFriendRequestExist2 = await this.Prisma.friendRequest.findFirst({
+        where: {
+          senderId: receiverId,
+          receiverId: senderId,
+        },
+      });
+
+      if (isFriendRequestExist || isFriendRequestExist2) {
+        throw new HttpException(
+          {
+            status: HttpStatus.BAD_REQUEST,
+            error: 'Friend request already sent',
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      const isFriend = await this.Prisma.friend.findFirst({
+        where: {
+          userId: senderId,
+          friendId: receiverId,
+        },
+      });
+
+      const isFriend2 = await this.Prisma.friend.findFirst({
+        where: {
+          userId: receiverId,
+          friendId: senderId,
+        },
+      });
+
+      if (isFriend || isFriend2) {
+        throw new HttpException(
+          {
+            status: HttpStatus.BAD_REQUEST,
+            error: 'You are already friends',
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
       const friendRequest = await this.Prisma.friendRequest.create({
         data: {
           sender: { connect: { id: senderId } },
@@ -370,6 +418,36 @@ export class FriendsService {
         await this.Prisma.friend.delete({
           where: {
             id: isFriend2.id,
+          },
+        });
+      }
+
+      const isFriendRequest = await this.Prisma.friendRequest.findFirst({
+        where: {
+          senderId: userId,
+          receiverId: user2Id,
+        },
+      });
+
+      if (isFriendRequest) {
+        await this.Prisma.friendRequest.delete({
+          where: {
+            id: isFriendRequest.id,
+          },
+        });
+      }
+
+      const isFriendRequest2 = await this.Prisma.friendRequest.findFirst({
+        where: {
+          senderId: user2Id,
+          receiverId: userId,
+        },
+      });
+
+      if (isFriendRequest2) {
+        await this.Prisma.friendRequest.delete({
+          where: {
+            id: isFriendRequest2.id,
           },
         });
       }

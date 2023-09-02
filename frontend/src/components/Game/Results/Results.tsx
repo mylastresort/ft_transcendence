@@ -30,8 +30,8 @@ export default function Results() {
         games: 3,
         speed: 5,
         name: '',
-      }
-    }
+      };
+    };
   }, []);
 
   return (
@@ -76,6 +76,7 @@ export default function Results() {
         >
           {(isWinner ? 'winner' : 'you lose').split('').map((letter, index) => (
             <Box
+              key={index}
               component={motion.span}
               tt="capitalize"
               px="0.15rem"
@@ -89,9 +90,7 @@ export default function Results() {
         </Text>
         <Space h="2rem" />
         <Center>
-          <Button onClick={() => router.push('/game')}>
-            Play Again!
-          </Button>
+          <Button onClick={() => router.push('/game')}>Play Again!</Button>
         </Center>
       </Box>
     </Flex>
