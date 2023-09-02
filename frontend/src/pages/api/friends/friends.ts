@@ -41,20 +41,6 @@ export const PostCancelFriendRequest = (body: any) => {
     });
 };
 
-export const PostRemoveFriendFromList = (body: any) => {
-  const jwtToken = localStorage.getItem('jwtToken');
-  return request
-    .post('/api/v1/friends/RemoveFriendFromList')
-    .set('Authorization', `Bearer ${jwtToken}`)
-    .send(body)
-    .then((res) => {
-      return res;
-    })
-    .catch((err) => {
-      return err;
-    });
-};
-
 export const GetFriendRequests = () => {
   const jwtToken = localStorage.getItem('jwtToken');
   return request

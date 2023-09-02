@@ -144,7 +144,6 @@ function Pofile() {
 
   useEffect(() => {
     try {
-      console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
       fetchData();
       UserSocket.on('RerenderFriends', fetchData);
     } catch (err) {}

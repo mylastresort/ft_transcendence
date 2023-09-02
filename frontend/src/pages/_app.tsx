@@ -86,7 +86,7 @@ export default function App({ Component, pageProps }: AppProps) {
   }, []);
 
   useEffect(() => {
-    UserSocket.on('NewRequestNotification', (name) => {
+    UserSocket?.on('NewRequestNotification', (name) => {
       notifications.show({
         id: 'NewRequestNotification',
         title: 'New Request',

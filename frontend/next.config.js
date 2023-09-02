@@ -15,11 +15,11 @@ const nextConfig = {
   },
   env: {
     FRONTEND_DOMAIN: 'http://localhost:5173',
-    BACKEND_DOMAIN: 'http://0.0.0.0:3000',
+    BACKEND_DOMAIN: 'http://localhost:3000',
     FORTYTWO_CLIENT_ID:
-      'u-s4t2ud-a2fc95425f68d972571f0cbf28387e0ee0db176a5aa0ae746977485c23eb4689',
+      'u-s4t2ud-c7cf869f2fe58529181018154bf2c29d31b386d6b2148955dea3b266636800c2',
     FORTYTWO_CLIENT_SECRET:
-      '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',
+      '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',
   },
 };
 

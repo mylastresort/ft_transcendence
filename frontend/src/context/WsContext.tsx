@@ -7,15 +7,17 @@ export const WsContext = createContext<Socket>(UserSocket);
 
 export const WsProvider = ({ children, token }) => {
   const retrySocketConnection = (socket: Socket) => {
-    socketOptions = {
-      extraHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-    UserSocket = io(`${process.env.BACKEND_DOMAIN}/ws/userws`, socketOptions);
-    UserSocket.on('connect', () => {
-      return;
-    });
+    if (token) {
+      socketOptions = {
+        extraHeaders: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      UserSocket = io(`${process.env.BACKEND_DOMAIN}/ws/userws`, socketOptions);
+      UserSocket.on('connect', () => {
+        return;
+      });
+    }
   };
 
   retrySocketConnection(UserSocket);

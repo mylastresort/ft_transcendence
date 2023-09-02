@@ -16,7 +16,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import ChannelGateway from './channel.gateway';
 import { ChannelService } from './channel.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreateChannelDto } from './dto/createChannel.dto';
+import { CreateChannelDto } from './dto/CreateChannel.dto';
 import { AdminDto, MembersDto, PasswordDto } from './dto/ChannelSettings.dto';
 
 @Controller('chat/channel')
@@ -32,8 +32,12 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @UseInterceptors(FileInterceptor('image'))
-  async createChannel(@Req() req: any, @Body() body: CreateChannelDto, @UploadedFile() file): Promise<any> {
-    console.log("create channel: ", body);
+  async createChannel(
+    @Req() req: any,
+    @Body() body: CreateChannelDto,
+    @UploadedFile() file,
+  ): Promise<any> {
+    console.log('create channel: ', body);
     let fileLocation = undefined;
     if (file) {
       try {
@@ -102,7 +106,7 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async getMe(@Req() req: any, @Query('id') id: any) {
-    console.log("member: ", req.user, id);
+    console.log('member: ', req.user, id);
     return await this.channelService.getMe(req.user, +id);
   }
   //leave
@@ -121,7 +125,10 @@ export class ChannelController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  async membersSettings(@Req() req: any, @Body() body: MembersDto): Promise<any> {
+  async membersSettings(
+    @Req() req: any,
+    @Body() body: MembersDto,
+  ): Promise<any> {
     const res = await this.channelService.membersSettings(req.user, body);
 
     this.channelGateway.notifyMember(res, req.body);
@@ -133,7 +140,7 @@ export class ChannelController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  async adminSettings(@Req() req: any, @Body() body :AdminDto): Promise<any> {
+  async adminSettings(@Req() req: any, @Body() body: AdminDto): Promise<any> {
     return this.channelService.adminSettings(req.user, req.body);
   }
 
@@ -141,7 +148,10 @@ export class ChannelController {
   @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  async passwordSettings(@Req() req: any, @Body() body: PasswordDto): Promise<any> {
+  async passwordSettings(
+    @Req() req: any,
+    @Body() body: PasswordDto,
+  ): Promise<any> {
     return this.channelService.passwordSettings(req.user, body);
   }
 

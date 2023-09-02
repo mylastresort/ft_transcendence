@@ -112,19 +112,6 @@ function friends() {
       .catch((err) => {});
   };
 
-  const HandleRemoveUser = (data: any) => () => {
-    const payload = {
-      receiverId: data.id,
-    };
-    PostRemoveFriendFromList(payload)
-      .then((res) => {
-        if (res.status === 200) {
-          setReFetch(!ReFetch);
-        }
-      })
-      .catch((err) => {});
-  };
-
   const HandleAcceptRequest = (data: any) => () => {
     const payload = {
       id: data.sentRequests[0].senderId,
@@ -243,15 +230,6 @@ function friends() {
                       onClick={HandleAddFriend(data)}
                     >
                       Add Friend
-                    </Button>
-                    <Button
-                      color="indigo"
-                      fullWidth
-                      mt="md"
-                      radius="md"
-                      onClick={HandleRemoveUser(data)}
-                    >
-                      Remove
                     </Button>
                   </div>
                 )}

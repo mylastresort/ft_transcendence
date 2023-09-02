@@ -66,17 +66,6 @@ export class FriendsController {
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
-  @Post('RemoveFriendFromList')
-  @HttpCode(HttpStatus.OK)
-  async RemoveFriendFromList(
-    @Req() req: any,
-    @Body() body: { receiverId: number },
-  ) {
-    return this.service.RemoveFriendFromList(req.user.id, body.receiverId);
-  }
-
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
   @Post('RejectFriendRequest')
   @HttpCode(HttpStatus.OK)
   async RejectFriendRequest(@Req() req: any, @Body() body: { id: number }) {
