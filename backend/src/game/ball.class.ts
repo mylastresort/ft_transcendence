@@ -54,9 +54,9 @@ export default class Ball {
     this.dummyKey = randomInt(1000);
     const [X, Y] = this.crd;
     const [player] = X < 0 ? players.host : players.guest;
-    if (Y < player + Room.paddle / 2 && Y > player - Room.paddle / 2) {
-      console.log('pong');
-    }
+    // if (Y < player + Room.paddle / 2 && Y > player - Room.paddle / 2) {
+    //   console.log('pong');
+    // }
     return this.ping();
   }
 }

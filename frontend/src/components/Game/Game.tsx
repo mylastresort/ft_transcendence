@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { MantineProvider, Text, useMantineTheme } from '@mantine/core';
+import { Button, MantineProvider, Text, useMantineTheme } from '@mantine/core';
 import { UserContext } from '@/context/user';
 import React, { useContext, useEffect, useState } from 'react';
 import styles from './Game.module.css';
@@ -30,10 +30,7 @@ function GameWrapper(Component) {
           if (res.status === 200) setPlayer(res.body);
           game.socket
             ?.on('connect', () => setConnected(true))
-            .on('disconnect', () => {
-              if (router.pathname !== '/game/results')
-                setConnected(false)
-            })
+            .on('disconnect', () => setConnected(false))
             .connect();
         })
         .catch(() => { });

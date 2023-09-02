@@ -22,9 +22,9 @@ export default function Customizer({ type = 'create', username }) {
   const game = useContext(GameContext);
   const maps = useContext(MapsContext);
   const form = useForm({
-    initialValues: { speed: 3, games: 5, name: '' },
+    initialValues: { speed: 4, games: 5, name: '' },
     validate: {
-      speed: (value) => (value < 2 || value > 5 ? 'Invalid speed' : null),
+      speed: (value) => (value < 3 || value > 5 ? 'Invalid speed' : null),
       games: (value) =>
         value < 3 || value > 10 ? 'Invalid number of games' : null,
     },
@@ -117,7 +117,6 @@ export default function Customizer({ type = 'create', username }) {
                           : 0,
                       display: Math.abs(selected - idx) < 3 ? 'block' : 'none',
                       zIndex: 100 - 10 * Math.abs(selected - idx),
-                      content: idx === selected ? item.name : undefined,
                     }}
                     transition={{ type: 'just' }}
                   />
@@ -145,9 +144,9 @@ export default function Customizer({ type = 'create', username }) {
                 {...form.getInputProps('speed')}
                 label={null}
                 marks={[
-                  { value: 2, label: 'Slow' },
-                  { value: 3, label: 'Normal' },
-                  { value: 4, label: 'Fast' },
+                  { value: 3, label: 'Slow' },
+                  { value: 4, label: 'Normal' },
+                  { value: 4.5, label: 'Fast' },
                   { value: 5, label: 'Very fast' },
                 ]}
                 max={5}
