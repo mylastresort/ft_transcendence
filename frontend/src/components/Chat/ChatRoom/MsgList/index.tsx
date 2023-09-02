@@ -41,7 +41,7 @@ export default function MsgList({ h, isChannel = false }) {
 
   useEffect(() => {
     request
-      .get(`${process.env.BACKEND_DOMAIN}/api/chat/${route}/msgs`)
+      .get(`/api/chat/${route}/msgs`)
       .set('Authorization', `Bearer ${jwtToken}`)
       .query({ id: chatContext.data.id })
       .then((res) => {

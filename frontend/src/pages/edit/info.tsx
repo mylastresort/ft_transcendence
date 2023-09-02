@@ -34,6 +34,7 @@ import Styles from './info.module.css';
 import { GetUserData, PostUpdateProfile } from '@/pages/api/user';
 import { PostUpload, PostLocalImg } from '@/pages/api/file';
 import { Post2fa, PostVerify2fa } from '@/pages/api/auth/auth';
+import { notifications } from '@mantine/notifications';
 
 const data = [
   {
@@ -100,8 +101,28 @@ function General() {
         summary: Summary,
       };
       PostUpdateProfile(payload)
-        .then((res) => {})
-        .catch((err) => {});
+        .then((res) => {
+          notifications.show({
+            title: 'Success',
+            message: 'Your profile has been updated',
+            color: 'green',
+            icon: <HiEmojiSad />,
+            radius: 'md',
+            bg: 'gray',
+            autoClose: 5000,
+          });
+        })
+        .catch((err) => {
+          notifications.show({
+            title: 'Error',
+            message: 'username already exist',
+            color: 'red',
+            icon: <HiEmojiSad />,
+            radius: 'md',
+            bg: 'gray',
+            autoClose: 5000,
+          });
+        });
     } else {
       window.alert('Please fill all the fields');
     }
@@ -285,8 +306,28 @@ function UserAvatar() {
         imgProfile: ProfileImg,
       };
       PostLocalImg(payload)
-        .then((res) => {})
-        .catch((err) => {});
+        .then((res) => {
+          notifications.show({
+            title: 'Success',
+            message: 'Your profile image has been updated',
+            color: 'green',
+            icon: <HiEmojiSad />,
+            radius: 'md',
+            bg: 'gray',
+            autoClose: 5000,
+          });
+        })
+        .catch((err) => {
+          notifications.show({
+            title: 'Error',
+            message: `coudn't update your profile image`,
+            color: 'red',
+            icon: <HiEmojiSad />,
+            radius: 'md',
+            bg: 'gray',
+            autoClose: 5000,
+          });
+        });
     } else {
       window.alert('Please choose a image');
     }

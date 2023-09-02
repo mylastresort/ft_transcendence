@@ -27,9 +27,7 @@ function UserInfo() {
   const chatContext = useContext(ChatContext);
   useEffect(() => {
     request
-      .get(
-        `${process.env.BACKEND_DOMAIN}/api/chat/user/${chatContext.data.name}`
-      )
+      .get(`/api/chat/user/${chatContext.data.name}`)
       .set('Authorization', `Bearer ${jwtToken}`)
       .then((res) => {
         setUserInfo(res.body);

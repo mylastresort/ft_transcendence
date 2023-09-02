@@ -20,6 +20,7 @@ import { MdAccessTimeFilled, MdOutput } from 'react-icons/md';
 import { BsFillCalendar2DateFill } from 'react-icons/bs';
 import { GetGameMatches } from '@/pages/api/friends/friends';
 import { ImNotification } from 'react-icons/im';
+import router from 'next/router';
 
 interface UsersTableProps {
   data: {
@@ -69,16 +70,41 @@ export function Last_Matches() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
-
   useEffect(() => {
+    console.log('here not re');
     const usernameUrl = window.location.pathname.split('/')[2];
     setUsername(usernameUrl);
 
-    GetGameMatches({ username: usernameUrl })
-      .then((res) => {
+    const fetchGameMatches = async () => {
+      try {
+        const res = await GetGameMatches({ username: usernameUrl });
         setGameMatches(res.body.reverse());
-      })
-      .catch((err) => {});
+      } catch (err) {
+        // Handle the error here
+      }
+    };
+
+    const handleRouteChange = () => {
+      const usernameUrl = window.location.pathname.split('/')[2];
+      setUsername(usernameUrl);
+
+      const fetchGameMatches = async () => {
+        try {
+          const res = await GetGameMatches({ username: usernameUrl });
+          setGameMatches(res.body.reverse());
+        } catch (err) {
+          // Handle the error here
+        }
+      };
+    };
+
+    fetchGameMatches();
+
+    router.events.on('routeChangeComplete', handleRouteChange);
+
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange);
+    };
   }, []);
 
   return (

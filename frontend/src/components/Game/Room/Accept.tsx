@@ -97,7 +97,7 @@ export default function Accept() {
   useEffect(() => {
     if (game.socket && !game.gameStatus && router.query.id) {
       request
-        .get(`${process.env.BACKEND_DOMAIN}/api/v1/game/${router.query.id}`)
+        .get(`/api/v1/game/${router.query.id}`)
         .set('Authorization', `Bearer ${localStorage.getItem('jwtToken')}`)
         .then((res) => {
           if (res.status !== 200) return router.push('/game');
@@ -230,9 +230,7 @@ export default function Accept() {
               w="12rem"
               onClick={() => {
                 request
-                  .post(
-                    `${process.env.BACKEND_DOMAIN}/api/v1/game/invite/cancel/${game.gameId}`
-                  )
+                  .post(`/api/v1/game/invite/cancel/${game.gameId}`)
                   .set(
                     'Authorization',
                     `Bearer ${localStorage.getItem('jwtToken')}`

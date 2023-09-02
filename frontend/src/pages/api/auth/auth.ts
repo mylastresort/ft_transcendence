@@ -1,23 +1,5 @@
 import request from 'superagent';
 
-export const PostTokens = (access_code) => {
-  return request
-    .post('https://api.intra.42.fr/oauth/token')
-    .send({
-      grant_type: 'authorization_code',
-      client_id: process.env.FORTYTWO_CLIENT_ID,
-      client_secret: process.env.FORTYTWO_CLIENT_SECRET,
-      code: access_code,
-      redirect_uri: `${process.env.FRONTEND_DOMAIN}/login`,
-    })
-    .then((res) => {
-      return res;
-    })
-    .catch((err) => {
-      throw err;
-    });
-};
-
 export const PostLogin = (payload) => {
   return request
     .post('/api/v1/auth/register')

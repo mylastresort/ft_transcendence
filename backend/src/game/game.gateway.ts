@@ -35,7 +35,7 @@ export type Player = Socket<
 @WebSocketGateway({
   namespace: 'ws/game',
   cors: {
-    origin: process.env.FRONTEND_DOMAIN,
+    origin: '*',
   },
 })
 export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {

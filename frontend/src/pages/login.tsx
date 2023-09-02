@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { PostLogin, PostTokens, PostVerify2faTmp } from './api/auth/auth';
+import { PostLogin, PostVerify2faTmp } from './api/auth/auth';
 import { Grid, Text, Spacer } from '@nextui-org/react';
 import { Input } from '@mantine/core';
 import withAuth from '@/pages/lib/withAuth';

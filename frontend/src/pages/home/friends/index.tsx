@@ -8,6 +8,7 @@ import {
   Group,
   Container,
   Center,
+  Flex,
 } from '@mantine/core';
 import { Spacer } from '@nextui-org/react';
 import { ImNotification } from 'react-icons/im';
@@ -174,7 +175,7 @@ function friends() {
                 <Card.Section component="a">
                   <Image
                     src={data.imgProfile}
-                    height={200}
+                    // width={200}
                     alt="Norway"
                     fit="cover"
                     onClick={() => {
@@ -183,14 +184,14 @@ function friends() {
                   />
                 </Card.Section>
 
-                <Group position="apart" mt="md" mb="xs">
-                  <Text className="Text_W500">
-                    {data.firstName.slice(0, 5)} {data.lastName.slice(0, 5)}
+                <Flex justify="space-between" w="100%" py="sm">
+                  <Text className="Text_W500" lineClamp={1}>
+                    {data.firstName} {data.lastName}
                   </Text>
                   <Badge color="gray" variant="filled">
                     {data.username}
                   </Badge>
-                </Group>
+                </Flex>
 
                 {data.receivedRequests.length > 0 ? (
                   <div>
