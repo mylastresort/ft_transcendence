@@ -41,7 +41,6 @@ export default function Chat(ChatRoom) {
           <Box
             sx={(theme) => ({
               position: 'absolute',
-              background: 'red',
               width: 'calc(100% - 88px)',
               height: 'calc(100% - 77px)',
               top: '76px',

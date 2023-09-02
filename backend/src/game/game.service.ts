@@ -186,6 +186,7 @@ export class GameService {
     });
     clearInterval(this.notifier);
     this.notifier = setInterval(async () => {
+      if (this.hosts.size + this.guests.size < 2) return;
       const subscriber = async ([host, guest]) => {
         const room = new Room(host.data, guest.data);
         this.rooms.set(room.id, room);
@@ -431,7 +432,26 @@ export class GameService {
       const guests = this.players.get(room.guest.userId);
       if (hosts) hosts[hosts.length - 1].emit('cancelled');
       if (guests) guests[guests.length - 1].emit('cancelled');
+      delete room.guest.currentGameId;
+      delete room.guest.currentUserRole;
+      delete room.guest.hostSettableGames;
+      room.guest.userStatus = 'online';
+      delete room.host.currentGameId;
+      delete room.host.currentUserRole;
+      delete room.host.hostSettableGames;
+      delete room.host.hostWishedGameMap;
+      delete room.host.hostWishedGameName;
+      delete room.host.hostWishedGameSpeed;
+      room.host.userStatus = 'online';
       this.rooms.delete(id);
+      setImmediate(() => {
+        const sockets = this.gate.wss.in([
+          room.host.currentUserSocketId,
+          room.guest.currentUserSocketId,
+        ]);
+        sockets.socketsLeave(id);
+        sockets.disconnectSockets(false);
+      });
     } else {
       const lazyRoom = await this.prisma.room.findUnique({
         where: { id },
@@ -648,9 +668,6 @@ export class GameService {
           loser.userWins = loserUpdates._count.wins;
           loser.userLosses = loserUpdates._count.losses;
         }
-        this.gate.wss
-          .in([room.guest.currentUserSocketId, room.host.currentUserSocketId])
-          .socketsLeave(socket.data.currentGameId);
         delete room.guest.currentGameId;
         delete room.guest.currentUserRole;
         delete room.guest.hostSettableGames;
@@ -662,14 +679,22 @@ export class GameService {
         delete room.host.hostWishedGameName;
         delete room.host.hostWishedGameSpeed;
         room.host.userStatus = 'online';
-        this.rooms.delete(socket.data.currentGameId);
+        this.rooms.delete(room.id);
+        setImmediate(() => {
+          const sockets = this.gate.wss.in([
+            room.host.currentUserSocketId,
+            room.guest.currentUserSocketId,
+          ]);
+          sockets.socketsLeave(room.id);
+          sockets.disconnectSockets(false);
+        });
       }
     }
     return true;
   }
 
   async currentGame(id: Player['data']['userId']) {
-    return (await this.getPlayer(id, false)).currentGameId;
+    return (await this.getPlayer(id, false))?.currentGameId;
   }
 
   async ready(
@@ -812,11 +837,9 @@ export class GameService {
             );
             room.status = 'finished';
             delete room.guest.currentGameId;
-            delete room.guest.currentGameId;
             delete room.guest.currentUserRole;
             delete room.guest.hostSettableGames;
             room.guest.userStatus = 'online';
-            delete room.host.currentGameId;
             delete room.host.currentGameId;
             delete room.host.currentUserRole;
             delete room.host.hostSettableGames;
@@ -914,7 +937,15 @@ export class GameService {
           winner.userCurrentStreak += currentStreak.increment;
           winner.userLongestStreak = longestStreak;
           winner.userWins++;
-          this.rooms.delete(socket.data.currentGameId);
+          this.rooms.delete(room.id);
+          setImmediate(() => {
+            const sockets = this.gate.wss.in([
+              room.host.currentUserSocketId,
+              room.guest.currentUserSocketId,
+            ]);
+            sockets.socketsLeave(room.id);
+            sockets.disconnectSockets(false);
+          });
         }
       } else {
         const values = room.pong(key);

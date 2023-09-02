@@ -59,7 +59,7 @@ export class Room {
   }
 
   pong(key: number) {
-    return this.ball.pong(key);
+    return this.ball.pong(key, this.players);
   }
 
   resetBall() {

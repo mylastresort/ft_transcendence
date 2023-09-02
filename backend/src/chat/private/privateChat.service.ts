@@ -36,6 +36,15 @@ export class PrivateChatService {
             },
           ],
         },
+        include: {
+          members: {
+            where: {
+              id: {
+                not: me.id,
+              },
+            },
+          },
+        }
       });
       if (createdChat) {
         return createdChat;
@@ -46,6 +55,15 @@ export class PrivateChatService {
               connect: [{ id: me.id }, { username: chatUser.username }],
             },
           },
+          include: {
+            members: {
+              where: {
+                id: {
+                  not: me.id,
+                },
+              },
+            },
+          }
         });
       }
     } catch (error) {

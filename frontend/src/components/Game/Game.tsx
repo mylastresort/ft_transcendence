@@ -7,12 +7,14 @@ import { PlayerContext } from '../../context/game';
 import request from 'superagent';
 import { GameContext } from '@/context/game';
 import { io } from 'socket.io-client';
+import { useRouter } from 'next/router';
 
 function GameWrapper(Component) {
   return () => {
     const game = useContext(GameContext);
     const [connected, setConnected] = useState(game.socket?.connected);
     const [player, setPlayer] = useState(null);
+    const router = useRouter();
 
     useEffect(() => {
       if (!game.socket)
@@ -28,10 +30,13 @@ function GameWrapper(Component) {
           if (res.status === 200) setPlayer(res.body);
           game.socket
             ?.on('connect', () => setConnected(true))
-            .on('disconnect', () => setConnected(false))
+            .on('disconnect', () => {
+              if (router.pathname !== '/game/results')
+                setConnected(false)
+            })
             .connect();
         })
-        .catch(() => {});
+        .catch(() => { });
       return () => {
         game.socket?.off();
       };

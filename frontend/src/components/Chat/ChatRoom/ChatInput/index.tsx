@@ -33,9 +33,7 @@ const useInputStyle = createStyles((theme: MantineTheme) => ({
 export default function ChatInput({ isChannel = false }) {
   const route = isChannel ? 'channel' : 'private';
   const chatContext = useContext(ChatContext);
-  const userContext = useContext(UserContext);
   const socketContext = useContext(ChatSocketContext);
-  const jwtToken = localStorage.getItem('jwtToken');
   function sendMessage(value: String) {
     const req = {
       id: chatContext.data.id,
@@ -44,8 +42,7 @@ export default function ChatInput({ isChannel = false }) {
         content: value,
       },
     };
-
-    try {
+    try{
       socketContext.emit(`${route}/sendMsg`, req);
     } catch (err) {}
   }

@@ -31,18 +31,23 @@ export class GameController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   async getAuthenticatedPlayer(@Req() req) {
-    const player = await this.game.getPlayer(req.user.id);
-    return {
-      userId: player.userId,
-      userImgProfile: player.userImgProfile,
-      username: player.username,
-      userLevel: player.userLevel,
-      userWins: player.userWins,
-      userLoses: player.userLosses,
-      userCurrentStreak: player.userCurrentStreak,
-      userLongestStreak: player.userLongestStreak,
-      userAchievements: player.userAchievements,
-    };
+    try {
+      const player = await this.game.getPlayer(req.user.id);
+
+      return {
+        userId: player.userId,
+        userImgProfile: player.userImgProfile,
+        username: player.username,
+        userLevel: player.userLevel,
+        userWins: player.userWins,
+        userLoses: player.userLosses,
+        userCurrentStreak: player.userCurrentStreak,
+        userLongestStreak: player.userLongestStreak,
+        userAchievements: player.userAchievements,
+      };
+    } catch (err) {
+      throw new HttpException(err.error, HttpStatus.BAD_REQUEST);
+    }
   }
 
   @Get('player/me/currentGame')
