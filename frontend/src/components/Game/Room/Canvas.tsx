@@ -150,7 +150,8 @@ export default function Canvas() {
         .off('games:counter')
         .off('left')
         .off('chat')
-        .emit('leave', leave);
+        .emit('leave');
+      leave();
     };
   }, []);
 
@@ -286,10 +287,10 @@ export default function Canvas() {
           {gamesCounter === 1
             ? 'st'
             : gamesCounter === 2
-            ? 'nd'
-            : gamesCounter === 3
-            ? 'rd'
-            : 'th'}{' '}
+              ? 'nd'
+              : gamesCounter === 3
+                ? 'rd'
+                : 'th'}{' '}
           Round
         </Text>
         <Flex
@@ -479,6 +480,9 @@ export default function Canvas() {
                 backdropFilter: 'blur(10px)',
                 boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
                 borderRadius: '1rem',
+                order: game.role === 'host' ? 1 : 3,
+                direction: game.role === 'host' ? 'ltr' : 'rtl',
+                position: 'relative',
               },
             }}
           >
@@ -559,6 +563,7 @@ export default function Canvas() {
               position: 'relative',
               zIndex: 2,
               flexBasis: '100%',
+              order: 2,
             }}
             miw={width + 2 * game.config.radius}
             ref={canvas}
@@ -663,6 +668,9 @@ export default function Canvas() {
                 backdropFilter: 'blur(10px)',
                 boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
                 borderRadius: '1rem',
+                order: game.role === 'host' ? 3 : 1,
+                direction: game.role === 'host' ? 'rtl' : 'ltr',
+                position: 'relative',
               },
             }}
           >
@@ -710,7 +718,7 @@ export default function Canvas() {
                 {mapobj.gamesFont === "'Nightcore Demo'" && ')'}
               </Text>
               <Box
-                style={{ position: 'relative', direction: 'rtl' }}
+                style={{ position: 'relative' }}
                 m="0 auto"
               >
                 {Array.from({ length: game.conf.games }, (_, i) =>

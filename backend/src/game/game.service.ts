@@ -197,12 +197,12 @@ export class GameService {
         host.to(room.id).emit('joined', room.id, host.data, host.data);
         guest.to(room.id).emit('joined', room.id, guest.data, host.data);
       };
-      const hosts = [...this.hosts].sort(
-        (a, b) => a.data.userLevel - b.data.userLevel,
-      );
-      const guests = [...this.guests].sort(
-        (a, b) => a.data.userLevel - b.data.userLevel,
-      );
+      const hosts = [...this.hosts]
+        .sort((a, b) => a.data.userLevel - b.data.userLevel)
+        .filter(({ data: { userId } }) => userId);
+      const guests = [...this.guests]
+        .sort((a, b) => a.data.userLevel - b.data.userLevel)
+        .filter(({ data: { userId } }) => userId);
       while (hosts.length && guests.length) {
         const host = hosts.pop();
         const host_data = await this.prisma.user.findUnique({
@@ -248,7 +248,8 @@ export class GameService {
         host.data.hostSettableGames = 5;
         host.data.hostWishedGameMap = 'Classic';
         host.data.hostWishedGameName = '';
-        host.data.hostWishedGameSpeed = 3;
+        host.data.hostWishedGameSpeed = 4;
+        if (!host.data.userId) continue;
         const host_data = await this.prisma.user.findUnique({
           where: { id: host.data.userId },
           select: { blockedUsers: { select: { blockedUserId: true } } },
