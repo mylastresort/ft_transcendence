@@ -71,7 +71,6 @@ export function Last_Matches() {
     setCurrentPage(page);
   };
   useEffect(() => {
-    console.log('here not re');
     const usernameUrl = window.location.pathname.split('/')[2];
     setUsername(usernameUrl);
 

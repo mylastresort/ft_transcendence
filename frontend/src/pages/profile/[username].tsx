@@ -92,7 +92,7 @@ function Pofile() {
       if (!UserProfile) {
         setIsNotFound(true);
         return () => {
-          // UserSocket.off('RerenderFriends');
+          // UserSocket?.off('RerenderFriends');
           router.events.off('routeChangeComplete', fetchData);
         };
       }
@@ -118,7 +118,7 @@ function Pofile() {
         setIsLoaded(false);
 
         return () => {
-          // UserSocket.off('RerenderFriends');
+          // UserSocket?.off('RerenderFriends');
           router.events.off('routeChangeComplete', fetchData);
         };
       }
@@ -144,15 +144,14 @@ function Pofile() {
 
   useEffect(() => {
     try {
-      console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
       fetchData();
-      UserSocket.on('RerenderFriends', fetchData);
+      UserSocket?.on('RerenderFriends', fetchData);
     } catch (err) {}
 
     router.events.on('routeChangeComplete', fetchData);
 
     return () => {
-      UserSocket.off('RerenderFriends', fetchData);
+      UserSocket?.off('RerenderFriends', fetchData);
       router.events.off('routeChangeComplete', fetchData);
     };
   }, [username]);
@@ -639,10 +638,6 @@ function Pofile() {
                             {item.status}
                           </Text>
                         </div>
-
-                        <Avatar color="cyan" radius="xl" size={30}>
-                          12
-                        </Avatar>
                       </Group>
                     </UnstyledButton>
                   ))}

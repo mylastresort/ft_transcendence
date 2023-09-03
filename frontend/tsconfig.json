@@ -24,7 +24,7 @@
     "**/*.ts",
     "**/*.tsx",
     "src/_middleware.js",
-    "src/pages/lib/withAuth.js"
+    "src/pages/lib/withAuth.tsx"
   ],
   "exclude": ["node_modules"]
 }

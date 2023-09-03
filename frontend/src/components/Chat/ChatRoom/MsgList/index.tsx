@@ -29,14 +29,14 @@ export default function MsgList({ h, isChannel = false }) {
 
   useEffect(() => {
     request
-    .get(process.env.BACKEND_DOMAIN + '/api/chat/users/blocked')
-    .set('Authorization', `Bearer ${jwtToken}`)
-    .then((res) => {
-      setBlocked(res.body);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+      .get(process.env.BACKEND_DOMAIN + '/api/chat/users/blocked')
+      .set('Authorization', `Bearer ${jwtToken}`)
+      .then((res) => {
+        setBlocked(res.body);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, [updateBlocked]);
 
   useEffect(() => {
@@ -53,29 +53,31 @@ export default function MsgList({ h, isChannel = false }) {
       .catch((err) => {
         console.log(err);
       });
-      socket.on(`${route}/newMsg`, (newMessage) => {
-        const senderId : number = isChannel ? newMessage.sender.userId : newMessage.senderId;
-        if (!blocked.includes(senderId)){
-          setMessages((prevMessages) => [...prevMessages, newMessage]);
-        }
-      });
-      return ()=>{
-        socket.off(`${route}/newMsg`);
+    socket.on(`${route}/newMsg`, (newMessage) => {
+      const senderId: number = isChannel
+        ? newMessage.sender.userId
+        : newMessage.senderId;
+      if (!blocked.includes(senderId)) {
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
       }
+    });
+    return () => {
+      socket.off(`${route}/newMsg`);
+    };
   }, [chatContext.data.id, blocked, socket]);
 
   useEffect(() => {
-    UserSocket.on('BlockedEvent', (data) => {
+    UserSocket?.on('BlockedEvent', (data) => {
       console.log("I'm i blocked ...");
-      setUpdateBlocked((state)=>!state);
-    });
-    UserSocket.on('UnBlockedEvent', (data) => {
       setUpdateBlocked((state) => !state);
     });
-    return ()=>{
-      UserSocket.off('BlockedEvent');
-      UserSocket.off('UnBlockedEvent');
-    }
+    UserSocket?.on('UnBlockedEvent', (data) => {
+      setUpdateBlocked((state) => !state);
+    });
+    return () => {
+      UserSocket?.off('BlockedEvent');
+      UserSocket?.off('UnBlockedEvent');
+    };
   }, [route, UserSocket, socket]);
 
   return (

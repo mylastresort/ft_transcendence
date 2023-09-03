@@ -57,11 +57,11 @@ function User_Sidebar() {
   };
 
   useEffect(() => {
-    UserSocket.on('GetNotifications', (data) => {
+    UserSocket?.on('GetNotifications', (data) => {
       setNotifications(data);
     });
 
-    UserSocket.on('GameInviteNotification', async (data) => {
+    UserSocket?.on('GameInviteNotification', async (data) => {
       await notifications.show({
         id: 'GameInviteNotification',
         title: 'Game Invite',
@@ -91,7 +91,7 @@ function User_Sidebar() {
                         senderId: data.senderId,
                       };
                       handleCleanNotifications();
-                      UserSocket.emit('AcceptedGameInvite', payload);
+                      UserSocket?.emit('AcceptedGameInvite', payload);
                       router.push(`/game/${data.gameid}`);
                     })
                     .catch(() => {});
@@ -112,7 +112,7 @@ function User_Sidebar() {
                     )
                     .then((res) => {})
                     .catch(console.error);
-                  UserSocket.emit('ClearNotification', {
+                  UserSocket?.emit('ClearNotification', {
                     gameid: data.gameid,
                     receiverId: data.receiverId,
                     senderId: data.senderId,
@@ -132,7 +132,7 @@ function User_Sidebar() {
       });
     });
 
-    UserSocket.on('AcceptedGameInvite', async (data) => {
+    UserSocket?.on('AcceptedGameInvite', async (data) => {
       await notifications.show({
         id: 'GameInviteNotification',
         title: 'Game Invite Accepted',
@@ -166,7 +166,7 @@ function User_Sidebar() {
       });
     });
 
-    UserSocket.on('NewRequestNotification', (name) => {
+    UserSocket?.on('NewRequestNotification', (name) => {
       notifications.show({
         id: 'NewRequestNotification',
         title: 'New Request',
@@ -178,7 +178,7 @@ function User_Sidebar() {
       });
     });
 
-    UserSocket.on('CandelFriendReq', (name) => {
+    UserSocket?.on('CandelFriendReq', (name) => {
       if (name !== 'CanceledfrmSender') {
         notifications.show({
           id: 'CandelFriendReq',
@@ -193,7 +193,7 @@ function User_Sidebar() {
       }
     });
 
-    UserSocket.on('AcceptFriendReq', (name) => {
+    UserSocket?.on('AcceptFriendReq', (name) => {
       notifications.show({
         id: 'AcceptFriendReq',
         title: 'Friend Request Accepted',
@@ -207,11 +207,11 @@ function User_Sidebar() {
     });
 
     return () => {
-      UserSocket.off('GetNotifications');
-      UserSocket.off('GameInviteNotification');
-      UserSocket.off('NewRequestNotification');
-      UserSocket.off('CandelFriendReq');
-      UserSocket.off('AcceptFriendReq');
+      UserSocket?.off('GetNotifications');
+      UserSocket?.off('GameInviteNotification');
+      UserSocket?.off('NewRequestNotification');
+      UserSocket?.off('CandelFriendReq');
+      UserSocket?.off('AcceptFriendReq');
     };
   }, []);
 
@@ -269,7 +269,7 @@ function User_Sidebar() {
   }, []);
 
   const HandleLogout = () => {
-    UserSocket.disconnect();
+    UserSocket?.disconnect();
     localStorage.removeItem('jwtToken');
     router.push('/');
   };
@@ -286,7 +286,7 @@ function User_Sidebar() {
 
   const HandleReadNotification = () => {
     setTimeout(() => {
-      UserSocket.emit('ReadNotifications', 'Read');
+      UserSocket?.emit('ReadNotifications', 'Read');
     }, 2000);
   };
 
@@ -296,7 +296,7 @@ function User_Sidebar() {
         <header>
           <div className="image-text">
             <span className="image">
-              <Image src="logo.svg" />
+              <Image src="/logo.svg" />
             </span>
 
             <div className="text logo-text">
@@ -610,7 +610,7 @@ function User_Sidebar() {
                                             senderId: item.senderId,
                                           };
                                           handleCleanNotifications();
-                                          UserSocket.emit(
+                                          UserSocket?.emit(
                                             'AcceptedGameInvite',
                                             payload
                                           );
@@ -638,7 +638,7 @@ function User_Sidebar() {
                                         )
                                         .then((res) => {})
                                         .catch(console.error);
-                                      UserSocket.emit('ClearNotification', {
+                                      UserSocket?.emit('ClearNotification', {
                                         gameid: item.gameid,
                                         receiverId: item.receiverId,
                                         senderId: item.senderId,
@@ -692,7 +692,13 @@ function User_Sidebar() {
                   </Text>
                 </Dropdown.Item>
                 <Dropdown.Item key="settings" withDivider>
-                  <Link href="/edit/info">My Settings</Link>
+                  <div
+                    onClick={() => {
+                      router.push('/edit/info');
+                    }}
+                  >
+                    My Settings
+                  </div>
                 </Dropdown.Item>
                 <Dropdown.Item key="logout" withDivider color="error">
                   Log Out

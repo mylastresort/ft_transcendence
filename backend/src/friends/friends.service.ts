@@ -262,36 +262,6 @@ export class FriendsService {
     }
   }
 
-  async RemoveFriendFromList(userId: number, friendId: number) {
-    try {
-      await this.Prisma.friend.create({
-        data: {
-          user: { connect: { id: friendId } },
-          friend: { connect: { id: userId } },
-          status: 'removed',
-        },
-      });
-
-      await this.Prisma.friend.create({
-        data: {
-          user: { connect: { id: userId } },
-          friend: { connect: { id: friendId } },
-          status: 'removed',
-        },
-      });
-
-      return { message: 'Friend removed' };
-    } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: 'Friend not found',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-  }
-
   async RejectFriendRequest(senderId: number, receiverId: number) {
     try {
       const friendRequest = await this.Prisma.friendRequest.findFirst({

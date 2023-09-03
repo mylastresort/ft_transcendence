@@ -39,7 +39,7 @@ export function RoomsList({ closeNav }: any) {
       });
   }, [update]);
   useEffect(() => {
-    UserSocket.on('BlockedEvent', (data) => {
+    UserSocket?.on('BlockedEvent', (data) => {
       setUpdate((state) => !state);
     });
     socket.on('updateChannel', (data) => {
@@ -47,7 +47,7 @@ export function RoomsList({ closeNav }: any) {
     });
     return () => {
       socket.off('updateChannel');
-      UserSocket.off('BlockedEvent');
+      UserSocket?.off('BlockedEvent');
     };
   }, []);
 

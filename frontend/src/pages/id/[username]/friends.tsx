@@ -319,10 +319,10 @@ function Friends() {
 
   useEffect(() => {
     fetchData();
-    UserSocket.on('RerenderFriends', fetchData);
+    UserSocket?.on('RerenderFriends', fetchData);
 
     return () => {
-      UserSocket.off('RerenderFriends', fetchData);
+      UserSocket?.off('RerenderFriends', fetchData);
     };
   }, [username]);
 
