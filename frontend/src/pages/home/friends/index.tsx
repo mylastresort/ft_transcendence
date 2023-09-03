@@ -16,7 +16,6 @@ import {
   Get_Not_Friends,
   PostSendFriendRequest,
   PostCancelFriendRequest,
-  PostRemoveFriendFromList,
 } from '@/pages/api/friends/friends';
 
 import Styles from './friends.module.css';
@@ -32,14 +31,14 @@ function friends() {
   // const UserSocket = useContext(WsContext);
 
   useEffect(() => {
-    UserSocket.on('NewRequestNotification', (data) => {
+    UserSocket?.on('NewRequestNotification', (data) => {
       Get_Not_Friends()
         .then((res) => {
           setUsers(res.body);
         })
         .catch((err) => {});
     });
-    UserSocket.on('CandelFriendReq', (data) => {
+    UserSocket?.on('CandelFriendReq', (data) => {
       Get_Not_Friends()
         .then((res) => {
           setUsers(res.body);
@@ -47,7 +46,7 @@ function friends() {
         .catch((err) => {});
     });
 
-    UserSocket.on('AcceptFriendReq', (data) => {
+    UserSocket?.on('AcceptFriendReq', (data) => {
       Get_Not_Friends()
         .then((res) => {
           setUsers(res.body);
@@ -56,9 +55,9 @@ function friends() {
     });
 
     return () => {
-      // UserSocket.off('NewRequestNotification');
-      // UserSocket.off('CandelFriendReq');
-      // UserSocket.off('AcceptFriendReq');
+      UserSocket?.off('NewRequestNotification');
+      UserSocket?.off('CandelFriendReq');
+      UserSocket?.off('AcceptFriendReq');
     };
   }, []);
 

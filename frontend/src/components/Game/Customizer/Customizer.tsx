@@ -69,7 +69,7 @@ export default function Customizer({ type = 'create', username }) {
                   username,
                 },
                 (gameId) => {
-                  UserSocket.emit('SendGameInvite', {
+                  UserSocket?.emit('SendGameInvite', {
                     gameid: gameId,
                     receiverUsername: username,
                     senderId: player?.userId,

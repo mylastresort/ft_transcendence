@@ -44,7 +44,7 @@ export default function App({ Component, pageProps }: AppProps) {
           setUser(res.body);
 
           if (res.status !== 200) {
-            UserSocket.disconnect();
+            UserSocket?.disconnect();
             localStorage.removeItem('jwtToken');
             router.push('/');
           }
@@ -66,7 +66,7 @@ export default function App({ Component, pageProps }: AppProps) {
             setUser(res.body);
 
             if (res.status !== 200) {
-              UserSocket.disconnect();
+              UserSocket?.disconnect();
               localStorage.removeItem('jwtToken');
               router.push('/');
             }
@@ -99,7 +99,7 @@ export default function App({ Component, pageProps }: AppProps) {
       });
     });
 
-    UserSocket.on('CandelFriendReq', (name) => {
+    UserSocket?.on('CandelFriendReq', (name) => {
       if (name !== 'CanceledfrmSender') {
         notifications.show({
           id: 'CandelFriendReq',
@@ -115,7 +115,7 @@ export default function App({ Component, pageProps }: AppProps) {
       }
     });
 
-    UserSocket.on('AcceptFriendReq', (name) => {
+    UserSocket?.on('AcceptFriendReq', (name) => {
       notifications.show({
         id: 'AcceptFriendReq',
         title: 'Friend Request Accepted',
@@ -130,8 +130,8 @@ export default function App({ Component, pageProps }: AppProps) {
     });
 
     return () => {
-      UserSocket.off('NewRequestNotification');
-      UserSocket.off('CandelFriendReq');
+      UserSocket?.off('NewRequestNotification');
+      UserSocket?.off('CandelFriendReq');
     };
   }, []);
 
@@ -149,7 +149,6 @@ export default function App({ Component, pageProps }: AppProps) {
                 {...pageProps}
                 setIsTwoFactorAuth={setIsTwoFactorAuth}
               />
-              {/* <Footer Show={show} isTwoFactorAuth={isTwoFactorAuth} /> */}
             </UserContext.Provider>
           </NextUIProvider>
         </WsProvider>

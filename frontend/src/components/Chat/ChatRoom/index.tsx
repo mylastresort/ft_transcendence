@@ -51,7 +51,7 @@ function ChatRoomContent({ isChannel = false }) {
   }, [chatContext.data]);
 
   useEffect(() => {
-    UserSocket.on('BlockedEvent', (data) => {
+    UserSocket?.on('BlockedEvent', (data) => {
       if (!isChannel && chatContext.data.memberId == data) {
         notifications.show({
           title: `You have been blocked by ${chatContext.data.name}!`,
@@ -80,7 +80,7 @@ function ChatRoomContent({ isChannel = false }) {
     });
     return () => {
       socket.off('action');
-      UserSocket.off('BlockedEvent');
+      UserSocket?.off('BlockedEvent');
     };
   }, [route, userContext, chatContext]);
 

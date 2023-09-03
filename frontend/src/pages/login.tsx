@@ -18,7 +18,7 @@ const Styles = {
 };
 
 function login({ setIsTwoFactorAuth }: any) {
-  setIsTwoFactorAuth(true);
+  // setIsTwoFactorAuth(true);
   const router = useRouter();
   const [Is2fa, setIs2fa] = useState(false);
   const [Code, setCode] = useState('');

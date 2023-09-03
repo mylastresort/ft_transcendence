@@ -14,7 +14,7 @@ export const WsProvider = ({ children, token }) => {
         },
       };
       UserSocket = io(`${process.env.BACKEND_DOMAIN}/ws/userws`, socketOptions);
-      UserSocket.on('connect', () => {
+      UserSocket?.on('connect', () => {
         return;
       });
     }
