@@ -368,23 +368,28 @@ export class GameService {
         throw new HttpException('Forbbidden', HttpStatus.FORBIDDEN);
       if (room.status === 'playing')
         throw new HttpException('Room is playing', HttpStatus.FORBIDDEN);
-      await this.prisma.room.delete({ where: { id } });
-      const hosts = this.players.get(room.host.userId);
-      const guests = this.players.get(room.guest.userId);
-      if (hosts) hosts[hosts.length - 1].emit('cancelled');
-      if (guests) guests[guests.length - 1].emit('cancelled');
-      delete room.guest.currentGameId;
-      delete room.guest.currentUserRole;
-      delete room.guest.hostSettableGames;
-      room.guest.userStatus = 'online';
-      delete room.host.currentGameId;
-      delete room.host.currentUserRole;
-      delete room.host.hostSettableGames;
-      delete room.host.hostWishedGameMap;
-      delete room.host.hostWishedGameName;
-      delete room.host.hostWishedGameSpeed;
-      room.host.userStatus = 'online';
-      this.rooms.delete(id);
+      try {
+        await this.prisma.room.delete({ where: { id } });
+      }
+      catch (err) {}
+        const hosts = this.players.get(room.host.userId);
+        const guests = this.players.get(room.guest.userId);
+        if (hosts && hosts[hosts.length - 1].data.currentGameId === id)
+          hosts[hosts.length - 1].emit('cancelled');
+        if (guests && guests[guests.length - 1].data.currentGameId === id)
+          guests[guests.length - 1].emit('cancelled');
+        delete room.guest.currentGameId;
+        delete room.guest.currentUserRole;
+        delete room.guest.hostSettableGames;
+        room.guest.userStatus = 'online';
+        delete room.host.currentGameId;
+        delete room.host.currentUserRole;
+        delete room.host.hostSettableGames;
+        delete room.host.hostWishedGameMap;
+        delete room.host.hostWishedGameName;
+        delete room.host.hostWishedGameSpeed;
+        room.host.userStatus = 'online';
+        this.rooms.delete(id);
       this.gate.wss
         .in([room.host.currentUserSocketId, room.guest.currentUserSocketId])
         .socketsLeave(id);
@@ -466,9 +471,12 @@ export class GameService {
 
   async invite(socket: Player, body) {
     if (socket.data.username !== body.username) {
+      console.log('username not match');
       const guest = await this.getPlayer(body.username, false);
-      if (!guest)
+      if (!guest) {
+        console.log('guest not found');
         throw new HttpException('Player is offline', HttpStatus.BAD_REQUEST);
+      }
       socket.data.hostWishedGameSpeed = body.speed;
       socket.data.hostSettableGames = body.games;
       socket.data.hostWishedGameName = body.name;
@@ -587,6 +595,16 @@ export class GameService {
         room.guest.userStatusWatchers = [];
       }
     }
+    if (socket.data.currentUserRole)
+      delete socket.data.currentUserRole;
+    if (socket.data.hostWishedGameSpeed)
+      delete socket.data.currentUserRole;
+    if (socket.data.hostSettableGames)
+      delete socket.data.hostSettableGames;
+    if (socket.data.hostWishedGameName)
+      delete socket.data.hostWishedGameName;
+    if (socket.data.hostWishedGameMap)
+      delete socket.data.hostWishedGameMap;
     return true;
   }
 

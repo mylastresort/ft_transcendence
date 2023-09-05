@@ -74,7 +74,7 @@ export default function Customizer({ type = 'create', username }) {
                     receiverUsername: username,
                     senderId: player?.userId,
                   });
-                  router.push('/game');
+                  router.push(`/game/${gameId}`);
                 }
               )
         )}

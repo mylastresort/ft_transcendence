@@ -64,6 +64,7 @@ function Pofile() {
   const fetchData = async () => {
     try {
       const Username = window.location.pathname.split('/')[2];
+      if(!Username) return;
       const player = await GetPlayerStats({ username: Username });
       setPlayerStats(player.body);
 

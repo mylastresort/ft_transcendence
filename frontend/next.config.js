@@ -1,3 +1,6 @@
+
+require('dotenv').config();
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   distDir: 'dist',
@@ -9,18 +12,17 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:3000/api/:path*',
+        destination: `${process.env.BACKEND_DOMAIN}/api/:path*`,
       },
     ];
   },
   env: {
-    FRONTEND_DOMAIN: 'http://localhost:5173',
-    BACKEND_DOMAIN: 'http://localhost:3000',
-    FORTYTWO_CLIENT_ID:
-      'u-s4t2ud-c7cf869f2fe58529181018154bf2c29d31b386d6b2148955dea3b266636800c2',
-    FORTYTWO_CLIENT_SECRET:
-      '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',
+    FRONTEND_DOMAIN: process.env.FRONTEND_DOMAIN,
+    BACKEND_DOMAIN: process.env.BACKEND_DOMAIN,
+    FORTYTWO_CLIENT_ID: process.env.FORTYTWO_CLIENT_ID,
+    FORTYTWO_CLIENT_SECRET: process.env.FORTYTWO_CLIENT_SECRET,
   },
+  
 };
 
 module.exports = nextConfig;

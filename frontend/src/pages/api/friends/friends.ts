@@ -152,6 +152,7 @@ export const GetPlayerStats = (data) => {
 };
 
 export const GetGameMatches = (data) => {
+
   const jwtToken = localStorage.getItem('jwtToken');
   return request
     .post('/api/v1/game/games')
