@@ -85,6 +85,7 @@ function User_Sidebar() {
                       `Bearer ${localStorage.getItem('jwtToken')}`
                     )
                     .then((res) => {
+                      console.log(res.body);
                       const payload = {
                         gameid: data.gameid,
                         receiverId: data.receiverId,
@@ -94,7 +95,9 @@ function User_Sidebar() {
                       UserSocket?.emit('AcceptedGameInvite', payload);
                       router.push(`/game/${data.gameid}`);
                     })
-                    .catch(() => {});
+                    .catch((err) => {
+                      throw err;
+                    });
                 }}
               >
                 Accept

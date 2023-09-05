@@ -2,6 +2,7 @@ import { randomUUID } from 'crypto';
 import { every, map, of } from 'rxjs';
 import Ball from './ball.class';
 import { Player } from './game.gateway';
+import { Server } from 'socket.io';
 
 export class Room {
   private ball: Ball;

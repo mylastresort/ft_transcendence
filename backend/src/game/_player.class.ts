@@ -1,9 +1,11 @@
-import { Socket } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { User } from '@prisma/client';
 import { UUID } from 'crypto';
 import { Player } from './game.gateway';
 
 export class _Player {
+  static wss: Server;
+
   constructor(
     private _userStatus: 'offline' | 'online' | 'ingame' | 'ready',
     public userAchievements: { name: string; description: string }[],
@@ -15,7 +17,7 @@ export class _Player {
     public userLongestStreak: number,
     public userLosses: number,
     public username: string,
-    public userStatusWatchers: Player[],
+    public userStatusWatchers: Player['data']['currentUserSocketId'][],
     public userWins: number,
   ) {}
 
@@ -38,9 +40,9 @@ export class _Player {
   }
 
   set userStatus(status: 'offline' | 'online' | 'ingame' | 'ready') {
-    this.userStatusWatchers.forEach((watcher) =>
-      watcher.emit('user-status', this.userId, status),
-    );
+    _Player.wss
+      .in(this.userStatusWatchers)
+      .emit('user-status', this.userId, status);
     this._userStatus = status;
   }
 }

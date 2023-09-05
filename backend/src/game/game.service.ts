@@ -185,6 +185,7 @@ export class GameService {
       return next(params);
     });
     clearInterval(this.notifier);
+    _Player.wss = this.gate.wss;
     this.notifier = setInterval(async () => {
       if (this.hosts.size + this.guests.size < 2) return;
       const subscriber = async ([host, guest]) => {
@@ -297,7 +298,7 @@ export class GameService {
   async watchUserStatus(socket: Player, userId) {
     const user = await this.getPlayer(userId, false);
     if (user) {
-      user.userStatusWatchers.push(socket);
+      user.userStatusWatchers.push(socket.data.currentUserSocketId);
       socket.emit('user-status', user.userId, user.userStatus);
     }
   }
@@ -305,7 +306,9 @@ export class GameService {
   async unwatchUserStatus(socket: Player, userId) {
     const player = await this.getPlayer(userId, false);
     if (player) {
-      const index = player.userStatusWatchers.indexOf(socket);
+      const index = player.userStatusWatchers.indexOf(
+        socket.data.currentUserSocketId,
+      );
       if (index !== -1) player.userStatusWatchers.splice(index, 1);
     }
   }
@@ -331,71 +334,7 @@ export class GameService {
     playerId: Player['data']['userId'],
   ) {
     const room = this.rooms.get(id);
-    if (!room) {
-      const lazyRoom = await this.prisma.room.findUnique({
-        where: { id },
-        select: {
-          players: {
-            select: {
-              _count: { select: { wins: true, losses: true } },
-              achievements: {
-                select: { name: true, description: true, icon: true, id: true },
-              },
-              currentStreak: true,
-              lastPlayed: true,
-              level: true,
-              longestStreak: true,
-              user: { select: { username: true, imgProfile: true } },
-              userId: true,
-            },
-          },
-          map: true,
-          maxGames: true,
-          status: true,
-          isInvite: true,
-          name: true,
-          speed: true,
-          hostId: true,
-        },
-      });
-      if (!lazyRoom)
-        throw new HttpException('Room not found', HttpStatus.NOT_FOUND);
-      if (!lazyRoom.players.some(({ userId }) => userId === playerId))
-        throw new HttpException(
-          'You are not in this room',
-          HttpStatus.FORBIDDEN,
-        );
-      if (lazyRoom.status === 'finished')
-        throw new HttpException('Room is finished', HttpStatus.FORBIDDEN);
-      return {
-        conf: {
-          map: lazyRoom.map,
-          speed: lazyRoom.speed,
-          games: lazyRoom.maxGames,
-          name: lazyRoom.name,
-          isInvite: lazyRoom.isInvite,
-        },
-        [lazyRoom.players[0].userId === lazyRoom.hostId ? 'host' : 'guest']: {
-          username: lazyRoom.players[0].user.username,
-          userImgProfile: lazyRoom.players[0].user.imgProfile,
-          userId: lazyRoom.players[0].userId,
-          userLevel: lazyRoom.players[0].level,
-          userWins: lazyRoom.players[0]._count.wins,
-          userCurrentStreak: lazyRoom.players[0].currentStreak,
-          userLongestStreak: lazyRoom.players[0].longestStreak,
-        },
-        [lazyRoom.players[1].userId === lazyRoom.hostId ? 'host' : 'guest']: {
-          username: lazyRoom.players[1].user.username,
-          userImgProfile: lazyRoom.players[1].user.imgProfile,
-          userId: lazyRoom.players[1].userId,
-          userLevel: lazyRoom.players[1].level,
-          userWins: lazyRoom.players[1]._count.wins,
-          userCurrentStreak: lazyRoom.players[1].currentStreak,
-          userLongestStreak: lazyRoom.players[1].longestStreak,
-        },
-        status: lazyRoom.status,
-      };
-    }
+    if (!room) throw new HttpException('Room not found', HttpStatus.NOT_FOUND);
     return {
       conf: {
         map: room.host.hostWishedGameMap,
@@ -420,7 +359,8 @@ export class GameService {
     id: Player['data']['currentGameId'],
   ) {
     const room = this.rooms.get(id);
-    if (room) {
+    if (!room) throw new HttpException('Room not found', HttpStatus.NOT_FOUND);
+    else {
       if (
         !room.isInvite ||
         (room.host.userId !== playerId && room.guest.userId !== playerId)
@@ -450,25 +390,6 @@ export class GameService {
         .socketsLeave(id);
       room.host.userStatusWatchers = [];
       room.guest.userStatusWatchers = [];
-    } else {
-      const lazyRoom = await this.prisma.room.findUnique({
-        where: { id },
-        select: { players: { select: { userId: true } }, status: true },
-      });
-      if (!lazyRoom)
-        throw new HttpException('Room not found', HttpStatus.NOT_FOUND);
-      if (!lazyRoom.players.some(({ userId }) => userId === playerId))
-        throw new HttpException(
-          'You are not in this room',
-          HttpStatus.FORBIDDEN,
-        );
-      if (lazyRoom.status === 'finished')
-        throw new HttpException('Room is finished', HttpStatus.FORBIDDEN);
-      await this.prisma.room.delete({ where: { id } });
-      const hosts = this.players.get(lazyRoom.players[0].userId);
-      const guests = this.players.get(lazyRoom.players[1].userId);
-      if (hosts) hosts[hosts.length - 1].emit('cancelled');
-      if (guests) guests[guests.length - 1].emit('cancelled');
     }
   }
 
@@ -533,11 +454,7 @@ export class GameService {
   }
 
   async join(socket: Player, body) {
-    if (
-      socket.data.userStatus === 'ingame' ||
-      socket.data.userStatus === 'ready'
-    )
-      throw new WsException('Already in game');
+    if (socket.data.currentUserRole) throw new WsException('Already in game');
     socket.data.currentUserRole = body.role;
     socket.data.hostWishedGameSpeed = body.speed;
     socket.data.hostSettableGames = body.games;
@@ -558,24 +475,9 @@ export class GameService {
       socket.data.hostWishedGameMap = body.map;
       const room = new Room(socket.data, guest);
       room.isInvite = true;
-      await this.prisma.room.create({
-        data: {
-          id: room.id,
-          players: {
-            connect: [
-              { userId: room.host.userId },
-              { userId: room.guest.userId },
-            ],
-          },
-          hostId: room.host.userId,
-          map: room.host.hostWishedGameMap,
-          maxGames: room.host.hostSettableGames,
-          name: room.host.hostWishedGameName,
-          speed: room.host.hostWishedGameSpeed,
-          status: 'waiting',
-          isInvite: room.isInvite,
-        },
-      });
+      room.host.currentUserRole = 'host';
+      guest.currentUserRole = 'guest';
+      this.rooms.set(room.id, room);
       return room.id;
     }
   }
@@ -697,55 +599,12 @@ export class GameService {
     ready: boolean,
     id: Player['data']['currentGameId'],
   ) {
-    if (socket.data.userStatus === 'ingame')
+    if (
+      socket.data.userStatus === 'ingame' ||
+      socket.data.userStatus === 'ready'
+    )
       throw new WsException('Already in game');
     let room: Room = this.rooms.get(id);
-    if (!room) {
-      const lazyRoom = await this.prisma.room.findUnique({
-        where: { id },
-        select: {
-          players: { select: { userId: true } },
-          status: true,
-          maxGames: true,
-          isInvite: true,
-          map: true,
-          speed: true,
-          name: true,
-          hostId: true,
-        },
-      });
-      if (!lazyRoom) throw new WsException('Room not found');
-      if (!lazyRoom.players.some(({ userId }) => userId === socket.data.userId))
-        throw new WsException('You are not in this room');
-      if (lazyRoom.status === 'finished')
-        throw new WsException('Room is finished');
-      const host = await this.getPlayer(
-        lazyRoom.hostId === lazyRoom.players[0].userId
-          ? lazyRoom.players[0].userId
-          : lazyRoom.players[1].userId,
-        false,
-      );
-      const guest = await this.getPlayer(
-        lazyRoom.hostId !== lazyRoom.players[0].userId
-          ? lazyRoom.players[0].userId
-          : lazyRoom.players[1].userId,
-        false,
-      );
-      const opponent = socket.data.userId === host.userId ? guest : host;
-      if (!opponent) throw new WsException('Player is offline');
-      if (opponent.userStatus === 'ingame')
-        throw new WsException('Player is already in game');
-      host.currentUserRole = 'host';
-      host.hostSettableGames = lazyRoom.maxGames;
-      host.hostWishedGameMap = lazyRoom.map;
-      host.hostWishedGameName = lazyRoom.name;
-      host.hostWishedGameSpeed = lazyRoom.speed;
-      guest.currentUserRole = 'guest';
-      room = new Room(host, guest);
-      room.isInvite = true;
-      room.id = id;
-      this.rooms.set(id, room);
-    }
     if (!room) throw new WsException('Room not found');
     if (
       room.host.userId !== socket.data.userId &&
@@ -776,31 +635,32 @@ export class GameService {
       room.guest.currentUserRole = 'guest';
       room.host.currentGameId = room.id;
       room.guest.currentGameId = room.id;
-      if (!room.isInvite)
-        await this.prisma.room.create({
-          data: {
-            id: room.id,
-            players: {
-              connect: [
-                { userId: room.host.userId },
-                { userId: room.guest.userId },
-              ],
-            },
-            hostId: room.host.userId,
-            map: room.host.hostWishedGameMap,
-            maxGames: room.maxGames,
-            name: room.host.hostWishedGameName,
-            speed: room.host.hostWishedGameSpeed,
-            status: 'playing',
+      await this.prisma.room.create({
+        data: {
+          id: room.id,
+          players: {
+            connect: [
+              { userId: room.host.userId },
+              { userId: room.guest.userId },
+            ],
           },
-        });
+          hostId: room.host.userId,
+          map: room.host.hostWishedGameMap,
+          maxGames: room.maxGames,
+          name: room.host.hostWishedGameName,
+          speed: room.host.hostWishedGameSpeed,
+          status: 'playing',
+        },
+      });
       setTimeout(async () => {
-        await this.prisma.room.update({
-          where: { id: room.id },
-          data: { startedAt: new Date() },
-        });
-        socket.to(room.id).emit('ping', ...values);
-        socket.emit('ping', ...values);
+        if (this.rooms.get(room.id)) {
+          await this.prisma.room.update({
+            where: { id: room.id },
+            data: { startedAt: new Date() },
+          });
+          socket.to(room.id).emit('ping', ...values);
+          socket.emit('ping', ...values);
+        }
       }, 1000);
     }
     return true;
