@@ -53,25 +53,14 @@ export default function Accept() {
         .on('disconnect', setOffline);
     }
     return () => {
-      if (!started) {
-        if (!game.conf.isInvite)
-          game.socket?.emit('leave');
-        else {
-          request
-            .post(
-              `${process.env.BACKEND_DOMAIN}/api/v1/game/invite/cancel/${game.gameId}`
-            )
-            .set(
-              'Authorization',
-              `Bearer ${localStorage.getItem('jwtToken')}`
-            )
-            .catch(() => { });
+      if (game.gameStatus !== 'in-game' && !started) {
+        game.socket?.emit('leave');
+        if (game.conf.isInvite)
           ws.emit('ClearNotification', {
             gameid: game.gameId,
             receiverId: player?.userId,
             senderId: game.opponent.userId,
           });
-        }
         game.gameId = '';
         game.ready = false;
         game.winner = '';
