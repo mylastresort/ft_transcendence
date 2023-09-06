@@ -22,32 +22,36 @@ export default function Accept() {
   const ws = useContext(WsContext);
 
   useEffect(() => {
-    if (game.opponent.username)
-      game.socket?.emit('watch-user-status', game.opponent.userId);
-    let started = false;
-    request
-      .get('/api/v1/game/player/me/currentGame')
-      .set('Authorization', `Bearer ${localStorage.getItem('jwtToken')}`)
-      .then((res) => {
-        if (res.status !== 200) return router.push('/game');
-        if (res.body) setStatus({ gameStatus: 'in-game' });
-      });
     function setOffline() {
       setSelf('offline');
     }
-    game.socket
-      ?.on('started', (value) => {
-        started = true;
-        game.config = value;
-        game.gameStatus = 'playing';
-        setStatus({ gameStatus: 'playing' });
-      })
-      .on('cancelled', () => {
-        setStatus({ gameStatus: 'cancelled' });
-        router.push('/game');
-      })
-      .on('user-status', (_, status) => setOpponent(status))
-      .on('disconnect', setOffline);
+    let started = false;
+    if (game.gameStatus === 'playing')
+      setStatus({ gameStatus: 'in-game' });
+    else {
+      if (game.opponent.username)
+        game.socket?.emit('watch-user-status', game.opponent.userId);
+      request
+        .get('/api/v1/game/player/me/currentGame')
+        .set('Authorization', `Bearer ${localStorage.getItem('jwtToken')}`)
+        .then((res) => {
+          if (res.status !== 200) return router.push('/game');
+          if (res.body) setStatus({ gameStatus: 'in-game' });
+        });
+      game.socket
+        ?.on('started', (value) => {
+          started = true;
+          game.config = value;
+          game.gameStatus = 'playing';
+          setStatus({ gameStatus: 'playing' });
+        })
+        .on('cancelled', () => {
+          setStatus({ gameStatus: 'cancelled' });
+          router.push('/game');
+        })
+        .on('user-status', (_, status) => setOpponent(status))
+        .on('disconnect', setOffline);
+    }
     return () => {
       if (!started) {
         if (!game.conf.isInvite)
@@ -122,6 +126,14 @@ export default function Accept() {
         .off('user-status');
     };
   }, [router.query.id]);
+
+  useEffect(() => {
+    if (game.gameStatus === 'playing')
+      window.localStorage.setItem('playing', 'true');
+    return () => {
+      window.localStorage.removeItem('playing');
+    }
+  }, [game.gameStatus]);
 
   return status.gameStatus === 'invalid' ? (
     <Flex justify="center" align="center" h="100%">
