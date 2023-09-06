@@ -146,11 +146,10 @@ export default function Customizer({ type = 'create', username }) {
                 marks={[
                   { value: 3, label: 'Slow' },
                   { value: 4, label: 'Normal' },
-                  { value: 4.5, label: 'Fast' },
-                  { value: 5, label: 'Very fast' },
+                  { value: 5, label: 'Fast' },
                 ]}
                 max={5}
-                min={2}
+                min={3}
                 step={0.01}
               />
             </Input.Wrapper>

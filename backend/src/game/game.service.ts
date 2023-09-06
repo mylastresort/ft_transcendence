@@ -354,50 +354,6 @@ export class GameService {
       socket.to(socket.data.currentGameId).emit('chat', ...message);
   }
 
-  async cancelInvite(
-    playerId: Player['data']['userId'],
-    id: Player['data']['currentGameId'],
-  ) {
-    const room = this.rooms.get(id);
-    if (!room) throw new HttpException('Room not found', HttpStatus.NOT_FOUND);
-    else {
-      if (
-        !room.isInvite ||
-        (room.host.userId !== playerId && room.guest.userId !== playerId)
-      )
-        throw new HttpException('Forbbidden', HttpStatus.FORBIDDEN);
-      if (room.status === 'playing')
-        throw new HttpException('Room is playing', HttpStatus.FORBIDDEN);
-      try {
-        await this.prisma.room.delete({ where: { id } });
-      }
-      catch (err) {}
-        const hosts = this.players.get(room.host.userId);
-        const guests = this.players.get(room.guest.userId);
-        if (hosts && hosts[hosts.length - 1].data.currentGameId === id)
-          hosts[hosts.length - 1].emit('cancelled');
-        if (guests && guests[guests.length - 1].data.currentGameId === id)
-          guests[guests.length - 1].emit('cancelled');
-        delete room.guest.currentGameId;
-        delete room.guest.currentUserRole;
-        delete room.guest.hostSettableGames;
-        room.guest.userStatus = 'online';
-        delete room.host.currentGameId;
-        delete room.host.currentUserRole;
-        delete room.host.hostSettableGames;
-        delete room.host.hostWishedGameMap;
-        delete room.host.hostWishedGameName;
-        delete room.host.hostWishedGameSpeed;
-        room.host.userStatus = 'online';
-        this.rooms.delete(id);
-      this.gate.wss
-        .in([room.host.currentUserSocketId, room.guest.currentUserSocketId])
-        .socketsLeave(id);
-      room.host.userStatusWatchers = [];
-      room.guest.userStatusWatchers = [];
-    }
-  }
-
   async getPlayer(
     id: Player['data']['userId'] | Player['data']['username'],
     createOnNotFound = true,
@@ -486,6 +442,10 @@ export class GameService {
       room.host.currentUserRole = 'host';
       guest.currentUserRole = 'guest';
       this.rooms.set(room.id, room);
+      await socket.join(room.id);
+      await this.gate.wss.in(guest.currentUserSocketId).socketsJoin(room.id);
+      socket.data.currentGameId = room.id;
+      guest.currentGameId = room.id;
       return room.id;
     }
   }

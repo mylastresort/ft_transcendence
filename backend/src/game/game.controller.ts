@@ -133,12 +133,4 @@ export class GameController {
       throw new HttpException(err.error, HttpStatus.BAD_REQUEST);
     }
   }
-
-  @Post('invite/cancel/:id')
-  @UseGuards(AuthGuard('jwt'))
-  @HttpCode(HttpStatus.OK)
-  @ApiBearerAuth()
-  async cancelInvite(@Param('id') id: UUID, @Req() req) {
-    await this.game.cancelInvite(req.user.id, id);
-  }
 }

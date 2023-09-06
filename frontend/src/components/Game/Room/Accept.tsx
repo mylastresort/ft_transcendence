@@ -229,13 +229,8 @@ export default function Accept() {
               h="2.7em"
               w="12rem"
               onClick={() => {
-                request
-                  .post(`/api/v1/game/invite/cancel/${game.gameId}`)
-                  .set(
-                    'Authorization',
-                    `Bearer ${localStorage.getItem('jwtToken')}`
-                  )
-                  .catch(() => { });
+                game.socket?.emit('leave')
+                router.push('/game')
                 ws.emit('ClearNotification', {
                   gameid: game.gameId,
                   receiverId: player?.userId,
