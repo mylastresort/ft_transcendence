@@ -26,7 +26,7 @@ export default function Accept() {
       setSelf('offline');
     }
     let started = false;
-    if (game.gameStatus === 'playing')
+    if (window.localStorage.getItem('playing'))
       setStatus({ gameStatus: 'in-game' });
     else {
       if (game.opponent.username)
